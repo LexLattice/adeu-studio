@@ -101,6 +101,16 @@ _REQUIRED_READINESS_CHECK_KINDS = {
     "source_lookup_disabled",
 }
 _PB_TRIAL_0B_DISPATCH_AUTHORITY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS255.md"
+_PB_TRIAL_CLOSED_SLICES = ["PB-TRIAL-0-A", "PB-TRIAL-0-B", "PB-TRIAL-0-C"]
+_COMPARATIVE_LANGUAGE_MARKERS = (
+    "better than",
+    "benchmark score",
+    "leaderboard",
+    "model ranking",
+    "outperformed",
+    "ranked",
+    "retry comparison",
+)
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -332,6 +342,133 @@ class ProgrambenchLocalTrialProjectionValidationRow(_TrialBase):
     @model_validator(mode="after")
     def _validate_projection_row(self) -> "ProgrambenchLocalTrialProjectionValidationRow":
         _ensure_sorted_unique(self.evidence_refs, field_name="projection evidence_refs")
+        return self
+
+
+class ProgrambenchLocalTrialLocalEvidenceRow(_TrialBase):
+    local_evidence_ref: str
+    evidence_kind: Literal[
+        "candidate_snapshot_inside_write_scope",
+        "execution_capture_available",
+        "lifecycle_projection_validated",
+        "runbook_satisfaction_reviewed",
+        "sandbox_satisfaction_reviewed",
+    ]
+    evidence_posture: Literal["local_trial_evidence_only"]
+    source_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_local_evidence(self) -> "ProgrambenchLocalTrialLocalEvidenceRow":
+        _ensure_sorted_unique(self.source_refs, field_name="local evidence source_refs")
+        _ensure_no_forbidden_refs(self.source_refs, field_name="local evidence source_refs")
+        return self
+
+
+class ProgrambenchLocalTrialRunbookSatisfactionRow(_TrialBase):
+    runbook_satisfaction_ref: str
+    satisfaction_kind: Literal[
+        "allowed_steps_satisfied",
+        "capture_obligations_satisfied",
+        "forbidden_steps_respected",
+        "input_hash_preserved",
+    ]
+    satisfaction_posture: Literal["blocked", "passed", "warning"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_runbook_satisfaction(
+        self,
+    ) -> "ProgrambenchLocalTrialRunbookSatisfactionRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="runbook satisfaction evidence_refs")
+        _ensure_no_forbidden_refs(
+            self.evidence_refs,
+            field_name="runbook satisfaction evidence_refs",
+        )
+        return self
+
+
+class ProgrambenchLocalTrialSandboxSatisfactionRow(_TrialBase):
+    sandbox_satisfaction_ref: str
+    satisfaction_kind: Literal[
+        "forbidden_access_absent",
+        "sandbox_witnesses_satisfied",
+        "write_scope_satisfied",
+    ]
+    satisfaction_posture: Literal["blocked", "passed", "warning"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_sandbox_satisfaction(
+        self,
+    ) -> "ProgrambenchLocalTrialSandboxSatisfactionRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="sandbox satisfaction evidence_refs")
+        _ensure_no_forbidden_refs(
+            self.evidence_refs,
+            field_name="sandbox satisfaction evidence_refs",
+        )
+        return self
+
+
+class ProgrambenchLocalTrialObservationRow(_TrialBase):
+    observation_ref: str
+    observation_kind: Literal[
+        "candidate_snapshot_observed",
+        "local_outcome_observed",
+        "single_trial_scope_observed",
+    ]
+    observation_text: str = Field(max_length=320)
+    observation_scope_posture: Literal["single_local_trial_only"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_observation(self) -> "ProgrambenchLocalTrialObservationRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="observation evidence_refs")
+        _ensure_no_forbidden_refs(self.evidence_refs, field_name="observation evidence_refs")
+        text = self.observation_text.lower()
+        leaked_markers = [marker for marker in _COMPARATIVE_LANGUAGE_MARKERS if marker in text]
+        if leaked_markers:
+            raise ValueError(
+                "trial observation rows cannot contain comparative or benchmark language: "
+                f"{leaked_markers}"
+            )
+        return self
+
+
+class ProgrambenchLocalTrialLimitationRow(_TrialBase):
+    limitation_ref: str
+    limitation_kind: Literal[
+        "hidden_tests_not_consulted",
+        "local_trial_only",
+        "no_model_comparison",
+        "not_benchmark_truth",
+    ]
+    limitation_posture: Literal["declared"]
+    limitation_note: str
+
+
+class ProgrambenchLocalTrialRemandDecisionRow(_TrialBase):
+    remand_decision_row_ref: str
+    remand_source_kind: Literal[
+        "local_candidate_snapshot_gap",
+        "local_evidence_inconclusive",
+        "local_execution_capture_gap",
+        "local_lifecycle_projection_gap",
+        "runbook_satisfaction_gap",
+        "sandbox_readiness_or_application_gap",
+        "worker_declared_uncertainty",
+    ]
+    remand_posture: Literal["local_pressure_only_no_retry_authority"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_row(self) -> "ProgrambenchLocalTrialRemandDecisionRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="remand evidence_refs")
+        _ensure_no_forbidden_refs(self.evidence_refs, field_name="remand evidence_refs")
         return self
 
 
@@ -797,6 +934,220 @@ class ProgrambenchLocalTrialLifecycleProjection(_TrialBase):
         return self
 
 
+class ProgrambenchLocalTrialOutcomeAudit(_TrialBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_TRIAL_OUTCOME_AUDIT_SCHEMA] = Field(alias="schema")
+    trial_outcome_audit_ref: str
+    trial_docket_ref: str
+    trial_runbook_ref: str
+    sandbox_readiness_review_ref: str
+    trial_worker_dispatch_ref: str
+    trial_execution_capture_ref: str
+    candidate_artifact_snapshot_ref: str
+    trial_lifecycle_projection_ref: str
+    local_evidence_rows: list[ProgrambenchLocalTrialLocalEvidenceRow] = Field(min_length=1)
+    runbook_satisfaction_rows: list[ProgrambenchLocalTrialRunbookSatisfactionRow] = Field(
+        min_length=1
+    )
+    sandbox_satisfaction_rows: list[ProgrambenchLocalTrialSandboxSatisfactionRow] = Field(
+        min_length=1
+    )
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    local_outcome_posture: Literal[
+        "future_family_only",
+        "trial_blocked_by_lifecycle_projection_gap",
+        "trial_blocked_by_output_capture_gap",
+        "trial_blocked_by_sandbox_violation",
+        "trial_inconclusive_local_only",
+        "trial_locally_accepted",
+        "trial_remand_recommended",
+    ]
+    hidden_test_equivalence_posture: Literal["no_hidden_test_equivalence_claimed_by_pb_trial_0c"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_trial_0c"]
+    official_submission_posture: Literal["no_official_submission_authority_by_pb_trial_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_outcome_audit(self) -> "ProgrambenchLocalTrialOutcomeAudit":
+        evidence_refs = [row.local_evidence_ref for row in self.local_evidence_rows]
+        _ensure_sorted_unique(evidence_refs, field_name="local_evidence_rows")
+        runbook_refs = [
+            row.runbook_satisfaction_ref for row in self.runbook_satisfaction_rows
+        ]
+        _ensure_sorted_unique(runbook_refs, field_name="runbook_satisfaction_rows")
+        sandbox_refs = [
+            row.sandbox_satisfaction_ref for row in self.sandbox_satisfaction_rows
+        ]
+        _ensure_sorted_unique(sandbox_refs, field_name="sandbox_satisfaction_rows")
+        _ensure_sorted_unique_allow_empty(
+            self.carried_blocker_refs,
+            field_name="carried_blocker_refs",
+        )
+        _ensure_sorted_unique_allow_empty(
+            self.carried_warning_refs,
+            field_name="carried_warning_refs",
+        )
+        if self.local_outcome_posture == "future_family_only":
+            raise ValueError("PB-TRIAL-0-C outcome audit cannot route itself future-family-only")
+        if self.local_outcome_posture == "trial_locally_accepted":
+            if self.carried_blocker_refs:
+                raise ValueError("local acceptance cannot carry blockers")
+            blocked_runbook = [
+                row.runbook_satisfaction_ref
+                for row in self.runbook_satisfaction_rows
+                if row.satisfaction_posture != "passed"
+            ]
+            blocked_sandbox = [
+                row.sandbox_satisfaction_ref
+                for row in self.sandbox_satisfaction_rows
+                if row.satisfaction_posture != "passed"
+            ]
+            if blocked_runbook or blocked_sandbox:
+                raise ValueError(
+                    "local acceptance requires passed runbook and sandbox satisfaction rows"
+                )
+            required_evidence = {
+                "candidate_snapshot_inside_write_scope",
+                "execution_capture_available",
+                "lifecycle_projection_validated",
+            }
+            observed = {row.evidence_kind for row in self.local_evidence_rows}
+            missing = sorted(required_evidence - observed)
+            if missing:
+                raise ValueError(f"local acceptance missing evidence kinds: {missing}")
+        elif not (self.carried_blocker_refs or self.carried_warning_refs):
+            raise ValueError("non-accepted outcomes require blockers or warnings")
+        return self
+
+
+class ProgrambenchLocalTrialObservationSummary(_TrialBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_TRIAL_OBSERVATION_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    trial_observation_summary_ref: str
+    trial_outcome_audit_ref: str
+    trial_docket_ref: str
+    observed_input_packet_hash: str
+    observed_candidate_snapshot_hash: str
+    observed_result_posture: Literal[
+        "trial_blocked_by_lifecycle_projection_gap",
+        "trial_blocked_by_output_capture_gap",
+        "trial_blocked_by_sandbox_violation",
+        "trial_inconclusive_local_only",
+        "trial_locally_accepted",
+        "trial_remand_recommended",
+    ]
+    observation_rows: list[ProgrambenchLocalTrialObservationRow] = Field(min_length=1)
+    limitation_rows: list[ProgrambenchLocalTrialLimitationRow] = Field(min_length=1)
+    single_trial_scope_posture: Literal["single_local_trial_only_no_comparison"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_trial_0c"]
+    comparison_authority_posture: Literal["no_comparison_authority_granted_by_pb_trial_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_observation_summary(self) -> "ProgrambenchLocalTrialObservationSummary":
+        _ensure_hash(self.observed_input_packet_hash, field_name="observed_input_packet_hash")
+        _ensure_hash(
+            self.observed_candidate_snapshot_hash,
+            field_name="observed_candidate_snapshot_hash",
+        )
+        observation_refs = [row.observation_ref for row in self.observation_rows]
+        _ensure_sorted_unique(observation_refs, field_name="observation_rows")
+        limitation_refs = [row.limitation_ref for row in self.limitation_rows]
+        _ensure_sorted_unique(limitation_refs, field_name="limitation_rows")
+        text = self.limitation_note.lower()
+        leaked_markers = [marker for marker in _COMPARATIVE_LANGUAGE_MARKERS if marker in text]
+        if leaked_markers:
+            raise ValueError(
+                "trial observation summary cannot contain comparative or benchmark language: "
+                f"{leaked_markers}"
+            )
+        return self
+
+
+class ProgrambenchLocalTrialRemandDecision(_TrialBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_TRIAL_REMAND_DECISION_SCHEMA] = Field(alias="schema")
+    trial_remand_decision_ref: str
+    trial_outcome_audit_ref: str
+    trial_observation_summary_ref: str
+    remand_decision_rows: list[ProgrambenchLocalTrialRemandDecisionRow] = Field(
+        default_factory=list
+    )
+    remand_source_kinds: list[
+        Literal[
+            "local_candidate_snapshot_gap",
+            "local_evidence_inconclusive",
+            "local_execution_capture_gap",
+            "local_lifecycle_projection_gap",
+            "runbook_satisfaction_gap",
+            "sandbox_readiness_or_application_gap",
+            "worker_declared_uncertainty",
+        ]
+    ] = Field(default_factory=list)
+    retry_authority_posture: Literal["no_retry_authority_granted_by_pb_trial_0c"]
+    hidden_test_diagnostic_posture: Literal["hidden_tests_not_used_as_diagnostics"]
+    source_lookup_posture: Literal["source_lookup_forbidden_by_pb_trial_0c"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_trial_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_decision(self) -> "ProgrambenchLocalTrialRemandDecision":
+        row_refs = [row.remand_decision_row_ref for row in self.remand_decision_rows]
+        _ensure_sorted_unique_allow_empty(row_refs, field_name="remand_decision_rows")
+        if len(self.remand_source_kinds) != len(set(self.remand_source_kinds)):
+            raise ValueError("remand_source_kinds must not contain duplicates")
+        if self.remand_source_kinds != sorted(self.remand_source_kinds):
+            raise ValueError("remand_source_kinds must be lexicographically sorted")
+        row_kinds = sorted({row.remand_source_kind for row in self.remand_decision_rows})
+        if row_kinds != self.remand_source_kinds:
+            raise ValueError("remand source kinds must match remand decision rows")
+        return self
+
+
+class ProgrambenchLocalTrialFamilyCloseoutAlignment(_TrialBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_TRIAL_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    family_closeout_ref: str
+    closed_family_ref: Literal["PB-TRIAL-0"]
+    closed_slice_refs: list[str] = Field(min_length=1)
+    trial_docket_refs: list[str] = Field(min_length=1)
+    trial_execution_capture_refs: list[str] = Field(min_length=1)
+    candidate_artifact_snapshot_refs: list[str] = Field(min_length=1)
+    trial_outcome_audit_refs: list[str] = Field(min_length=1)
+    trial_observation_summary_refs: list[str] = Field(min_length=1)
+    trial_remand_decision_refs: list[str] = Field(min_length=1)
+    family_alignment_posture: Literal["pb_trial_0_closed_local_trial_only"]
+    official_programbench_non_authority_posture: Literal[
+        "no_official_programbench_authority_by_pb_trial_0c"
+    ]
+    hidden_test_non_inference_posture: Literal["hidden_tests_not_inference_evidence"]
+    benchmark_truth_non_authority_posture: Literal["not_benchmark_truth"]
+    model_ranking_non_authority_posture: Literal["no_model_ranking_claimed_by_pb_trial_0c"]
+    retry_authority_posture: Literal["no_retry_authority_granted_by_pb_trial_0c"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_trial_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(
+        self,
+    ) -> "ProgrambenchLocalTrialFamilyCloseoutAlignment":
+        if self.closed_slice_refs != _PB_TRIAL_CLOSED_SLICES:
+            raise ValueError("PB-TRIAL-0 closeout must close exactly A, B, and C")
+        for field_name in (
+            "trial_docket_refs",
+            "trial_execution_capture_refs",
+            "candidate_artifact_snapshot_refs",
+            "trial_outcome_audit_refs",
+            "trial_observation_summary_refs",
+            "trial_remand_decision_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        return self
+
+
 def validate_pb_trial_0a_trial_bundle(
     *,
     attempt_request: ProgrambenchReconstructionAttemptRequest,
@@ -999,3 +1350,138 @@ def validate_pb_trial_0b_execution_bundle(
         released_attempt_sandbox_trace.sandbox_application_trace_ref
     ]:
         raise ValueError("lifecycle projection must map released PB-ATTEMPT sandbox trace ref")
+
+
+def validate_pb_trial_0c_closeout_bundle(
+    *,
+    trial_docket: ProgrambenchLocalReconstructionTrialDocket,
+    execution_runbook: ProgrambenchLocalTrialExecutionRunbook,
+    sandbox_readiness_review: ProgrambenchLocalTrialSandboxReadinessReview,
+    trial_guardrail: ProgrambenchLocalTrialNonAuthorityGuardrail,
+    worker_dispatch_record: ProgrambenchLocalTrialWorkerDispatchRecord,
+    execution_capture: ProgrambenchLocalTrialExecutionCapture,
+    candidate_artifact_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
+    lifecycle_projection: ProgrambenchLocalTrialLifecycleProjection,
+    outcome_audit: ProgrambenchLocalTrialOutcomeAudit,
+    observation_summary: ProgrambenchLocalTrialObservationSummary,
+    remand_decision: ProgrambenchLocalTrialRemandDecision,
+    family_closeout: ProgrambenchLocalTrialFamilyCloseoutAlignment,
+) -> None:
+    if execution_runbook.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("execution runbook must reference trial docket")
+    if sandbox_readiness_review.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("sandbox readiness review must reference trial docket")
+    if trial_guardrail.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("trial guardrail must reference trial docket")
+    if worker_dispatch_record.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("worker dispatch must reference trial docket")
+    if execution_capture.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("execution capture must reference trial docket")
+    if candidate_artifact_snapshot.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("candidate snapshot must reference trial docket")
+    if lifecycle_projection.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("lifecycle projection must reference trial docket")
+
+    if outcome_audit.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("outcome audit must reference trial docket")
+    if outcome_audit.trial_runbook_ref != execution_runbook.trial_runbook_ref:
+        raise ValueError("outcome audit must reference trial runbook")
+    if outcome_audit.sandbox_readiness_review_ref != (
+        sandbox_readiness_review.sandbox_readiness_review_ref
+    ):
+        raise ValueError("outcome audit must reference sandbox readiness review")
+    if outcome_audit.trial_worker_dispatch_ref != (
+        worker_dispatch_record.trial_worker_dispatch_ref
+    ):
+        raise ValueError("outcome audit must reference worker dispatch")
+    if outcome_audit.trial_execution_capture_ref != execution_capture.trial_execution_capture_ref:
+        raise ValueError("outcome audit must reference execution capture")
+    if outcome_audit.candidate_artifact_snapshot_ref != (
+        candidate_artifact_snapshot.candidate_artifact_snapshot_ref
+    ):
+        raise ValueError("outcome audit must reference candidate snapshot")
+    if outcome_audit.trial_lifecycle_projection_ref != (
+        lifecycle_projection.trial_lifecycle_projection_ref
+    ):
+        raise ValueError("outcome audit must reference lifecycle projection")
+
+    if outcome_audit.local_outcome_posture == "trial_locally_accepted":
+        if not candidate_artifact_snapshot.snapshot_inside_write_scope:
+            raise ValueError("local acceptance requires snapshot inside released write scope")
+        if candidate_artifact_snapshot.write_scope_ref not in execution_runbook.write_scope_refs:
+            raise ValueError("local acceptance requires released write scope")
+        if lifecycle_projection.projection_posture != (
+            "projected_to_released_pb_attempt_lifecycle_refs"
+        ):
+            raise ValueError("local acceptance requires lifecycle projection")
+        if lifecycle_projection.new_evidence_law_posture != (
+            "no_new_evidence_law_defined_by_pb_trial_0b"
+        ):
+            raise ValueError("local acceptance requires no new evidence law")
+        validation_kinds = {
+            row.validation_kind for row in lifecycle_projection.projection_validation_rows
+        }
+        required_validation = {
+            "candidate_snapshot_mapped",
+            "execution_capture_mapped",
+            "mapped_attempt_lifecycle_refs_present",
+            "new_evidence_law_absent",
+            "worker_dispatch_mapped",
+        }
+        missing_validation = sorted(required_validation - validation_kinds)
+        if missing_validation:
+            raise ValueError(
+                "local acceptance requires lifecycle projection validation: "
+                f"{missing_validation}"
+            )
+        if execution_capture.forbidden_content_screen_verdict != "passed":
+            raise ValueError("local acceptance requires passed output screening")
+
+    if observation_summary.trial_outcome_audit_ref != outcome_audit.trial_outcome_audit_ref:
+        raise ValueError("observation summary must reference outcome audit")
+    if observation_summary.trial_docket_ref != trial_docket.trial_docket_ref:
+        raise ValueError("observation summary must reference trial docket")
+    if observation_summary.observed_result_posture != outcome_audit.local_outcome_posture:
+        raise ValueError("observation summary result posture must match outcome audit")
+    if observation_summary.observed_input_packet_hash != execution_runbook.worker_input_packet_hash:
+        raise ValueError("observation summary must preserve observed input packet hash")
+    if observation_summary.observed_candidate_snapshot_hash != (
+        candidate_artifact_snapshot.snapshot_manifest_hash
+    ):
+        raise ValueError("observation summary must preserve candidate snapshot hash")
+
+    if remand_decision.trial_outcome_audit_ref != outcome_audit.trial_outcome_audit_ref:
+        raise ValueError("remand decision must reference outcome audit")
+    if remand_decision.trial_observation_summary_ref != (
+        observation_summary.trial_observation_summary_ref
+    ):
+        raise ValueError("remand decision must reference observation summary")
+    if outcome_audit.local_outcome_posture == "trial_locally_accepted" and (
+        remand_decision.remand_decision_rows or remand_decision.remand_source_kinds
+    ):
+        raise ValueError("local acceptance cannot carry remand pressure")
+    if outcome_audit.local_outcome_posture != "trial_locally_accepted" and not (
+        remand_decision.remand_decision_rows
+    ):
+        raise ValueError("non-accepted outcomes require local remand rows")
+
+    if family_closeout.trial_docket_refs != [trial_docket.trial_docket_ref]:
+        raise ValueError("family closeout must close exactly this trial docket")
+    if family_closeout.trial_execution_capture_refs != [
+        execution_capture.trial_execution_capture_ref
+    ]:
+        raise ValueError("family closeout must reference execution capture")
+    if family_closeout.candidate_artifact_snapshot_refs != [
+        candidate_artifact_snapshot.candidate_artifact_snapshot_ref
+    ]:
+        raise ValueError("family closeout must reference candidate snapshot")
+    if family_closeout.trial_outcome_audit_refs != [outcome_audit.trial_outcome_audit_ref]:
+        raise ValueError("family closeout must reference outcome audit")
+    if family_closeout.trial_observation_summary_refs != [
+        observation_summary.trial_observation_summary_ref
+    ]:
+        raise ValueError("family closeout must reference observation summary")
+    if family_closeout.trial_remand_decision_refs != [
+        remand_decision.trial_remand_decision_ref
+    ]:
+        raise ValueError("family closeout must reference remand decision")

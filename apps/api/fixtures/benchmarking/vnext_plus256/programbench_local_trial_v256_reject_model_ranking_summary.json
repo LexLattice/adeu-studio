@@ -1,0 +1,34 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "comparison_authority_posture": "no_comparison_authority_granted_by_pb_trial_0c",
+  "limitation_note": "Reject fixture: model ranking posture is claimed.",
+  "limitation_rows": [
+    {
+      "limitation_kind": "local_trial_only",
+      "limitation_note": "The observation is scoped to one local trial specimen.",
+      "limitation_posture": "declared",
+      "limitation_ref": "limitation:pb-trial-0c:local-only"
+    }
+  ],
+  "model_ranking_posture": "model_ranking_claimed",
+  "observation_rows": [
+    {
+      "evidence_refs": [
+        "trial-outcome-audit:pb-trial-0c:reference"
+      ],
+      "limitation_note": "Single local observation row.",
+      "observation_kind": "local_outcome_observed",
+      "observation_ref": "observation:pb-trial-0c:local-outcome",
+      "observation_scope_posture": "single_local_trial_only",
+      "observation_text": "local outcome audit accepted the single trial"
+    }
+  ],
+  "observed_candidate_snapshot_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "observed_input_packet_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+  "observed_result_posture": "trial_locally_accepted",
+  "schema": "programbench_local_trial_observation_summary@1",
+  "single_trial_scope_posture": "single_local_trial_only_no_comparison",
+  "trial_docket_ref": "trial-docket:pb-trial-0a:reference",
+  "trial_observation_summary_ref": "trial-observation-summary:pb-trial-0c:reference",
+  "trial_outcome_audit_ref": "trial-outcome-audit:pb-trial-0c:reference"
+}

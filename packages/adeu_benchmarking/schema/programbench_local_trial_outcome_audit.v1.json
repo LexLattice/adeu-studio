@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "ProgrambenchLocalTrialLocalEvidenceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "candidate_snapshot_inside_write_scope",
+            "execution_capture_available",
+            "lifecycle_projection_validated",
+            "runbook_satisfaction_reviewed",
+            "sandbox_satisfaction_reviewed"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_posture": {
+          "const": "local_trial_evidence_only",
+          "title": "Evidence Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_evidence_ref": {
+          "title": "Local Evidence Ref",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "local_evidence_ref",
+        "evidence_kind",
+        "evidence_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialLocalEvidenceRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialRunbookSatisfactionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "runbook_satisfaction_ref": {
+          "title": "Runbook Satisfaction Ref",
+          "type": "string"
+        },
+        "satisfaction_kind": {
+          "enum": [
+            "allowed_steps_satisfied",
+            "capture_obligations_satisfied",
+            "forbidden_steps_respected",
+            "input_hash_preserved"
+          ],
+          "title": "Satisfaction Kind",
+          "type": "string"
+        },
+        "satisfaction_posture": {
+          "enum": [
+            "blocked",
+            "passed",
+            "warning"
+          ],
+          "title": "Satisfaction Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runbook_satisfaction_ref",
+        "satisfaction_kind",
+        "satisfaction_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialRunbookSatisfactionRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalTrialSandboxSatisfactionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "sandbox_satisfaction_ref": {
+          "title": "Sandbox Satisfaction Ref",
+          "type": "string"
+        },
+        "satisfaction_kind": {
+          "enum": [
+            "forbidden_access_absent",
+            "sandbox_witnesses_satisfied",
+            "write_scope_satisfied"
+          ],
+          "title": "Satisfaction Kind",
+          "type": "string"
+        },
+        "satisfaction_posture": {
+          "enum": [
+            "blocked",
+            "passed",
+            "warning"
+          ],
+          "title": "Satisfaction Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sandbox_satisfaction_ref",
+        "satisfaction_kind",
+        "satisfaction_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalTrialSandboxSatisfactionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_snapshot_ref": {
+      "title": "Candidate Artifact Snapshot Ref",
+      "type": "string"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "no_hidden_test_equivalence_claimed_by_pb_trial_0c",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_evidence_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialLocalEvidenceRow"
+      },
+      "minItems": 1,
+      "title": "Local Evidence Rows",
+      "type": "array"
+    },
+    "local_outcome_posture": {
+      "enum": [
+        "future_family_only",
+        "trial_blocked_by_lifecycle_projection_gap",
+        "trial_blocked_by_output_capture_gap",
+        "trial_blocked_by_sandbox_violation",
+        "trial_inconclusive_local_only",
+        "trial_locally_accepted",
+        "trial_remand_recommended"
+      ],
+      "title": "Local Outcome Posture",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_trial_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_trial_0c",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "runbook_satisfaction_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialRunbookSatisfactionRow"
+      },
+      "minItems": 1,
+      "title": "Runbook Satisfaction Rows",
+      "type": "array"
+    },
+    "sandbox_readiness_review_ref": {
+      "title": "Sandbox Readiness Review Ref",
+      "type": "string"
+    },
+    "sandbox_satisfaction_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalTrialSandboxSatisfactionRow"
+      },
+      "minItems": 1,
+      "title": "Sandbox Satisfaction Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_trial_outcome_audit@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_docket_ref": {
+      "title": "Trial Docket Ref",
+      "type": "string"
+    },
+    "trial_execution_capture_ref": {
+      "title": "Trial Execution Capture Ref",
+      "type": "string"
+    },
+    "trial_lifecycle_projection_ref": {
+      "title": "Trial Lifecycle Projection Ref",
+      "type": "string"
+    },
+    "trial_outcome_audit_ref": {
+      "title": "Trial Outcome Audit Ref",
+      "type": "string"
+    },
+    "trial_runbook_ref": {
+      "title": "Trial Runbook Ref",
+      "type": "string"
+    },
+    "trial_worker_dispatch_ref": {
+      "title": "Trial Worker Dispatch Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trial_outcome_audit_ref",
+    "trial_docket_ref",
+    "trial_runbook_ref",
+    "sandbox_readiness_review_ref",
+    "trial_worker_dispatch_ref",
+    "trial_execution_capture_ref",
+    "candidate_artifact_snapshot_ref",
+    "trial_lifecycle_projection_ref",
+    "local_evidence_rows",
+    "runbook_satisfaction_rows",
+    "sandbox_satisfaction_rows",
+    "local_outcome_posture",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_submission_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalTrialOutcomeAudit",
+  "type": "object"
+}
