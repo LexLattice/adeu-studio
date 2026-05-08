@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import adeu_benchmarking.programbench_cleanroom_reconstruction as recon_module
 import pytest
 from adeu_benchmarking import (
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
@@ -288,6 +289,11 @@ def test_pb_recon_0a_reference_bundle_preserves_workbench_boundary() -> None:
     assert guardrail.future_family_selection_posture == (
         "no_future_family_selected_by_pb_recon_0a"
     )
+
+
+def test_pb_recon_0a_strict_unique_helper_rejects_empty_audit_sets() -> None:
+    with pytest.raises(ValueError, match="audit_refs must contain at least one entry"):
+        recon_module._ensure_non_empty_unique([], field_name="audit_refs")
 
 
 def test_pb_recon_0a_bundle_rejects_contaminated_adapter_readiness() -> None:

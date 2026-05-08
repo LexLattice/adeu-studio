@@ -104,6 +104,8 @@ def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
 
 
 def _ensure_non_empty_unique(values: list[str], *, field_name: str) -> None:
+    if not values:
+        raise ValueError(f"{field_name} must contain at least one entry")
     _ensure_non_empty_trimmed(values, field_name=field_name)
     if len(values) != len(set(values)):
         raise ValueError(f"{field_name} must not contain duplicates")
