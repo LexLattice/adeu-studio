@@ -648,26 +648,44 @@ class ProgrambenchReconstructionAttemptOutputCapture(_AttemptBase):
         if excerpt_output_refs != captured_ref_set:
             raise ValueError("bounded excerpt rows must cover exactly captured output rows")
 
+        blocked_rows = [
+            row
+            for row in self.forbidden_content_screening_rows
+            if row.screening_posture == "blocked"
+        ]
         if self.forbidden_content_screening_posture == "passed":
-            blocked_rows = [
-                row.screening_ref
-                for row in self.forbidden_content_screening_rows
-                if row.screening_posture != "passed"
-            ]
             if blocked_rows:
+                blocked_refs = [row.screening_ref for row in blocked_rows]
                 raise ValueError(
-                    f"passed forbidden-content screening cannot carry blocked rows: {blocked_rows}"
+                    f"passed forbidden-content screening cannot carry blocked rows: {blocked_refs}"
                 )
             if (
                 self.candidate_materialization_authority_posture
                 != "candidate_materialization_allowed_after_screening_passed"
             ):
                 raise ValueError("passed screening must allow later candidate materialization")
-        elif (
+            return self
+
+        if (
             self.candidate_materialization_authority_posture
             != "candidate_materialization_blocked_by_screening"
         ):
             raise ValueError("non-passing screening must block candidate materialization")
+        blocked_posture_kind = {
+            "blocked_excluded_derived": "excluded_derived_content",
+            "blocked_forbidden_source": "forbidden_source_content",
+            "blocked_hidden_evidence": "hidden_evidence_content",
+            "blocked_postmortem_only": "postmortem_only_content",
+        }
+        expected_kind = blocked_posture_kind.get(self.forbidden_content_screening_posture)
+        if expected_kind is None:
+            if blocked_rows:
+                raise ValueError("inconclusive screening posture cannot carry blocked rows")
+            return self
+        if not any(row.screening_kind == expected_kind for row in blocked_rows):
+            raise ValueError(
+                f"{self.forbidden_content_screening_posture} requires a matching blocked row"
+            )
         return self
 
 
@@ -1084,6 +1102,25 @@ def validate_pb_attempt_0b_invocation_bundle(
         raise ValueError("candidate materialization must reference attempt request")
     if candidate_materialization.output_capture_ref != output_capture.output_capture_ref:
         raise ValueError("candidate materialization must reference output capture")
+    candidate_output_refs = [
+        row.captured_output_ref
+        for row in output_capture.captured_output_rows
+        if row.output_kind == "worker_declared_candidate_file"
+    ]
+    if len(candidate_output_refs) != 1:
+        raise ValueError("output capture must contain exactly one worker candidate-file output")
+    candidate_output_ref = candidate_output_refs[0]
+    candidate_output_hashes = [
+        row.output_hash
+        for row in output_capture.output_hash_rows
+        if row.captured_output_ref == candidate_output_ref
+    ]
+    if len(candidate_output_hashes) != 1:
+        raise ValueError("candidate-file output must have exactly one output hash")
+    if candidate_materialization.materialization_input_hash != candidate_output_hashes[0]:
+        raise ValueError(
+            "candidate materialization input hash must match screened candidate-file output hash"
+        )
     if candidate_materialization.sandbox_policy_ref != sandbox_policy.sandbox_policy_ref:
         raise ValueError("candidate materialization must reference sandbox policy")
     if candidate_materialization.sandbox_policy_ref != attempt_request.sandbox_policy_ref:

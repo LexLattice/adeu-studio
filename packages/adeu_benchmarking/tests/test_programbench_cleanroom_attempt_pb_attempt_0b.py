@@ -366,6 +366,50 @@ def test_pb_attempt_0b_bundle_rejects_forbidden_output_materialization() -> None
         )
 
 
+def test_pb_attempt_0b_rejects_inconsistent_blocked_screening_posture() -> None:
+    payload = _load_attempt_b_fixture(
+        "programbench_reconstruction_attempt_v252_reject_forbidden_output_materialized.json"
+    )
+    payload["forbidden_content_screening_posture"] = "blocked_hidden_evidence"
+
+    with pytest.raises(ValidationError, match="requires a matching blocked row"):
+        ProgrambenchReconstructionAttemptOutputCapture.model_validate(payload)
+
+
+def test_pb_attempt_0b_bundle_rejects_materialization_hash_not_from_screened_output() -> None:
+    attempt_request, worker_input_packet, dispatch_preflight, guardrail = _load_attempt_a_rows()
+    sandbox_policy = ProgrambenchReconstructionSandboxPolicy.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_sandbox_policy_v248_reference.json")
+    )
+    run_budget = ProgrambenchReconstructionRunBudget.model_validate(
+        _load_recon_a_fixture("programbench_reconstruction_run_budget_v248_reference.json")
+    )
+    worker_invocation_record, output_capture, candidate_materialization, sandbox_trace = (
+        _load_attempt_b_rows()
+    )
+    mismatched_materialization = candidate_materialization.model_copy(
+        update={
+            "materialization_input_hash": (
+                "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+            )
+        }
+    )
+
+    with pytest.raises(ValueError, match="screened candidate-file output hash"):
+        validate_pb_attempt_0b_invocation_bundle(
+            attempt_request=attempt_request,
+            worker_input_packet=worker_input_packet,
+            dispatch_preflight=dispatch_preflight,
+            guardrail=guardrail,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            worker_invocation_record=worker_invocation_record,
+            output_capture=output_capture,
+            candidate_materialization=mismatched_materialization,
+            sandbox_application_trace=sandbox_trace,
+        )
+
+
 def test_pb_attempt_0b_bundle_rejects_materialization_outside_write_scope() -> None:
     attempt_request, worker_input_packet, dispatch_preflight, guardrail = _load_attempt_a_rows()
     sandbox_policy = ProgrambenchReconstructionSandboxPolicy.model_validate(
