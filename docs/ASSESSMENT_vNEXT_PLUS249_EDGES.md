@@ -1,8 +1,8 @@
 # Assessment vNext+249 Edges
 
-Status: pre-lock edge assessment for `PB-RECON-0-B`.
+Status: closeout-edge assessment for `PB-RECON-0-B`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS249_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,109 +20,131 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: B Rows Could Bypass Released A Workbench Law
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  every B row must bind to released `PB-RECON-0-A` work order, worker context,
-  exclusion manifest, sandbox policy, run budget, and guardrail refs.
-- Residual:
-  local run traces should not validate against ad hoc sandbox or budget rows.
+- Closeout containment:
+  B bundle validation consumes the released work order, worker context,
+  exclusion manifest, sandbox policy, run budget, and guardrail refs before
+  accepting local evidence rows.
+- Result:
+  pass.
 
 ### Edge 2: Candidate Artifact Could Become Official Submission
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  candidate artifact manifests require local workbench artifact posture and no
-  official submission authority.
-- Residual:
-  generated official submissions remain future-family-only.
+- Closeout containment:
+  candidate artifact manifests require local workbench artifact posture and
+  no official submission or official ProgramBench participation posture.
+- Result:
+  pass.
 
-### Edge 3: Local Run Trace Could Become Open Command Authority
+### Edge 3: Candidate Artifact Could Escape Sandbox Write Scope
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
+  generated file `write_scope_ref` values must resolve inside the released
+  sandbox policy `allowed_write_scope_refs`.
+- Result:
+  pass.
+
+### Edge 4: Candidate Artifact Hash Evidence Could Be Ambiguous
+
+- Closeout containment:
+  every generated file must have exactly one generated-file hash row; duplicate
+  hash rows for the same generated file are rejected.
+- Result:
+  pass.
+
+### Edge 5: Local Run Trace Could Become Open Command Authority
+
+- Closeout containment:
   local run traces require argv-shaped command rows, command allowlist match,
-  released sandbox policy, released run budget, and sandbox attestations.
-- Residual:
-  implementation must reject raw shell strings, missing allowlist refs, and
-  commands outside the released sandbox/write scope.
+  released sandbox policy, released run budget, and sandbox/network/secret/
+  write-scope attestations.
+- Result:
+  pass.
 
-### Edge 4: Sandbox Or Secret Violation Could Be Treated As Success
+### Edge 6: Command Row Ordering Could Mask Fixture Drift
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  traces must carry network, secret-absence, write-scope, and sandbox
-  attestation refs; sandbox violation refs block successful local evidence.
-- Residual:
-  later execution harnesses must produce attestations rather than prose-only
-  claims.
+- Closeout containment:
+  command argv rows must be ordered by contiguous `arg_index` values with the
+  executable first, and no runtime normalization is used to repair order.
+- Result:
+  pass.
 
-### Edge 5: Output Capture Could Become Unbounded Evidence Dump
+### Edge 7: Sandbox Or Secret Violation Could Be Treated As Success
 
-- Pre-lock judgment: `bounded_evidence_only`.
-- Planned control:
+- Closeout containment:
+  sandbox violation refs block `passed_local_probe` posture.
+- Result:
+  pass.
+
+### Edge 8: Output Capture Could Become Unbounded Evidence Dump
+
+- Closeout containment:
   stdout/stderr are represented by hashes plus bounded excerpts; filesystem
   side effects require pre/post manifests and diff refs.
-- Residual:
-  large or binary artifacts need explicit artifact refs and capture policies.
+- Result:
+  pass.
 
-### Edge 6: Probe Result Could Become Benchmark Truth
+### Edge 9: Probe Result Could Become Benchmark Truth
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   probe result logs require local-probe truth posture and hidden-test
   equivalence non-authority posture.
-- Residual:
-  `PB-RECON-0-C` may audit local equivalence later, but even local accepted
-  status must remain scoped to declared local probes.
+- Result:
+  pass.
 
-### Edge 7: Remand Could Use Hidden Or Forbidden Evidence
+### Edge 10: Remand Could Use Hidden Or Forbidden Evidence
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
+- Closeout containment:
   remand reason sources are closed to local probe failure, local sandbox
   violation, missing required artifact, unsupported behavior gap, or
-  inconclusive trace; hidden-test failure, official evaluator feedback,
-  original-source observation, and decompilation observation are forbidden.
-- Residual:
-  postmortem research must not be retroactively admitted as reconstruction
-  inference evidence.
+  inconclusive trace; hidden-test, official evaluator, original-source, and
+  decompilation sources remain forbidden.
+- Result:
+  pass.
 
-### Edge 8: Remand Could Mutate The Released Case Packet
+### Edge 11: No-Correction Remand Could Require Invented Correction Rows
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  remand/correction records require case-packet mutation non-authority and
-  semantic route preservation posture.
-- Residual:
-  case-packet amendment requires a later adapter/reconstruction authority, not
-  local worker correction rows.
+- Closeout containment:
+  `remand_recorded_no_correction` records may carry empty correction attempts,
+  while `corrected_for_local_reprobe` still requires correction attempts.
+- Result:
+  pass.
 
-### Edge 9: Slice B Could Prematurely Emit C Artifacts
+### Edge 12: Slice B Could Prematurely Emit C Artifacts
 
-- Pre-lock judgment: `must_fail_closed`.
-- Planned control:
-  B emits only candidate artifact manifest, local run trace, probe result log,
-  and remand/correction record rows.
-- Residual:
-  equivalence audit, result summary, handoff, and family closeout alignment
-  require `PB-RECON-0-C`.
+- Closeout containment:
+  B emitted only candidate artifact manifest, local run trace, probe result
+  log, and remand/correction record rows.
+- Result:
+  pass.
 
-### Edge 10: B May Be Too Large For One Slice
+## Residual Edges
 
-- Pre-lock judgment: `watch`.
-- Planned control:
-  if implementation footprint grows too large, split inside the family into
-  candidate-artifact/run-trace and probe/remand sub-slices using continuation
-  docs, not a new family selector.
-- Residual:
-  active implementation should stop and remap if validation breadth exceeds
-  the starter lock.
+- `PB-RECON-0-C` must consume released `PB-RECON-0-A` and `PB-RECON-0-B`
+  refs before auditing local equivalence or summarizing results.
+- `PB-RECON-0-C` must keep `local_accepted` scoped only to the declared local
+  probe set, not hidden tests, official evaluator results, benchmark truth, or
+  model ranking.
+- `PB-RECON-0-C` must block `local_accepted` posture on contamination,
+  sandbox violations, missing required evidence, missing positive probe
+  coverage, missing negative probe coverage, stdout/stderr mismatch,
+  exit-code mismatch, or required filesystem side-effect mismatch.
+- `PB-RECON-0-C` handoff pressure must not select official ProgramBench
+  participation, benchmark-result governance, conceptual broker work, product,
+  graph-memory, release, recursive-policy work, or a future family.
+- Official ProgramBench participation, hidden evaluator integration,
+  benchmark scoring, model ranking, official submissions, broader conceptual
+  broker implementation, V86/V87/V88 continuations, product, graph, release,
+  or recursive-policy work remain unselected.
 
 ## Current Judgment
 
-- `PB-RECON-0-B` is the coherent next slice after the released
-  `PB-RECON-0-A` workbench boundary.
-- The starter should proceed as a docs/artifacts-only lock bundle before
-  implementation.
-- Implementation should wait until this `vNext+249` starter bundle is
-  accepted.
+- `PB-RECON-0-B` is closed on `main` as a bounded local-evidence capture
+  slice.
+- `PB-RECON-0` remains open for `PB-RECON-0-C`; no family closeout has
+  occurred.
+- The shipped slice preserves the intended workbench membrane: it records
+  local candidate artifacts, sandbox-bound run traces, local probe result
+  logs, and cleanroom-local remand/correction rows, but it does not audit
+  equivalence, claim local acceptance, run official ProgramBench, expose
+  hidden tests, claim benchmark truth, score benchmarks, rank models, generate
+  official submissions, transition runtime, or select a future family.

@@ -1,0 +1,82 @@
+{
+  "arc": "vNext+249",
+  "artifact_hash_duplicate_file_refs_rejected": true,
+  "benchmark_truth_claimed_by_pb_recon_0b": false,
+  "candidate_artifacts_local_only": true,
+  "candidate_artifacts_shipped_by_pb_recon_0b": true,
+  "candidate_manifest_write_scope_checked_against_sandbox": true,
+  "consumed_record_shapes": [
+    "programbench_reconstruction_work_order@1",
+    "programbench_reconstruction_worker_context_packet@1",
+    "programbench_reconstruction_context_exclusion_manifest@1",
+    "programbench_reconstruction_sandbox_policy@1",
+    "programbench_reconstruction_run_budget@1",
+    "programbench_reconstruction_workbench_non_authority_guardrail@1"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS249.md#machine-checkable-contract",
+  "emitted_record_shapes": [
+    "programbench_reconstruction_candidate_artifact_manifest@1",
+    "programbench_reconstruction_local_run_trace@1",
+    "programbench_reconstruction_probe_result_log@1",
+    "programbench_reconstruction_remand_correction_record@1"
+  ],
+  "equivalence_audit_created_by_pb_recon_0b": false,
+  "focused_test_reference_path": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_reconstruction_pb_recon_0b.py",
+  "hidden_test_equivalence_claimed_by_pb_recon_0b": false,
+  "implementation_commits": [
+    "950ffb487a79b815d21aa14a2039becc0b72b12f",
+    "7a16e704494022b5eeef69e4aa0dd7fe94bc2287"
+  ],
+  "implementation_packages": [
+    "adeu_benchmarking"
+  ],
+  "implementation_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/programbench_cleanroom_reconstruction.py",
+  "local_closeout_gate": "make arc-closeout-check ARC=249",
+  "local_python_gate": "make check",
+  "local_run_trace_argv_order_checked": true,
+  "local_run_trace_command_allowlist_required": true,
+  "local_run_trace_output_hashes_and_bounded_excerpts_required": true,
+  "local_run_trace_sandbox_attestations_required": true,
+  "local_start_gate": "make arc-start-check ARC=250",
+  "merge_commit": "1493e44993d8911817ada6b02cd8122730abf5f7",
+  "merged_at": "2026-05-08T02:00:50Z",
+  "merged_pr": "#477",
+  "merged_pr_url": "https://github.com/LexLattice/adeu-studio/pull/477",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v249/evidence_inputs/metric_key_continuity_assertion_v249.json",
+  "notes": "v249 evidence pins the bounded PB-RECON-0-B local evidence capture slice on main. PB-RECON-0-B consumes released PB-RECON-0-A work order, worker context, exclusion manifest, sandbox policy, run budget, and guardrail refs; emits candidate artifact manifest, local run trace, probe result log, and remand/correction record rows; binds generated artifacts to released write scopes; rejects duplicate generated-file hash evidence; requires argv-shaped ordered local run commands, command allowlist matches, sandbox/network/secret/write-scope attestations, bounded stdout/stderr excerpts plus output hashes, filesystem pre/post manifests, and fs-diff refs; blocks sandbox violations from passed probe posture; allows explicit no-correction remands without invented correction rows; and ships no equivalence audit, local accepted status, result summary, handoff, family closeout alignment, official ProgramBench runner/evaluator integration, hidden-test handling, benchmark truth, benchmark score, model ranking, official submission authority, runtime transition, product authority, graph-memory authority, recursive-policy amendment, or future-family selection.",
+  "official_programbench_participation_claimed": false,
+  "package_export_surface_path": "packages/adeu_benchmarking/src/adeu_benchmarking/__init__.py",
+  "probe_result_local_only": true,
+  "reference_fixture_paths": [
+    "apps/api/fixtures/benchmarking/vnext_plus249/programbench_reconstruction_candidate_artifact_manifest_v249_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus249/programbench_reconstruction_local_run_trace_v249_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus249/programbench_reconstruction_probe_result_log_v249_reference.json",
+    "apps/api/fixtures/benchmarking/vnext_plus249/programbench_reconstruction_remand_correction_record_v249_reference.json"
+  ],
+  "reject_fixture_dir": "apps/api/fixtures/benchmarking/vnext_plus249",
+  "remand_hidden_or_forbidden_evidence_rejected": true,
+  "remand_no_correction_outcome_supported": true,
+  "result_summary_created_by_pb_recon_0b": false,
+  "runtime_event_stream_path": "artifacts/agent_harness/v249/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v249/evidence_inputs/runtime_observability_comparison_v249.json",
+  "sandbox_violation_as_passed_probe_rejected": true,
+  "schema": "pb_recon_0b_local_evidence_closeout_evidence@1",
+  "schema_export_source_path": "packages/adeu_benchmarking/src/adeu_benchmarking/export_schema.py",
+  "schema_paths": [
+    "packages/adeu_benchmarking/schema/programbench_reconstruction_candidate_artifact_manifest.v1.json",
+    "packages/adeu_benchmarking/schema/programbench_reconstruction_local_run_trace.v1.json",
+    "packages/adeu_benchmarking/schema/programbench_reconstruction_probe_result_log.v1.json",
+    "packages/adeu_benchmarking/schema/programbench_reconstruction_remand_correction_record.v1.json",
+    "spec/programbench_reconstruction_candidate_artifact_manifest.schema.json",
+    "spec/programbench_reconstruction_local_run_trace.schema.json",
+    "spec/programbench_reconstruction_probe_result_log.schema.json",
+    "spec/programbench_reconstruction_remand_correction_record.schema.json"
+  ],
+  "selected_record_shapes": [
+    "programbench_reconstruction_candidate_artifact_manifest@1",
+    "programbench_reconstruction_local_run_trace@1",
+    "programbench_reconstruction_probe_result_log@1",
+    "programbench_reconstruction_remand_correction_record@1"
+  ],
+  "slice": "PB-RECON-0-B"
+}
