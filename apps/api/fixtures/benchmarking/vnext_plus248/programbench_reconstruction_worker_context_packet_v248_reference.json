@@ -4,7 +4,7 @@
   ],
   "case_packet_ref": "case-packet:pb-adapter-0c:reference",
   "concept_profile_refs": [
-    "profile:pb-py-0a:reference"
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
   ],
   "context_derivation_hash_rows": [
     {
@@ -20,7 +20,7 @@
         "io-artifact-index:pb-adapter-0b:reference",
         "probe-observation:pb-adapter-0b:toy-cli-help",
         "probe-plan:pb-adapter-0b:reference",
-        "profile:pb-py-0a:reference",
+        "profile:pb-py-0a:programbench-cleanroom-reconstruction",
         "realization-pack:pb-py-0b:python-stdlib-seed",
         "side-effect:pb-adapter-0b:toy-cli-help",
         "task-intake:pb-adapter-0a:reference",
@@ -79,7 +79,7 @@
     "io-artifact-index:pb-adapter-0b:reference",
     "probe-observation:pb-adapter-0b:toy-cli-help",
     "probe-plan:pb-adapter-0b:reference",
-    "profile:pb-py-0a:reference",
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction",
     "realization-pack:pb-py-0b:python-stdlib-seed",
     "side-effect:pb-adapter-0b:toy-cli-help",
     "task-intake:pb-adapter-0a:reference",

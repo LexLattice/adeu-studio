@@ -15,7 +15,7 @@
   "limitation_note": "Reference work order defines the local reconstruction boundary only; no worker dispatch or execution authority is granted.",
   "official_programbench_posture": "no_official_programbench_participation_by_pb_recon_0a",
   "pb_py_0_profile_refs": [
-    "profile:pb-py-0a:reference"
+    "profile:pb-py-0a:programbench-cleanroom-reconstruction"
   ],
   "python_realization_pack_refs": [
     "realization-pack:pb-py-0b:python-stdlib-seed"

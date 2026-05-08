@@ -17,6 +17,7 @@ from adeu_benchmarking import (
     ProgrambenchAdapterHandoff,
     ProgrambenchAdapterReadinessSummary,
     ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
+    ProgrambenchRealizationFamilyCloseoutAlignment,
     ProgrambenchReconstructionCasePacket,
     ProgrambenchReconstructionContextExclusionManifest,
     ProgrambenchReconstructionRunBudget,
@@ -54,6 +55,13 @@ def _load_fixture(root: Path, name: str) -> dict[str, Any]:
 
 def _load_c_fixture(name: str) -> dict[str, Any]:
     return _load_fixture(_fixture_root_c(), name)
+
+
+def _load_pb_py_c_fixture(name: str) -> dict[str, Any]:
+    return _load_fixture(
+        _repo_root() / "apps" / "api" / "fixtures" / "benchmarking" / "vnext_plus244",
+        name,
+    )
 
 
 def _load_recon_a_fixture(name: str) -> dict[str, Any]:
@@ -138,6 +146,7 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
 
 def _load_c_bundle() -> tuple[
     ProgrambenchReconstructionCasePacket,
+    ProgrambenchRealizationFamilyCloseoutAlignment,
     ProgrambenchAdapterReadinessSummary,
     ProgrambenchAdapterHandoff,
     ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
@@ -145,6 +154,11 @@ def _load_c_bundle() -> tuple[
     return (
         ProgrambenchReconstructionCasePacket.model_validate(
             _load_c_fixture("programbench_reconstruction_case_packet_v247_reference.json")
+        ),
+        ProgrambenchRealizationFamilyCloseoutAlignment.model_validate(
+            _load_pb_py_c_fixture(
+                "programbench_realization_family_closeout_alignment_v244_reference.json"
+            )
         ),
         ProgrambenchAdapterReadinessSummary.model_validate(
             _load_c_fixture("programbench_adapter_readiness_summary_v247_reference.json")
@@ -252,7 +266,13 @@ def test_pb_recon_0a_reference_fixtures_validate_against_schema(
 
 
 def test_pb_recon_0a_reference_bundle_preserves_workbench_boundary() -> None:
-    case_packet, readiness_summary, adapter_handoff, adapter_family_closeout = _load_c_bundle()
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
     (
         work_order,
         worker_context_packet,
@@ -264,6 +284,7 @@ def test_pb_recon_0a_reference_bundle_preserves_workbench_boundary() -> None:
 
     validate_pb_recon_0a_work_order_bundle(
         case_packet=case_packet,
+        pb_py_0_family_closeout=pb_py_0_family_closeout,
         readiness_summary=readiness_summary,
         adapter_handoff=adapter_handoff,
         adapter_family_closeout=adapter_family_closeout,
@@ -296,8 +317,75 @@ def test_pb_recon_0a_strict_unique_helper_rejects_empty_audit_sets() -> None:
         recon_module._ensure_non_empty_unique([], field_name="audit_refs")
 
 
+@pytest.mark.parametrize(
+    ("case_field", "case_ref", "work_order_field", "match"),
+    [
+        (
+            "pb_py_0_realization_pack_refs",
+            "realization-pack:pb-py-0b:unreleased",
+            "python_realization_pack_refs",
+            "case packet Python realization pack refs",
+        ),
+        (
+            "pb_py_0_fixture_refs",
+            "fixture:pb-py-0c:unreleased",
+            None,
+            "case packet PB-PY-0 fixture refs",
+        ),
+    ],
+)
+def test_pb_recon_0a_bundle_rejects_unreleased_pb_py_refs(
+    case_field: str,
+    case_ref: str,
+    work_order_field: str | None,
+    match: str,
+) -> None:
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
+    (
+        work_order,
+        worker_context_packet,
+        context_exclusion_manifest,
+        sandbox_policy,
+        run_budget,
+        guardrail,
+    ) = _load_recon_a_bundle()
+    stale_case_packet = case_packet.model_copy(update={case_field: [case_ref]})
+    stale_work_order = (
+        work_order.model_copy(update={work_order_field: [case_ref]})
+        if work_order_field
+        else work_order
+    )
+
+    with pytest.raises(ValueError, match=match):
+        validate_pb_recon_0a_work_order_bundle(
+            case_packet=stale_case_packet,
+            pb_py_0_family_closeout=pb_py_0_family_closeout,
+            readiness_summary=readiness_summary,
+            adapter_handoff=adapter_handoff,
+            adapter_family_closeout=adapter_family_closeout,
+            work_order=stale_work_order,
+            worker_context_packet=worker_context_packet,
+            context_exclusion_manifest=context_exclusion_manifest,
+            sandbox_policy=sandbox_policy,
+            run_budget=run_budget,
+            guardrail=guardrail,
+        )
+
+
 def test_pb_recon_0a_bundle_rejects_contaminated_adapter_readiness() -> None:
-    case_packet, readiness_summary, adapter_handoff, adapter_family_closeout = _load_c_bundle()
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
     contaminated = readiness_summary.model_copy(
         update={
             "contamination_status": "forbidden_source_exposure",
@@ -317,6 +405,7 @@ def test_pb_recon_0a_bundle_rejects_contaminated_adapter_readiness() -> None:
     with pytest.raises(ValueError, match="clean adapter readiness contamination"):
         validate_pb_recon_0a_work_order_bundle(
             case_packet=case_packet,
+            pb_py_0_family_closeout=pb_py_0_family_closeout,
             readiness_summary=contaminated,
             adapter_handoff=adapter_handoff,
             adapter_family_closeout=adapter_family_closeout,
@@ -330,7 +419,13 @@ def test_pb_recon_0a_bundle_rejects_contaminated_adapter_readiness() -> None:
 
 
 def test_pb_recon_0a_bundle_rejects_forbidden_ref_in_worker_context() -> None:
-    case_packet, readiness_summary, adapter_handoff, adapter_family_closeout = _load_c_bundle()
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
     (
         work_order,
         _worker_context_packet,
@@ -348,6 +443,7 @@ def test_pb_recon_0a_bundle_rejects_forbidden_ref_in_worker_context() -> None:
     with pytest.raises(ValueError, match="non-worker-visible refs"):
         validate_pb_recon_0a_work_order_bundle(
             case_packet=case_packet,
+            pb_py_0_family_closeout=pb_py_0_family_closeout,
             readiness_summary=readiness_summary,
             adapter_handoff=adapter_handoff,
             adapter_family_closeout=adapter_family_closeout,
@@ -361,7 +457,13 @@ def test_pb_recon_0a_bundle_rejects_forbidden_ref_in_worker_context() -> None:
 
 
 def test_pb_recon_0a_bundle_rejects_forbidden_summary_in_worker_context() -> None:
-    case_packet, readiness_summary, adapter_handoff, adapter_family_closeout = _load_c_bundle()
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
     (
         work_order,
         _worker_context_packet,
@@ -379,6 +481,7 @@ def test_pb_recon_0a_bundle_rejects_forbidden_summary_in_worker_context() -> Non
     with pytest.raises(ValueError, match="non-worker-visible refs"):
         validate_pb_recon_0a_work_order_bundle(
             case_packet=case_packet,
+            pb_py_0_family_closeout=pb_py_0_family_closeout,
             readiness_summary=readiness_summary,
             adapter_handoff=adapter_handoff,
             adapter_family_closeout=adapter_family_closeout,
@@ -392,7 +495,13 @@ def test_pb_recon_0a_bundle_rejects_forbidden_summary_in_worker_context() -> Non
 
 
 def test_pb_recon_0a_bundle_rejects_dangling_forward_ref() -> None:
-    case_packet, readiness_summary, adapter_handoff, adapter_family_closeout = _load_c_bundle()
+    (
+        case_packet,
+        pb_py_0_family_closeout,
+        readiness_summary,
+        adapter_handoff,
+        adapter_family_closeout,
+    ) = _load_c_bundle()
     (
         work_order,
         worker_context_packet,
@@ -408,6 +517,7 @@ def test_pb_recon_0a_bundle_rejects_dangling_forward_ref() -> None:
     with pytest.raises(ValueError, match="work order must reference worker context packet"):
         validate_pb_recon_0a_work_order_bundle(
             case_packet=case_packet,
+            pb_py_0_family_closeout=pb_py_0_family_closeout,
             readiness_summary=readiness_summary,
             adapter_handoff=adapter_handoff,
             adapter_family_closeout=adapter_family_closeout,

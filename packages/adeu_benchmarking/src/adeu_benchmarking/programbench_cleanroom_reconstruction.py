@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .cleanroom_reconstruction import ProgrambenchRealizationFamilyCloseoutAlignment
 from .programbench_cleanroom_adapter import (
     ProgrambenchAdapterHandoff,
     ProgrambenchAdapterReadinessSummary,
@@ -143,6 +144,19 @@ def _ensure_refs_resolve(
     missing = released_refs - value_set
     if missing:
         raise ValueError(f"{field_label} missing released refs: {sorted(missing)}")
+
+
+def _ensure_refs_are_released(
+    values: list[str],
+    *,
+    field_label: str,
+    released_refs: set[str],
+) -> None:
+    unknown = set(values) - released_refs
+    if unknown:
+        raise ValueError(
+            f"{field_label} references unreleased PB-PY-0 refs: {sorted(unknown)}"
+        )
 
 
 class _WorkbenchBase(BaseModel):
@@ -548,6 +562,7 @@ class ProgrambenchReconstructionWorkbenchNonAuthorityGuardrail(_WorkbenchBase):
 def validate_pb_recon_0a_work_order_bundle(
     *,
     case_packet: ProgrambenchReconstructionCasePacket,
+    pb_py_0_family_closeout: ProgrambenchRealizationFamilyCloseoutAlignment,
     readiness_summary: ProgrambenchAdapterReadinessSummary,
     adapter_handoff: ProgrambenchAdapterHandoff,
     adapter_family_closeout: ProgrambenchCleanroomAdapterFamilyCloseoutAlignment,
@@ -573,6 +588,22 @@ def validate_pb_recon_0a_work_order_bundle(
         raise ValueError("adapter family closeout must reference released readiness summary")
     if adapter_handoff.handoff_ref not in adapter_family_closeout.handoff_refs:
         raise ValueError("adapter family closeout must reference released handoff")
+
+    _ensure_refs_are_released(
+        case_packet.pb_py_0_profile_refs,
+        field_label="case packet PB-PY-0 profile refs",
+        released_refs=set(pb_py_0_family_closeout.released_profile_refs),
+    )
+    _ensure_refs_are_released(
+        case_packet.pb_py_0_realization_pack_refs,
+        field_label="case packet Python realization pack refs",
+        released_refs=set(pb_py_0_family_closeout.released_realization_pack_refs),
+    )
+    _ensure_refs_are_released(
+        case_packet.pb_py_0_fixture_refs,
+        field_label="case packet PB-PY-0 fixture refs",
+        released_refs=set(pb_py_0_family_closeout.released_fixture_refs),
+    )
 
     if readiness_summary.contamination_status != "clean":
         raise ValueError("work orders require clean adapter readiness contamination")
@@ -604,6 +635,16 @@ def validate_pb_recon_0a_work_order_bundle(
         raise ValueError("work order must preserve adapter candidate lineage")
     if work_order.task_instance_ref != case_packet.task_instance_ref:
         raise ValueError("work order must preserve task instance lineage")
+    _ensure_refs_are_released(
+        work_order.pb_py_0_profile_refs,
+        field_label="work order PB-PY-0 profile refs",
+        released_refs=set(pb_py_0_family_closeout.released_profile_refs),
+    )
+    _ensure_refs_are_released(
+        work_order.python_realization_pack_refs,
+        field_label="work order Python realization pack refs",
+        released_refs=set(pb_py_0_family_closeout.released_realization_pack_refs),
+    )
     _ensure_refs_resolve(
         work_order.pb_py_0_profile_refs,
         field_label="work order PB-PY-0 profile refs",
