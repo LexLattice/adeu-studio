@@ -1,0 +1,18 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "attempt_result_review_ref": "attempt-result-review:pb-attempt-0c:reference",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "limitation_note": "Reject fixture marks the attempt accepted even though the exported workbench summary is remand-required.",
+  "local_acceptance_scope_posture": "accepted_only_against_exported_local_workbench_result_not_hidden_tests",
+  "local_attempt_posture": "attempt_locally_accepted",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_attempt_0c",
+  "official_submission_posture": "no_official_submission_or_submission_authority_by_pb_attempt_0c",
+  "result_summary_refs": [
+    "result-summary:pb-recon-0c:reference"
+  ],
+  "schema": "programbench_reconstruction_attempt_result_review@1",
+  "workbench_evidence_export_ref": "workbench-evidence-export:pb-attempt-0c:reference"
+}

@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "ProgrambenchReconstructionAttemptRemandQueueRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "remand_pressure_posture": {
+          "const": "local_retry_pressure_only",
+          "title": "Remand Pressure Posture",
+          "type": "string"
+        },
+        "remand_queue_row_ref": {
+          "title": "Remand Queue Row Ref",
+          "type": "string"
+        },
+        "remand_row_source_kind": {
+          "enum": [
+            "exported_workbench_gap",
+            "local_output_capture_gap",
+            "local_probe_failure",
+            "materialization_gap",
+            "sandbox_application_failure",
+            "worker_declared_uncertainty"
+          ],
+          "title": "Remand Row Source Kind",
+          "type": "string"
+        },
+        "source_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "remand_queue_row_ref",
+        "remand_row_source_kind",
+        "source_evidence_refs",
+        "remand_pressure_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchReconstructionAttemptRemandQueueRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempt_request_ref": {
+      "title": "Attempt Request Ref",
+      "type": "string"
+    },
+    "attempt_result_review_ref": {
+      "title": "Attempt Result Review Ref",
+      "type": "string"
+    },
+    "hidden_test_diagnostic_posture": {
+      "const": "hidden_tests_not_diagnostics",
+      "title": "Hidden Test Diagnostic Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "queue_authority_posture": {
+      "const": "remand_queue_pressure_only_no_retry_authority",
+      "title": "Queue Authority Posture",
+      "type": "string"
+    },
+    "remand_queue_ref": {
+      "title": "Remand Queue Ref",
+      "type": "string"
+    },
+    "remand_queue_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchReconstructionAttemptRemandQueueRow"
+      },
+      "title": "Remand Queue Rows",
+      "type": "array"
+    },
+    "remand_row_source_kinds": {
+      "items": {
+        "enum": [
+          "exported_workbench_gap",
+          "local_output_capture_gap",
+          "local_probe_failure",
+          "materialization_gap",
+          "sandbox_application_failure",
+          "worker_declared_uncertainty"
+        ],
+        "type": "string"
+      },
+      "title": "Remand Row Source Kinds",
+      "type": "array"
+    },
+    "remand_source_posture": {
+      "const": "local_attempt_and_workbench_evidence_only",
+      "title": "Remand Source Posture",
+      "type": "string"
+    },
+    "retry_budget_ref": {
+      "title": "Retry Budget Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_reconstruction_attempt_remand_queue@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "source_lookup_forbidden",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "remand_queue_ref",
+    "attempt_request_ref",
+    "attempt_result_review_ref",
+    "retry_budget_ref",
+    "remand_source_posture",
+    "hidden_test_diagnostic_posture",
+    "source_lookup_posture",
+    "queue_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchReconstructionAttemptRemandQueue",
+  "type": "object"
+}

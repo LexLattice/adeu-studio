@@ -1,0 +1,26 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "attempt_result_review_ref": "attempt-result-review:pb-attempt-0c:reference",
+  "hidden_test_diagnostic_posture": "hidden_tests_not_diagnostics",
+  "limitation_note": "Reference queue records local retry pressure only and grants no retry authority.",
+  "queue_authority_posture": "remand_queue_pressure_only_no_retry_authority",
+  "remand_queue_ref": "remand-queue:pb-attempt-0c:reference",
+  "remand_queue_rows": [
+    {
+      "limitation_note": "The local PB-RECON result summary records a failed local help probe.",
+      "remand_pressure_posture": "local_retry_pressure_only",
+      "remand_queue_row_ref": "remand-queue-row:pb-attempt-0c:local-probe-failure",
+      "remand_row_source_kind": "local_probe_failure",
+      "source_evidence_refs": [
+        "result-summary:pb-recon-0c:reference"
+      ]
+    }
+  ],
+  "remand_row_source_kinds": [
+    "local_probe_failure"
+  ],
+  "remand_source_posture": "local_attempt_and_workbench_evidence_only",
+  "retry_budget_ref": "run-budget:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_remand_queue@1",
+  "source_lookup_posture": "source_lookup_forbidden"
+}

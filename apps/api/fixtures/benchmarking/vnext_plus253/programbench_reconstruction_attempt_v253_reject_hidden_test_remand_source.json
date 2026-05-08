@@ -1,0 +1,26 @@
+{
+  "attempt_request_ref": "attempt-request:pb-attempt-0a:reference",
+  "attempt_result_review_ref": "attempt-result-review:pb-attempt-0c:reference",
+  "hidden_test_diagnostic_posture": "hidden_tests_used_as_diagnostics",
+  "limitation_note": "Reject fixture tries to queue remand from hidden-test diagnostics.",
+  "queue_authority_posture": "remand_queue_pressure_only_no_retry_authority",
+  "remand_queue_ref": "remand-queue:pb-attempt-0c:hidden-test",
+  "remand_queue_rows": [
+    {
+      "limitation_note": "Invalid source kind is intentionally outside the local remand vocabulary.",
+      "remand_pressure_posture": "local_retry_pressure_only",
+      "remand_queue_row_ref": "remand-queue-row:pb-attempt-0c:hidden-test",
+      "remand_row_source_kind": "hidden_test_failure",
+      "source_evidence_refs": [
+        "hidden-test:forbidden"
+      ]
+    }
+  ],
+  "remand_row_source_kinds": [
+    "hidden_test_failure"
+  ],
+  "remand_source_posture": "local_attempt_and_workbench_evidence_only",
+  "retry_budget_ref": "run-budget:pb-recon-0a:reference",
+  "schema": "programbench_reconstruction_attempt_remand_queue@1",
+  "source_lookup_posture": "source_lookup_forbidden"
+}
