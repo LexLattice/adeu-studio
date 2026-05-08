@@ -28,6 +28,16 @@
       "witness_requirement_ref": "closed_tool_manifest"
     },
     {
+      "check_kind": "network_disabled",
+      "check_posture": "passed",
+      "evidence_refs": [
+        "sandbox-policy:pb-recon-0a:reference"
+      ],
+      "limitation_note": "Network access must be disabled.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:network",
+      "witness_requirement_ref": "network_disabled"
+    },
+    {
       "check_kind": "decompilation_disabled",
       "check_posture": "passed",
       "evidence_refs": [
@@ -58,14 +68,14 @@
       "witness_requirement_ref": "host_secrets_absent"
     },
     {
-      "check_kind": "network_disabled",
+      "check_kind": "source_lookup_disabled",
       "check_posture": "passed",
       "evidence_refs": [
-        "sandbox-policy:pb-recon-0a:reference"
+        "guardrail:pb-trial-0a:reference"
       ],
-      "limitation_note": "Network access must be disabled.",
-      "readiness_check_ref": "readiness-check:pb-trial-0a:network",
-      "witness_requirement_ref": "network_disabled"
+      "limitation_note": "Source lookup remains disabled.",
+      "readiness_check_ref": "readiness-check:pb-trial-0a:no-source-lookup",
+      "witness_requirement_ref": "source_lookup_disabled"
     },
     {
       "check_kind": "run_budget_bound",
@@ -76,16 +86,6 @@
       "limitation_note": "Run budget is bound for later execution review.",
       "readiness_check_ref": "readiness-check:pb-trial-0a:run-budget",
       "witness_requirement_ref": "run_budget_bound"
-    },
-    {
-      "check_kind": "source_lookup_disabled",
-      "check_posture": "passed",
-      "evidence_refs": [
-        "guardrail:pb-trial-0a:reference"
-      ],
-      "limitation_note": "Source lookup remains disabled.",
-      "readiness_check_ref": "readiness-check:pb-trial-0a:no-source-lookup",
-      "witness_requirement_ref": "source_lookup_disabled"
     }
   ],
   "readiness_posture": "ready_for_later_local_trial_execution_review",

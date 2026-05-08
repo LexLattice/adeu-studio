@@ -378,6 +378,43 @@ def test_pb_trial_0a_bundle_rejects_prior_attempt_review_as_trial_outcome_contex
         )
 
 
+def test_pb_trial_0a_bundle_rejects_contamination_blocked_attempt_context() -> None:
+    (
+        attempt_request,
+        worker_input_packet,
+        dispatch_preflight,
+        attempt_guardrail,
+        prior_attempt_result_review,
+        attempt_family_closeout,
+    ) = _load_attempt_rows()
+    (
+        trial_docket,
+        execution_runbook,
+        sandbox_readiness_review,
+        trial_guardrail,
+    ) = _load_trial_rows()
+    contamination_blocked_result = prior_attempt_result_review.model_copy(
+        update={
+            "local_attempt_posture": "attempt_blocked_by_contamination",
+            "carried_blocker_refs": ["contamination:pb-attempt-0c:hidden-evidence"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="remand or inconclusive"):
+        validate_pb_trial_0a_trial_bundle(
+            attempt_request=attempt_request,
+            worker_input_packet=worker_input_packet,
+            dispatch_preflight=dispatch_preflight,
+            attempt_guardrail=attempt_guardrail,
+            prior_attempt_result_review=contamination_blocked_result,
+            attempt_family_closeout=attempt_family_closeout,
+            trial_docket=trial_docket,
+            execution_runbook=execution_runbook,
+            sandbox_readiness_review=sandbox_readiness_review,
+            trial_guardrail=trial_guardrail,
+        )
+
+
 def test_pb_trial_0a_schema_exports_mirror_root_spec_files() -> None:
     export_schema_main()
 

@@ -310,11 +310,11 @@ class ProgrambenchLocalTrialExecutionRunbook(_TrialBase):
         ):
             _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
         allowed_refs = [row.step_ref for row in self.allowed_step_rows]
-        _ensure_non_empty_unique(allowed_refs, field_name="allowed_step_refs")
+        _ensure_sorted_unique(allowed_refs, field_name="allowed_step_refs")
         forbidden_refs = [row.forbidden_step_ref for row in self.forbidden_step_rows]
-        _ensure_non_empty_unique(forbidden_refs, field_name="forbidden_step_refs")
+        _ensure_sorted_unique(forbidden_refs, field_name="forbidden_step_refs")
         capture_refs = [row.capture_obligation_ref for row in self.capture_obligation_rows]
-        _ensure_non_empty_unique(capture_refs, field_name="capture_obligation_refs")
+        _ensure_sorted_unique(capture_refs, field_name="capture_obligation_refs")
         required_forbidden_steps = {
             "benchmark_scoring",
             "decompilation",
@@ -383,7 +383,7 @@ class ProgrambenchLocalTrialSandboxReadinessReview(_TrialBase):
             field_name="sandbox_witness_requirement_refs",
         )
         check_refs = [row.readiness_check_ref for row in self.readiness_check_rows]
-        _ensure_non_empty_unique(check_refs, field_name="readiness_check_refs")
+        _ensure_sorted_unique(check_refs, field_name="readiness_check_refs")
         check_kinds = {row.check_kind for row in self.readiness_check_rows}
         missing = sorted(_REQUIRED_READINESS_CHECK_KINDS - check_kinds)
         if missing:
@@ -500,6 +500,14 @@ def validate_pb_trial_0a_trial_bundle(
         raise ValueError("attempt closeout must release result-review context ref")
     if prior_attempt_result_review.attempt_request_ref != attempt_request.attempt_request_ref:
         raise ValueError("prior attempt result review must reference attempt request")
+    allowed_result_postures = {
+        "attempt_inconclusive_local_only",
+        "attempt_remand_required",
+    }
+    if prior_attempt_result_review.local_attempt_posture not in allowed_result_postures:
+        raise ValueError(
+            "trial docket requires remand or inconclusive PB-ATTEMPT result-review context"
+        )
 
     if worker_input_packet.attempt_request_ref != attempt_request.attempt_request_ref:
         raise ValueError("worker input packet must reference attempt request")
@@ -552,7 +560,7 @@ def validate_pb_trial_0a_trial_bundle(
         raise ValueError("sandbox readiness review must preserve sandbox policy")
     if sandbox_readiness_review.run_budget_ref != execution_runbook.run_budget_ref:
         raise ValueError("sandbox readiness review must preserve run budget")
-    if set(sandbox_readiness_review.sandbox_witness_requirement_refs) != set(
+    if sandbox_readiness_review.sandbox_witness_requirement_refs != (
         execution_runbook.sandbox_witness_requirement_refs
     ):
         raise ValueError("sandbox readiness witnesses must match runbook witness requirements")

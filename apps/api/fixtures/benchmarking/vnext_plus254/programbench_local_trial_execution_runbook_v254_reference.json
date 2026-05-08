@@ -3,21 +3,11 @@
     {
       "command_shape_posture": "not_command_shaped",
       "evidence_refs": [
-        "worker-input:pb-attempt-0a:reference"
+        "sandbox-policy:pb-recon-0a:reference"
       ],
-      "limitation_note": "The worker input packet may be materialized later only under the released B lock.",
-      "step_kind": "worker_input_materialization_later",
-      "step_ref": "allowed-step:pb-trial-0a:input-materialization",
-      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
-    },
-    {
-      "command_shape_posture": "argv_shaped_if_command_like",
-      "evidence_refs": [
-        "dispatch-preflight:pb-attempt-0a:reference"
-      ],
-      "limitation_note": "Local worker dispatch is planned for later B only and grants no authority in A.",
-      "step_kind": "local_worker_dispatch_later",
-      "step_ref": "allowed-step:pb-trial-0a:local-dispatch",
+      "limitation_note": "Candidate snapshots may be captured later only inside released write scope.",
+      "step_kind": "candidate_snapshot_later",
+      "step_ref": "allowed-step:pb-trial-0a:candidate-snapshot",
       "step_scope_posture": "planned_for_later_pb_trial_0b_only"
     },
     {
@@ -33,11 +23,11 @@
     {
       "command_shape_posture": "not_command_shaped",
       "evidence_refs": [
-        "sandbox-policy:pb-recon-0a:reference"
+        "worker-input:pb-attempt-0a:reference"
       ],
-      "limitation_note": "Candidate snapshots may be captured later only inside released write scope.",
-      "step_kind": "candidate_snapshot_later",
-      "step_ref": "allowed-step:pb-trial-0a:candidate-snapshot",
+      "limitation_note": "The worker input packet may be materialized later only under the released B lock.",
+      "step_kind": "worker_input_materialization_later",
+      "step_ref": "allowed-step:pb-trial-0a:input-materialization",
       "step_scope_posture": "planned_for_later_pb_trial_0b_only"
     },
     {
@@ -49,6 +39,16 @@
       "step_kind": "lifecycle_projection_later",
       "step_ref": "allowed-step:pb-trial-0a:lifecycle-projection",
       "step_scope_posture": "planned_for_later_pb_trial_0b_only"
+    },
+    {
+      "command_shape_posture": "argv_shaped_if_command_like",
+      "evidence_refs": [
+        "dispatch-preflight:pb-attempt-0a:reference"
+      ],
+      "limitation_note": "Local worker dispatch is planned for later B only and grants no authority in A.",
+      "step_kind": "local_worker_dispatch_later",
+      "step_ref": "allowed-step:pb-trial-0a:local-dispatch",
+      "step_scope_posture": "planned_for_later_pb_trial_0b_only"
     }
   ],
   "capture_obligation_rows": [
@@ -59,15 +59,6 @@
       "limitation_note": "Any later candidate snapshot must record a manifest hash.",
       "witness_requirement_refs": [
         "bounded_write_scope"
-      ]
-    },
-    {
-      "capture_kind": "full_transcript_hash",
-      "capture_obligation_ref": "capture-obligation:pb-trial-0a:transcript-hash",
-      "capture_scope_posture": "required_for_later_pb_trial_0b",
-      "limitation_note": "The later worker dispatch transcript must be hash-bound.",
-      "witness_requirement_refs": [
-        "closed_tool_manifest"
       ]
     },
     {
@@ -109,6 +100,15 @@
       "capture_obligation_ref": "capture-obligation:pb-trial-0a:tool-manifest",
       "capture_scope_posture": "required_for_later_pb_trial_0b",
       "limitation_note": "Later execution must bind allowed and forbidden tool manifests.",
+      "witness_requirement_refs": [
+        "closed_tool_manifest"
+      ]
+    },
+    {
+      "capture_kind": "full_transcript_hash",
+      "capture_obligation_ref": "capture-obligation:pb-trial-0a:transcript-hash",
+      "capture_scope_posture": "required_for_later_pb_trial_0b",
+      "limitation_note": "The later worker dispatch transcript must be hash-bound.",
       "witness_requirement_refs": [
         "closed_tool_manifest"
       ]
