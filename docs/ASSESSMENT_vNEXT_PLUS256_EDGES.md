@@ -1,8 +1,8 @@
 # Assessment vNext+256 Edges
 
-Status: pre-lock edge assessment for `PB-TRIAL-0-C`.
+Status: post-closeout edge assessment for `PB-TRIAL-0-C`.
 
-Authority layer: planning / pre-lock assessment.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / pre-lock assessment.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS256_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,104 +20,106 @@ Authority layer: planning / pre-lock assessment.
 
 ### Edge 1: C Rows Could Bypass Released A/B Trial Law
 
-- Planned containment:
-  outcome audit, observation summary, remand decision, and family closeout
-  rows must bind to released A docket/runbook/readiness/guardrail refs and
-  released B dispatch/capture/snapshot/projection refs.
-- Required implementation evidence:
-  reject missing, stale, or mismatched A/B refs.
+- Closeout state:
+  contained.
+- Evidence:
+  `validate_pb_trial_0c_closeout_bundle` consumes released A docket, runbook,
+  readiness, and guardrail rows plus released B dispatch, capture, snapshot,
+  and lifecycle projection rows.
 
-### Edge 2: Outcome Audit Could Claim Official Benchmark Truth
+### Edge 2: C Could Accept A Stale B Execution Chain
 
-- Planned containment:
-  outcome audit rows carry explicit no-hidden-test-equivalence,
-  not-benchmark-truth, no-model-ranking, and no-official-submission postures.
-- Required implementation evidence:
-  reject hidden-test equivalence, benchmark truth, official evaluator truth,
-  model ranking, official submission, or official ProgramBench authority.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  C closeout validation now delegates to `validate_pb_trial_0b_execution_bundle`
+  before C-specific checks. A regression rejects stale dispatch/runbook
+  lineage, preserving the B chain for closeout.
 
-### Edge 3: Local Acceptance Could Ignore Missing Evidence
+### Edge 3: Outcome Audit Could Claim Official Benchmark Truth
 
-- Planned containment:
-  `trial_locally_accepted` requires no carried blockers, no sandbox violation,
-  no lifecycle projection gap, no output capture gap, a candidate snapshot
-  inside released write scope, and lifecycle projection validation against
-  released `PB-ATTEMPT-0` bindings.
-- Required implementation evidence:
-  reject local acceptance with blockers, missing snapshot, outside-write-scope
-  snapshot, output capture gap, or missing lifecycle projection validation.
+- Closeout state:
+  contained.
+- Evidence:
+  outcome audits carry explicit no-hidden-test-equivalence, not-benchmark-truth,
+  no-model-ranking, and no-official-submission postures. Invalid authority
+  postures fail closed.
 
-### Edge 4: Observation Summary Could Become A Model Ranking
+### Edge 4: Local Acceptance Could Ignore Missing Evidence
 
-- Planned containment:
-  observation summaries are single-trial-only, non-comparative, and not
-  benchmark-score or leaderboard rows.
-- Required implementation evidence:
-  reject comparative language across models, attempts, retries, benchmark rows,
-  or leaderboard posture.
+- Closeout state:
+  contained.
+- Evidence:
+  `trial_locally_accepted` requires no blockers, passed runbook and sandbox
+  satisfaction rows, snapshot-inside-write-scope evidence, execution-capture
+  evidence, and lifecycle-projection validation evidence.
 
-### Edge 5: Observation Summary Could Overstate Scope
+### Edge 5: Observation Summary Could Become A Model Ranking
 
-- Planned containment:
-  summaries report only the one local trial specimen and its local evidence.
-- Required implementation evidence:
-  reject summary rows that claim official task success, hidden-test
-  equivalence, ProgramBench resolution, benchmark score, or generalized model
-  performance.
+- Closeout state:
+  contained.
+- Evidence:
+  observation summaries are single-trial-only and reject comparative language
+  across models, attempts, retries, benchmark rows, or leaderboard posture.
 
-### Edge 6: Remand Decision Could Cite Forbidden Sources
+### Edge 6: Observation Summary Could Overstate Scope
 
-- Planned containment:
-  remand source kinds are local only: execution capture gap, candidate snapshot
-  gap, lifecycle projection gap, sandbox readiness/application gap,
-  worker-declared uncertainty, runbook satisfaction gap, or local evidence
-  inconclusive.
-- Required implementation evidence:
-  reject hidden-test failure, official evaluator feedback, original-source
-  fact, decompilation fact, internet lookup fact, or external-repo fact.
+- Closeout state:
+  contained.
+- Evidence:
+  summaries preserve the observed input packet hash, candidate snapshot hash,
+  and outcome posture for one local trial only. They cannot carry benchmark
+  truth, model ranking, or comparison authority.
 
-### Edge 7: Remand Decision Could Become Retry Authority
+### Edge 7: Remand Decision Could Cite Forbidden Sources
 
-- Planned containment:
-  remand rows may carry local pressure only and must carry explicit no-retry
-  authority posture.
-- Required implementation evidence:
-  reject retry dispatch authority, worker redispatch authority, or next-attempt
-  selection posture.
+- Closeout state:
+  contained.
+- Evidence:
+  remand source kinds are local-only. Hidden-test failure, official evaluator
+  feedback, original-source facts, decompilation facts, internet lookup facts,
+  and external-repo facts are rejected by schema/validator posture.
 
-### Edge 8: Family Closeout Could Select The Next Family
+### Edge 8: Remand Decision Could Become Retry Authority
 
-- Planned containment:
-  family closeout closes only `PB-TRIAL-0-A`, `PB-TRIAL-0-B`, and
-  `PB-TRIAL-0-C`; it may not select official ProgramBench participation,
-  retry/multi-attempt work, benchmark governance, product, graph, release,
-  recursive-policy work, or future-family selection.
-- Required implementation evidence:
-  reject future-family selection or out-of-family closeout claims.
+- Closeout state:
+  contained.
+- Evidence:
+  remand rows carry pressure only and require
+  `retry_authority_posture = no_retry_authority_granted_by_pb_trial_0c`.
 
-### Edge 9: C Could Emit Execution Or Candidate Mutation Artifacts
+### Edge 9: Family Closeout Could Select The Next Family
 
-- Planned containment:
-  C is an audit/summary/remand/closeout slice only; dispatch, execution
-  capture, candidate materialization, candidate snapshot mutation, and probe
-  execution remain outside C.
-- Required implementation evidence:
-  reject new dispatch, run trace, candidate materialization, or command
-  execution artifacts in C fixtures.
+- Closeout state:
+  contained.
+- Evidence:
+  family closeout alignment closes exactly `PB-TRIAL-0-A`, `PB-TRIAL-0-B`, and
+  `PB-TRIAL-0-C` and requires
+  `future_family_selection_posture = no_future_family_selected_by_pb_trial_0c`.
+
+### Edge 10: C Could Emit Execution Or Candidate Mutation Artifacts
+
+- Closeout state:
+  contained.
+- Evidence:
+  C emits only outcome audit, observation summary, remand decision, and family
+  closeout alignment shapes. Dispatch, execution capture, candidate snapshot,
+  candidate materialization, and command execution remain outside C.
 
 ## Residual Edges
 
-- The next ProgramBench practical arc, if any, must be selected only after
-  `PB-TRIAL-0-C` closes and must not be inferred from this starter.
-- Retry dispatch authority, multi-attempt comparison, official ProgramBench
-  participation, hidden evaluator integration, benchmark scoring, model
-  ranking, official submissions, broader benchmark result governance, product,
-  graph, release, or recursive-policy work remain unselected.
+- `PB-TRIAL-0` closes one local cleanroom trial lifecycle only.
+- Retry dispatch authority and multi-attempt comparison remain unselected.
+- Official ProgramBench participation, hidden evaluator integration,
+  benchmark scoring, model ranking, official submissions, broader benchmark
+  result governance, product, graph, release, and recursive-policy work remain
+  unselected.
+- The next ProgramBench practical arc requires a fresh selector/lock and cannot
+  be inferred from this closeout.
 
 ## Current Judgment
 
-- `PB-TRIAL-0-C` is ready as a bounded starter candidate.
-- The slice can audit and close one local cleanroom trial, but it cannot grant
-  official ProgramBench authority, hidden-test equivalence, benchmark truth,
-  retry authority, model ranking, official submission authority, or
-  future-family selection.
+- `PB-TRIAL-0-C` is closed on `main` as a bounded local cleanroom trial outcome
+  audit, observation summary, remand-decision, and family-closeout slice.
+- The full `PB-TRIAL-0` family is ready to close as one local trial lifecycle
+  only.

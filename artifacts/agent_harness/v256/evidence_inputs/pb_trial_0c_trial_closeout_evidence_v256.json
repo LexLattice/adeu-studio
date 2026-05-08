@@ -1,0 +1,29 @@
+{
+  "arc": "vNext+256",
+  "benchmark_truth_authority_granted": false,
+  "closed_slice": "PB-TRIAL-0-C",
+  "comparison_authority_granted": false,
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS256.md#machine-checkable-contract",
+  "family": "PB-TRIAL-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_trial_pb_trial_0c.py",
+  "future_family_selection_granted": false,
+  "hidden_test_access_rejected": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "local_outcome_acceptance_authority_granted": true,
+  "merged_pr": "#484",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus256",
+  "retry_authority_granted": false,
+  "schema": "pb_trial_0c_trial_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_local_trial_outcome_audit@1",
+    "programbench_local_trial_observation_summary@1",
+    "programbench_local_trial_remand_decision@1",
+    "programbench_local_trial_family_closeout_alignment@1"
+  ],
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_trial_pb_trial_0c.py",
+    "make check"
+  ]
+}
