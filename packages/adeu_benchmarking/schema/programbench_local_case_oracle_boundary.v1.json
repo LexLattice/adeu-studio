@@ -1,0 +1,208 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseOracleBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_kind": {
+          "enum": [
+            "artifact_obligation_basis",
+            "behavior_obligation_basis",
+            "io_observation_basis"
+          ],
+          "title": "Basis Kind",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "oracle_basis_ref": {
+          "title": "Oracle Basis Ref",
+          "type": "string"
+        },
+        "source_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Witness Refs",
+          "type": "array"
+        },
+        "support_strength": {
+          "enum": [
+            "direct",
+            "indirect"
+          ],
+          "title": "Support Strength",
+          "type": "string"
+        }
+      },
+      "required": [
+        "oracle_basis_ref",
+        "source_witness_refs",
+        "basis_kind",
+        "support_strength",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseOracleBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseOracleBehaviorBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "behavior_boundary_kind": {
+          "enum": [
+            "expected_behavior",
+            "out_of_scope_behavior",
+            "unknown_behavior"
+          ],
+          "title": "Behavior Boundary Kind",
+          "type": "string"
+        },
+        "behavior_boundary_ref": {
+          "title": "Behavior Boundary Ref",
+          "type": "string"
+        },
+        "boundary_posture": {
+          "enum": [
+            "local_blueprint_expected_behavior",
+            "local_blueprint_out_of_scope_behavior",
+            "local_blueprint_unknown_behavior"
+          ],
+          "title": "Boundary Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_ref": {
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "oracle_basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Oracle Basis Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "behavior_boundary_ref",
+        "obligation_ref",
+        "behavior_boundary_kind",
+        "boundary_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseOracleBehaviorBoundaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "expected_behavior_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseOracleBehaviorBoundaryRow"
+      },
+      "minItems": 1,
+      "title": "Expected Behavior Boundary Rows",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "no_hidden_test_equivalence_claimed",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_oracle_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseOracleBasisRow"
+      },
+      "minItems": 1,
+      "title": "Local Oracle Basis Rows",
+      "type": "array"
+    },
+    "local_oracle_not_task_truth_posture": {
+      "const": "local_blueprint_oracle_only_not_official_programbench_truth",
+      "title": "Local Oracle Not Task Truth Posture",
+      "type": "string"
+    },
+    "official_evaluator_equivalence_posture": {
+      "const": "no_official_evaluator_equivalence_claimed",
+      "title": "Official Evaluator Equivalence Posture",
+      "type": "string"
+    },
+    "oracle_boundary_ref": {
+      "title": "Oracle Boundary Ref",
+      "type": "string"
+    },
+    "oracle_boundary_scope_hash": {
+      "title": "Oracle Boundary Scope Hash",
+      "type": "string"
+    },
+    "out_of_scope_behavior_policy": {
+      "const": "exclude_from_local_oracle_claim",
+      "title": "Out Of Scope Behavior Policy",
+      "type": "string"
+    },
+    "out_of_scope_behavior_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseOracleBehaviorBoundaryRow"
+      },
+      "title": "Out Of Scope Behavior Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_oracle_boundary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "unknown_behavior_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseOracleBehaviorBoundaryRow"
+      },
+      "title": "Unknown Behavior Boundary Rows",
+      "type": "array"
+    },
+    "unknown_behavior_policy": {
+      "const": "preserve_unknown_behavior_as_local_gap",
+      "title": "Unknown Behavior Policy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "oracle_boundary_ref",
+    "case_expansion_ref",
+    "case_blueprint_ref",
+    "local_oracle_basis_rows",
+    "expected_behavior_boundary_rows",
+    "oracle_boundary_scope_hash",
+    "unknown_behavior_policy",
+    "out_of_scope_behavior_policy",
+    "local_oracle_not_task_truth_posture",
+    "hidden_test_equivalence_posture",
+    "official_evaluator_equivalence_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseOracleBoundary",
+  "type": "object"
+}

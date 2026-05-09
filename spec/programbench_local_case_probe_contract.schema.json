@@ -1,0 +1,410 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseExitCodeExpectationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expectation_posture": {
+          "const": "local_exit_code_expectation_only",
+          "title": "Expectation Posture",
+          "type": "string"
+        },
+        "expectation_ref": {
+          "title": "Expectation Ref",
+          "type": "string"
+        },
+        "expected_exit_code": {
+          "minimum": 0,
+          "title": "Expected Exit Code",
+          "type": "integer"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectation_ref",
+        "probe_ref",
+        "expected_exit_code",
+        "expectation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExitCodeExpectationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseFilesystemSideEffectExpectationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expectation_posture": {
+          "const": "local_filesystem_expectation_only_not_executed",
+          "title": "Expectation Posture",
+          "type": "string"
+        },
+        "expectation_ref": {
+          "title": "Expectation Ref",
+          "type": "string"
+        },
+        "expected_artifact_ref": {
+          "title": "Expected Artifact Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "side_effect_kind": {
+          "enum": [
+            "file_created",
+            "file_not_created",
+            "file_updated"
+          ],
+          "title": "Side Effect Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectation_ref",
+        "probe_ref",
+        "expected_artifact_ref",
+        "side_effect_kind",
+        "expectation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseFilesystemSideEffectExpectationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseProbeCommandShapeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "argv_template": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Argv Template",
+          "type": "array"
+        },
+        "execution_deferred_posture": {
+          "const": "probe_execution_deferred_to_later_trial",
+          "title": "Execution Deferred Posture",
+          "type": "string"
+        },
+        "expected_exit_code_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Exit Code Ref"
+        },
+        "expected_stderr_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Stderr Ref"
+        },
+        "expected_stdout_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Stdout Ref"
+        },
+        "filesystem_expectation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Filesystem Expectation Refs",
+          "type": "array"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "stdin_fixture_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stdin Fixture Ref"
+        }
+      },
+      "required": [
+        "probe_ref",
+        "argv_template",
+        "execution_deferred_posture"
+      ],
+      "title": "ProgrambenchLocalCaseProbeCommandShapeRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseProbeRequirementRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Obligation Refs",
+          "type": "array"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "requirement_kind": {
+          "enum": [
+            "negative_probe_requirement",
+            "positive_probe_requirement"
+          ],
+          "title": "Requirement Kind",
+          "type": "string"
+        },
+        "requirement_posture": {
+          "const": "local_probe_requirement_only_not_executed",
+          "title": "Requirement Posture",
+          "type": "string"
+        },
+        "requirement_ref": {
+          "title": "Requirement Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requirement_ref",
+        "probe_ref",
+        "obligation_refs",
+        "requirement_kind",
+        "requirement_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseProbeRequirementRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseProbeTemplateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Obligation Refs",
+          "type": "array"
+        },
+        "probe_kind": {
+          "enum": [
+            "exit_code_probe",
+            "filesystem_side_effect_probe",
+            "stderr_probe",
+            "stdout_probe"
+          ],
+          "title": "Probe Kind",
+          "type": "string"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "probe_template_posture": {
+          "const": "local_probe_template_only_not_executed",
+          "title": "Probe Template Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_ref",
+        "obligation_refs",
+        "probe_kind",
+        "probe_template_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseProbeTemplateRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseStdoutStderrExpectationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expectation_posture": {
+          "const": "local_stream_expectation_only",
+          "title": "Expectation Posture",
+          "type": "string"
+        },
+        "expectation_ref": {
+          "title": "Expectation Ref",
+          "type": "string"
+        },
+        "expected_artifact_ref": {
+          "title": "Expected Artifact Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "probe_ref": {
+          "title": "Probe Ref",
+          "type": "string"
+        },
+        "stream_kind": {
+          "enum": [
+            "stderr",
+            "stdout"
+          ],
+          "title": "Stream Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectation_ref",
+        "probe_ref",
+        "stream_kind",
+        "expected_artifact_ref",
+        "expectation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseStdoutStderrExpectationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "command_execution_posture": {
+      "const": "no_command_execution_authority_granted_by_0b",
+      "title": "Command Execution Posture",
+      "type": "string"
+    },
+    "exit_code_expectation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExitCodeExpectationRow"
+      },
+      "minItems": 1,
+      "title": "Exit Code Expectation Rows",
+      "type": "array"
+    },
+    "filesystem_side_effect_expectation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseFilesystemSideEffectExpectationRow"
+      },
+      "title": "Filesystem Side Effect Expectation Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "negative_probe_requirement_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseProbeRequirementRow"
+      },
+      "minItems": 1,
+      "title": "Negative Probe Requirement Rows",
+      "type": "array"
+    },
+    "positive_probe_requirement_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseProbeRequirementRow"
+      },
+      "minItems": 1,
+      "title": "Positive Probe Requirement Rows",
+      "type": "array"
+    },
+    "probe_command_shape_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseProbeCommandShapeRow"
+      },
+      "minItems": 1,
+      "title": "Probe Command Shape Rows",
+      "type": "array"
+    },
+    "probe_contract_ref": {
+      "title": "Probe Contract Ref",
+      "type": "string"
+    },
+    "probe_execution_deferred_posture": {
+      "const": "probe_execution_deferred_to_later_trial",
+      "title": "Probe Execution Deferred Posture",
+      "type": "string"
+    },
+    "probe_template_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseProbeTemplateRow"
+      },
+      "minItems": 1,
+      "title": "Probe Template Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_probe_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stdout_stderr_expectation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseStdoutStderrExpectationRow"
+      },
+      "title": "Stdout Stderr Expectation Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "probe_contract_ref",
+    "case_expansion_ref",
+    "case_blueprint_ref",
+    "probe_template_rows",
+    "probe_command_shape_rows",
+    "positive_probe_requirement_rows",
+    "negative_probe_requirement_rows",
+    "exit_code_expectation_rows",
+    "command_execution_posture",
+    "probe_execution_deferred_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseProbeContract",
+  "type": "object"
+}

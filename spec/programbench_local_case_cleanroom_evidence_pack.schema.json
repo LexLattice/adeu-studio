@@ -1,0 +1,365 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseArtifactObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_kind": {
+          "enum": [
+            "expected_input_artifact",
+            "expected_output_artifact",
+            "filesystem_side_effect"
+          ],
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "artifact_obligation_posture": {
+          "const": "local_blueprint_artifact_obligation_only_not_materialized",
+          "title": "Artifact Obligation Posture",
+          "type": "string"
+        },
+        "artifact_obligation_ref": {
+          "title": "Artifact Obligation Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_ref": {
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "source_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Witness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "artifact_obligation_ref",
+        "obligation_ref",
+        "source_witness_refs",
+        "artifact_kind",
+        "artifact_obligation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseArtifactObligationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseBehaviorObligationBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_ref": {
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "source_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Witness Refs",
+          "type": "array"
+        },
+        "support_kind": {
+          "enum": [
+            "cleanroom_artifact",
+            "cleanroom_usage_doc",
+            "local_probe_observation",
+            "support_context_only"
+          ],
+          "title": "Support Kind",
+          "type": "string"
+        },
+        "support_strength": {
+          "enum": [
+            "direct",
+            "indirect",
+            "support_only"
+          ],
+          "title": "Support Strength",
+          "type": "string"
+        },
+        "unresolved_counterevidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Counterevidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligation_ref",
+        "source_witness_refs",
+        "support_kind",
+        "support_strength",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseBehaviorObligationBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseBehaviorObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_obligation_posture": {
+          "const": "local_blueprint_obligation_only_not_official_task_truth",
+          "title": "Local Obligation Posture",
+          "type": "string"
+        },
+        "obligation_kind": {
+          "enum": [
+            "cli_argument_behavior",
+            "exit_code_behavior",
+            "filesystem_side_effect_behavior",
+            "stderr_diagnostic_behavior",
+            "stdout_output_behavior"
+          ],
+          "title": "Obligation Kind",
+          "type": "string"
+        },
+        "obligation_ref": {
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "obligation_status": {
+          "enum": [
+            "locally_witnessed",
+            "support_only",
+            "unknown"
+          ],
+          "title": "Obligation Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "obligation_ref",
+        "obligation_kind",
+        "obligation_status",
+        "local_obligation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseBehaviorObligationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseIOObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "io_channel": {
+          "enum": [
+            "stderr",
+            "stdin",
+            "stdout"
+          ],
+          "title": "Io Channel",
+          "type": "string"
+        },
+        "io_observation_ref": {
+          "title": "Io Observation Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "obligation_ref": {
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "observation_posture": {
+          "const": "local_cleanroom_observation_only",
+          "title": "Observation Posture",
+          "type": "string"
+        },
+        "source_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Witness Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "io_observation_ref",
+        "obligation_ref",
+        "source_witness_refs",
+        "io_channel",
+        "observation_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseIOObservationRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseSourceWitnessRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "source_witness_ref": {
+          "title": "Source Witness Ref",
+          "type": "string"
+        },
+        "witness_kind": {
+          "enum": [
+            "artifact_obligation_witness",
+            "behavior_obligation_witness",
+            "io_observation_witness",
+            "support_context_witness"
+          ],
+          "title": "Witness Kind",
+          "type": "string"
+        },
+        "witness_strength": {
+          "enum": [
+            "direct",
+            "indirect",
+            "support_only"
+          ],
+          "title": "Witness Strength",
+          "type": "string"
+        },
+        "witnessed_obligation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Witnessed Obligation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_witness_ref",
+        "source_refs",
+        "witness_kind",
+        "witness_strength",
+        "witnessed_obligation_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseSourceWitnessRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseArtifactObligationRow"
+      },
+      "title": "Artifact Obligation Rows",
+      "type": "array"
+    },
+    "behavior_obligation_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseBehaviorObligationBasisRow"
+      },
+      "minItems": 1,
+      "title": "Behavior Obligation Basis Rows",
+      "type": "array"
+    },
+    "behavior_obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseBehaviorObligationRow"
+      },
+      "minItems": 1,
+      "title": "Behavior Obligation Rows",
+      "type": "array"
+    },
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "cleanroom_evidence_pack_ref": {
+      "title": "Cleanroom Evidence Pack Ref",
+      "type": "string"
+    },
+    "evidence_pack_hash": {
+      "title": "Evidence Pack Hash",
+      "type": "string"
+    },
+    "forbidden_source_exclusion_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Exclusion Refs",
+      "type": "array"
+    },
+    "io_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseIOObservationRow"
+      },
+      "title": "Io Observation Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_cleanroom_evidence_pack@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_identity_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Identity Hashes",
+      "type": "array"
+    },
+    "source_witness_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseSourceWitnessRow"
+      },
+      "minItems": 1,
+      "title": "Source Witness Rows",
+      "type": "array"
+    },
+    "support_only_context_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Support Only Context Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "cleanroom_evidence_pack_ref",
+    "case_expansion_ref",
+    "case_blueprint_ref",
+    "source_witness_rows",
+    "behavior_obligation_rows",
+    "behavior_obligation_basis_rows",
+    "source_identity_hashes",
+    "evidence_pack_hash",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseCleanroomEvidencePack",
+  "type": "object"
+}

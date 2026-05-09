@@ -1,0 +1,127 @@
+{
+  "artifact_obligation_rows": [],
+  "behavior_obligation_basis_rows": [
+    {
+      "limitation_note": "Exit code obligation is witnessed by clean documentation and local observation.",
+      "obligation_ref": "obligation:diagnostic:exit-code",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc",
+        "source-witness:diagnostic-probe"
+      ],
+      "support_kind": "local_probe_observation",
+      "support_strength": "direct",
+      "unresolved_counterevidence_refs": []
+    },
+    {
+      "limitation_note": "Diagnostic stream obligation is witnessed by clean documentation and local observation.",
+      "obligation_ref": "obligation:diagnostic:stderr",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc",
+        "source-witness:diagnostic-probe"
+      ],
+      "support_kind": "local_probe_observation",
+      "support_strength": "direct",
+      "unresolved_counterevidence_refs": []
+    },
+    {
+      "limitation_note": "Normal output obligation is witnessed by clean documentation.",
+      "obligation_ref": "obligation:diagnostic:stdout",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc"
+      ],
+      "support_kind": "cleanroom_usage_doc",
+      "support_strength": "direct",
+      "unresolved_counterevidence_refs": []
+    }
+  ],
+  "behavior_obligation_rows": [
+    {
+      "limitation_note": "Local blueprint expects deterministic exit status for diagnostic invocation.",
+      "local_obligation_posture": "local_blueprint_obligation_only_not_official_task_truth",
+      "obligation_kind": "exit_code_behavior",
+      "obligation_ref": "obligation:diagnostic:exit-code",
+      "obligation_status": "locally_witnessed"
+    },
+    {
+      "limitation_note": "Local blueprint expects diagnostic text on stderr.",
+      "local_obligation_posture": "local_blueprint_obligation_only_not_official_task_truth",
+      "obligation_kind": "stderr_diagnostic_behavior",
+      "obligation_ref": "obligation:diagnostic:stderr",
+      "obligation_status": "locally_witnessed"
+    },
+    {
+      "limitation_note": "Local blueprint expects normal stdout to remain separate from diagnostics.",
+      "local_obligation_posture": "local_blueprint_obligation_only_not_official_task_truth",
+      "obligation_kind": "stdout_output_behavior",
+      "obligation_ref": "obligation:diagnostic:stdout",
+      "obligation_status": "locally_witnessed"
+    }
+  ],
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "cleanroom_evidence_pack_ref": "case-evidence-pack:pb-case-expansion-0b:diagnostic",
+  "evidence_pack_hash": "sha256:1313131313131313131313131313131313131313131313131313131313131313",
+  "forbidden_source_exclusion_refs": [
+    "source:pb-case-expansion-0a:forbidden-evaluator"
+  ],
+  "io_observation_rows": [
+    {
+      "io_channel": "stderr",
+      "io_observation_ref": "io-observation:diagnostic:stderr",
+      "limitation_note": "Observation records local stderr expectation only.",
+      "obligation_ref": "obligation:diagnostic:stderr",
+      "observation_posture": "local_cleanroom_observation_only",
+      "source_witness_refs": [
+        "source-witness:diagnostic-probe"
+      ]
+    },
+    {
+      "io_channel": "stdout",
+      "io_observation_ref": "io-observation:diagnostic:stdout",
+      "limitation_note": "Observation records local stdout expectation only.",
+      "obligation_ref": "obligation:diagnostic:stdout",
+      "observation_posture": "local_cleanroom_observation_only",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc"
+      ]
+    }
+  ],
+  "limitation_note": "Evidence pack binds local behavior obligations to cleanroom witnesses only.",
+  "schema": "programbench_local_case_cleanroom_evidence_pack@1",
+  "source_identity_hashes": [
+    "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+  ],
+  "source_witness_rows": [
+    {
+      "limitation_note": "Clean documentation directly witnesses local diagnostic obligations.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ],
+      "source_witness_ref": "source-witness:diagnostic-cli-doc",
+      "witness_kind": "behavior_obligation_witness",
+      "witness_strength": "direct",
+      "witnessed_obligation_refs": [
+        "obligation:diagnostic:exit-code",
+        "obligation:diagnostic:stderr",
+        "obligation:diagnostic:stdout"
+      ]
+    },
+    {
+      "limitation_note": "Clean local observation directly witnesses local diagnostic obligations.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-probe-observation"
+      ],
+      "source_witness_ref": "source-witness:diagnostic-probe",
+      "witness_kind": "io_observation_witness",
+      "witness_strength": "direct",
+      "witnessed_obligation_refs": [
+        "obligation:diagnostic:exit-code",
+        "obligation:diagnostic:stderr"
+      ]
+    }
+  ],
+  "support_only_context_refs": [
+    "source:pb-case-expansion-0a:support-roadmap"
+  ]
+}

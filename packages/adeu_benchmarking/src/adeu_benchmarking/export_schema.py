@@ -132,15 +132,25 @@ from .programbench_cleanroom_attempt import (
     ProgrambenchReconstructionAttemptWorkerInvocationRecord,
 )
 from .programbench_cleanroom_case_expansion import (
+    PROGRAMBENCH_LOCAL_CASE_BLUEPRINT_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_CLEANROOM_EVIDENCE_PACK_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_CONTAMINATION_SCREEN_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_CONTROL_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_ELIGIBILITY_REVIEW_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_ORACLE_BOUNDARY_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_PROBE_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_SOURCE_POOL_MANIFEST_SCHEMA,
+    ProgrambenchLocalCaseBlueprint,
+    ProgrambenchLocalCaseCleanroomEvidencePack,
+    ProgrambenchLocalCaseContaminationScreen,
     ProgrambenchLocalCaseExpansionControlContract,
     ProgrambenchLocalCaseExpansionEligibilityReview,
     ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
     ProgrambenchLocalCaseExpansionRequest,
+    ProgrambenchLocalCaseOracleBoundary,
+    ProgrambenchLocalCaseProbeContract,
     ProgrambenchLocalCaseSourcePoolManifest,
 )
 from .programbench_cleanroom_matrix import (
@@ -1494,6 +1504,58 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_case_expansion_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseBlueprint,
+            PROGRAMBENCH_LOCAL_CASE_BLUEPRINT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_blueprint.v1.json",
+            root / "spec" / "programbench_local_case_blueprint.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseCleanroomEvidencePack,
+            PROGRAMBENCH_LOCAL_CASE_CLEANROOM_EVIDENCE_PACK_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_cleanroom_evidence_pack.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_cleanroom_evidence_pack.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseProbeContract,
+            PROGRAMBENCH_LOCAL_CASE_PROBE_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_probe_contract.v1.json",
+            root / "spec" / "programbench_local_case_probe_contract.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseOracleBoundary,
+            PROGRAMBENCH_LOCAL_CASE_ORACLE_BOUNDARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_oracle_boundary.v1.json",
+            root / "spec" / "programbench_local_case_oracle_boundary.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseContaminationScreen,
+            PROGRAMBENCH_LOCAL_CASE_CONTAMINATION_SCREEN_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_contamination_screen.v1.json",
+            root / "spec" / "programbench_local_case_contamination_screen.schema.json",
         ),
     ]
 

@@ -1,0 +1,35 @@
+{
+  "baseline_comparison_posture": "no_baseline_comparison_authority_granted_by_0b",
+  "benchmark_score_posture": "no_benchmark_score_authority_granted_by_0b",
+  "blueprint_hash": "sha256:1212121212121212121212121212121212121212121212121212121212121212",
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_blueprint_status": "blueprint_ready_for_later_lineage_review",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "case_kind": "cli_behavior_case",
+  "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:diagnostic",
+  "cleanroom_evidence_pack_ref": "case-evidence-pack:pb-case-expansion-0b:diagnostic",
+  "contamination_screen_ref": "case-contamination-screen:pb-case-expansion-0b:diagnostic",
+  "execution_deferred_posture": "execution_deferred_to_later_trial_family",
+  "expected_input_artifact_refs": [],
+  "expected_output_artifact_refs": [
+    "artifact-expectation:diagnostic:stderr",
+    "artifact-expectation:diagnostic:stdout"
+  ],
+  "expected_submission_shape": "python_program_file",
+  "expansion_control_contract_ref": "case-expansion-control:pb-case-expansion-0a:reference",
+  "expansion_eligibility_review_ref": "case-expansion-eligibility:pb-case-expansion-0a:reference",
+  "expansion_guardrail_ref": "case-expansion-guardrail:pb-case-expansion-0a:reference",
+  "filesystem_side_effect_expectation_refs": [],
+  "limitation_note": "Blueprint records local diagnostic behavior only and remains non-executing.",
+  "matrix_inclusion_deferred_posture": "matrix_inclusion_deferred_to_pb_case_expansion_0c_or_later",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_case_expansion_0b",
+  "oracle_boundary_ref": "case-oracle-boundary:pb-case-expansion-0b:diagnostic",
+  "probe_contract_ref": "case-probe-contract:pb-case-expansion-0b:diagnostic",
+  "schema": "programbench_local_case_blueprint@1",
+  "source_pool_manifest_ref": "case-source-pool:pb-case-expansion-0a:reference",
+  "source_pool_subset_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+  "source_refs": [
+    "source:pb-case-expansion-0a:clean-cli-doc",
+    "source:pb-case-expansion-0a:clean-probe-observation"
+  ]
+}

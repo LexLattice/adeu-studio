@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseContaminationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "contamination_kind": {
+          "enum": [
+            "clean",
+            "decompilation_or_source_lookup_exposure",
+            "forbidden_source_exposure",
+            "hidden_evidence_exposure",
+            "official_evaluator_exposure"
+          ],
+          "title": "Contamination Kind",
+          "type": "string"
+        },
+        "contamination_posture": {
+          "enum": [
+            "blocked",
+            "clean"
+          ],
+          "title": "Contamination Posture",
+          "type": "string"
+        },
+        "contamination_ref": {
+          "title": "Contamination Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "redacted_detail_note": {
+          "title": "Redacted Detail Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contamination_ref",
+        "source_ref",
+        "contamination_kind",
+        "contamination_posture",
+        "redacted_detail_note",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseContaminationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "contamination_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseContaminationRow"
+      },
+      "minItems": 1,
+      "title": "Contamination Rows",
+      "type": "array"
+    },
+    "contamination_screen_ref": {
+      "title": "Contamination Screen Ref",
+      "type": "string"
+    },
+    "contamination_status": {
+      "enum": [
+        "blocked_by_contamination",
+        "clean",
+        "inconclusive_requires_review"
+      ],
+      "title": "Contamination Status",
+      "type": "string"
+    },
+    "decompilation_or_source_lookup_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Decompilation Or Source Lookup Exposure Refs",
+      "type": "array"
+    },
+    "forbidden_source_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Exposure Refs",
+      "type": "array"
+    },
+    "hidden_evidence_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Hidden Evidence Exposure Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_evaluator_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Official Evaluator Exposure Refs",
+      "type": "array"
+    },
+    "redaction_policy": {
+      "const": "redacted_category_count_reason_only",
+      "title": "Redaction Policy",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_contamination_screen@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "screen_verdict": {
+      "enum": [
+        "blocked_contamination_detected",
+        "inconclusive_requires_review",
+        "passed_cleanroom_screen"
+      ],
+      "title": "Screen Verdict",
+      "type": "string"
+    },
+    "screened_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Screened Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "contamination_screen_ref",
+    "case_expansion_ref",
+    "case_blueprint_ref",
+    "screened_source_refs",
+    "contamination_status",
+    "contamination_rows",
+    "redaction_policy",
+    "screen_verdict",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseContaminationScreen",
+  "type": "object"
+}
