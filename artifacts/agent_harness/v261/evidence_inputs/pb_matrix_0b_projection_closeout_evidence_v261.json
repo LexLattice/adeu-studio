@@ -1,0 +1,32 @@
+{
+  "arc": "vNext+261",
+  "benchmark_truth_authority_granted": false,
+  "closed_slice": "PB-MATRIX-0-B",
+  "coverage_hidden_test_claim_rejected": true,
+  "family": "PB-MATRIX-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_matrix_pb_matrix_0b.py",
+  "future_family_selection_granted": false,
+  "implementation_package": "packages/adeu_benchmarking",
+  "matrix_scoring_authority_granted": false,
+  "merged_at": "2026-05-09T02:21:12Z",
+  "merged_pr": "#489",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "projection_rows_bound_to_a_included_cases": true,
+  "projection_rows_bound_to_a_retry_settlement": true,
+  "projection_rows_derived_not_new_truth": true,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus261",
+  "schema": "pb_matrix_0b_projection_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_local_case_matrix_result_projection@1",
+    "programbench_local_case_matrix_observation_ledger@1",
+    "programbench_local_case_matrix_coverage_register@1",
+    "programbench_local_case_matrix_contamination_register@1"
+  ],
+  "soft_scoring_language_rejected": true,
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_matrix_pb_matrix_0b.py -q",
+    "make check",
+    "make arc-closeout-check ARC=261"
+  ]
+}

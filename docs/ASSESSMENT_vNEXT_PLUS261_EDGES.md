@@ -1,8 +1,8 @@
 # Assessment vNext+261 Edges
 
-Status: pre-lock edge assessment for `PB-MATRIX-0-B`.
+Status: post-closeout edge assessment for `PB-MATRIX-0-B`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS261_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,94 +20,108 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: B Projection Could Bypass Released A Inclusion Law
 
-- Risk:
-  a result projection could cite a case that was not included by released
-  `PB-MATRIX-0-A` controls.
-- Required containment:
-  B validators must consume released A request, inclusion manifest,
-  eligibility review, control contract, and guardrail rows, and projection
-  rows may reference only A-included cases.
+- Closeout state:
+  contained.
+- Evidence:
+  bundle validation consumes released A request, inclusion manifest,
+  eligibility review, control contract, and guardrail rows. Projection rows
+  must cover exactly the A-included and A-eligible case refs.
 
-### Edge 2: Projection Could Become New Outcome Truth
+### Edge 2: Retry Projection Could Bypass The A-Admitted Settlement
 
-- Risk:
-  a matrix projection could author a new local result posture instead of
-  deriving from released local trial/retry rows.
-- Required containment:
-  projection rows must carry source result refs, source result hashes, source
-  family closeout refs, projection rule refs, projection basis rows,
-  projection currentness, and explicit not-new-truth posture.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  retry-settlement projection rows must match the `retry_settlement_ref`
+  recorded in the released A inclusion manifest, not only a self-declared B
+  source list.
 
-### Edge 3: Projection Gaps Could Disappear
+### Edge 3: Projection Could Become New Outcome Truth
 
-- Risk:
-  an included case without a current released local result could be omitted
-  from B, making the matrix look complete.
-- Required containment:
-  every A-included case must have exactly one current projection row or a
-  declared projection gap.
+- Closeout state:
+  contained.
+- Evidence:
+  projection rows require source result refs, source hashes, source family
+  closeout refs, projection rule refs, projection basis rows, currentness
+  posture, and explicit not-new-truth posture. Reject fixtures block authored
+  new outcome truth.
 
-### Edge 4: Observation Ledger Could Become Model Ranking
+### Edge 4: Projection Gaps Could Disappear Or Normalize Drift
 
-- Risk:
-  local observations could include model superiority, cross-worker ranking,
-  official score, leaderboard, pass-rate, solve-rate, or success-rate
-  language.
-- Required containment:
-  observation ledger validators must reject ranking/scoring language and keep
-  observations local-only and non-authoritative.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  every A-included case has exactly one projection row or declared gap, and
+  `projection_gap_refs` must match row order without runtime sorting.
 
-### Edge 5: Coverage Register Could Claim Hidden-Test Coverage
+### Edge 5: Observation Ledger Could Become Model Ranking
 
-- Risk:
-  local coverage rows could be read as hidden-test coverage, official
-  evaluator equivalence, or ProgramBench denominator coverage.
-- Required containment:
-  coverage registers must carry local coverage basis refs, local denominator
-  posture, hidden-test coverage exclusion posture, and explicit no hidden-test
-  coverage posture.
+- Closeout state:
+  contained.
+- Evidence:
+  observation rows and ledger posture reject benchmark score, pass-rate,
+  solve-rate, success-rate, official-score, leaderboard, model superiority,
+  cross-worker ranking, and soft scoring language.
 
-### Edge 6: Contamination Register Could Leak Forbidden Details
+### Edge 6: Observation Rows Could Mispartition Blocked And Local Rows
 
-- Risk:
-  contamination details could reveal hidden or forbidden source names, paths,
-  excerpts, semantic summaries, test names, hidden artifact identifiers, or
-  original-source clues.
-- Required containment:
-  contamination rows must carry redaction policy and detail posture, and
-  validators must reject content-bearing forbidden detail.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  observation kinds now exhaustively require or forbid blocked reasons, and
+  top-level local and blocked observation refs must exactly match row state.
 
-### Edge 7: B Could Prematurely Emit C Artifacts
+### Edge 7: Coverage Register Could Claim Hidden-Test Coverage
 
-- Risk:
-  B could include matrix summary, post-matrix handoff, or family closeout rows.
-- Required containment:
-  B fixtures and bundle validation must reject `PB-MATRIX-0-C` artifact
-  kinds. Summary and handoff remain deferred.
+- Closeout state:
+  contained.
+- Evidence:
+  coverage rows require local coverage basis refs, local denominator posture,
+  hidden-test coverage exclusion posture, and explicit no-hidden-test-coverage
+  posture. Hidden-test coverage claims are rejected.
 
-### Edge 8: B Could Become Execution Or Batch Authority
+### Edge 8: Contamination Register Could Leak Forbidden Details
 
-- Risk:
-  projection or observation rows could be interpreted as permission to run
-  cases, execute commands, materialize candidates, or contact official
-  ProgramBench surfaces.
-- Required containment:
-  B guardrails must preserve A non-authority posture and reject command
-  execution, batch execution, candidate materialization, official runner or
-  evaluator access, hidden-test handling, official submission authority, and
-  future-family selection.
+- Closeout state:
+  contained.
+- Evidence:
+  contamination rows carry redaction policy and detail posture, and validators
+  reject hidden/forbidden names, paths, excerpts, summaries, test names,
+  hidden artifact identifiers, and original-source clues.
+
+### Edge 9: B Could Prematurely Emit C Artifacts
+
+- Closeout state:
+  contained.
+- Evidence:
+  B emits only result projection, observation ledger, coverage register, and
+  contamination register shapes. Matrix summary, handoff, and family closeout
+  remain deferred.
+
+### Edge 10: B Could Become Execution Or Batch Authority
+
+- Closeout state:
+  contained.
+- Evidence:
+  B preserves A non-authority posture and ships no command execution, batch
+  execution, candidate materialization, official runner/evaluator contact,
+  hidden-test handling, benchmark score, model ranking, or future-family
+  selection surface.
 
 ## Residual Edges
 
-- The implementation PR must add focused reference and reject fixtures under
-  `apps/api/fixtures/benchmarking/vnext_plus261/`.
-- The implementation PR must run the focused `PB-MATRIX-0-B` tests and
-  `make check` before opening the PR.
-- Later `PB-MATRIX-0-C` must summarize only released B projection/ledger/
-  coverage/contamination rows, keep aggregate counts accounting-only, and
-  prevent benchmark-score or model-ranking language.
+- `PB-MATRIX-0-C` must consume released A and B rows before producing a matrix
+  summary, post-matrix handoff, or family closeout alignment.
+- `PB-MATRIX-0-C` must keep aggregate counts accounting-only and reject
+  pass-rate, solve-rate, success-rate, benchmark-score, model-ranking, and
+  leaderboard language.
+- `PB-MATRIX-0-C` must not mark a matrix complete if projection gaps,
+  contamination blockers, missing coverage, or unresolved blockers remain.
+- `PB-MATRIX-0-C` handoff rows must be pressure-only and cannot select the
+  next family or grant official participation, hidden evaluator access,
+  model-ranking authority, batch execution authority, or retry-chain
+  authority.
 
 ## Current Judgment
 
-The `PB-MATRIX-0-B` starter is bounded enough to proceed to implementation
-after `make arc-start-check ARC=261` passes.
+`PB-MATRIX-0-B` is closed. The next bounded slice is `PB-MATRIX-0-C`.
