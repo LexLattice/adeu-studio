@@ -1,0 +1,193 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixInclusionEligibilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Refs",
+          "type": "array"
+        },
+        "candidate_case_lineage_ref": {
+          "title": "Candidate Case Lineage Ref",
+          "type": "string"
+        },
+        "eligibility_posture": {
+          "enum": [
+            "blocked_by_contamination",
+            "blocked_by_duplicate_existing_member",
+            "blocked_by_missing_probe_or_oracle_coverage",
+            "blocked_by_missing_released_lineage",
+            "blocked_by_missing_handoff_pressure",
+            "deferred",
+            "eligible_for_later_matrix_amendment_review"
+          ],
+          "title": "Eligibility Posture",
+          "type": "string"
+        },
+        "eligibility_row_ref": {
+          "title": "Eligibility Row Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_candidate_row_ref": {
+          "title": "Source Candidate Row Ref",
+          "type": "string"
+        },
+        "warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warning Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "eligibility_row_ref",
+        "candidate_case_lineage_ref",
+        "eligibility_posture",
+        "source_candidate_row_ref",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixInclusionEligibilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Lineage Refs",
+      "type": "array"
+    },
+    "blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocker Refs",
+      "type": "array"
+    },
+    "cleanroom_boundary_status": {
+      "enum": [
+        "clean",
+        "blocked"
+      ],
+      "title": "Cleanroom Boundary Status",
+      "type": "string"
+    },
+    "contamination_status": {
+      "enum": [
+        "clean",
+        "contaminated"
+      ],
+      "title": "Contamination Status",
+      "type": "string"
+    },
+    "dedupe_status": {
+      "enum": [
+        "all_candidates_unique_or_allowed",
+        "blocked_by_duplicate_existing_member"
+      ],
+      "title": "Dedupe Status",
+      "type": "string"
+    },
+    "deferred_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Case Lineage Refs",
+      "type": "array"
+    },
+    "eligibility_row_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Eligibility Row Refs",
+      "type": "array"
+    },
+    "eligibility_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixInclusionEligibilityRow"
+      },
+      "minItems": 1,
+      "title": "Eligibility Rows",
+      "type": "array"
+    },
+    "eligibility_status": {
+      "enum": [
+        "blocked",
+        "eligible_for_later_matrix_amendment_review",
+        "open_with_deferred_candidates"
+      ],
+      "title": "Eligibility Status",
+      "type": "string"
+    },
+    "eligible_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Eligible Case Lineage Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_candidate_intake_ref": {
+      "title": "Matrix Candidate Intake Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_eligibility_review_ref": {
+      "title": "Matrix Inclusion Eligibility Review Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "probe_oracle_coverage_status": {
+      "enum": [
+        "complete",
+        "missing_required_coverage"
+      ],
+      "title": "Probe Oracle Coverage Status",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_inclusion_eligibility_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warning Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_inclusion_eligibility_review_ref",
+    "matrix_inclusion_request_ref",
+    "matrix_candidate_intake_ref",
+    "eligibility_row_refs",
+    "eligibility_rows",
+    "eligibility_status",
+    "cleanroom_boundary_status",
+    "probe_oracle_coverage_status",
+    "contamination_status",
+    "dedupe_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixInclusionEligibilityReview",
+  "type": "object"
+}

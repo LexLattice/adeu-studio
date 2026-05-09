@@ -1,0 +1,151 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_count_posture": {
+      "const": "local_membership_accounting_only",
+      "title": "Aggregate Count Posture",
+      "type": "string"
+    },
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "benchmark_denominator_posture": {
+      "const": "not_benchmark_denominator",
+      "title": "Benchmark Denominator Posture",
+      "type": "string"
+    },
+    "inventory_count_posture": {
+      "const": "local_membership_accounting_only",
+      "title": "Inventory Count Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_horizon": {
+      "enum": [
+        "local_matrix_membership_revision",
+        "local_regression_matrix_membership_update",
+        "local_smoke_matrix_membership_update"
+      ],
+      "title": "Matrix Horizon",
+      "type": "string"
+    },
+    "matrix_inclusion_control_contract_ref": {
+      "title": "Matrix Inclusion Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "matrix_revision_scope_posture": {
+      "const": "local_accounting_revision_only",
+      "title": "Matrix Revision Scope Posture",
+      "type": "string"
+    },
+    "model_profile_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Model Profile Continuity Posture",
+      "type": "string"
+    },
+    "multi_profile_matrix_posture": {
+      "enum": [
+        "single_profile_matrix",
+        "non_comparable_local_accounting_only"
+      ],
+      "title": "Multi Profile Matrix Posture",
+      "type": "string"
+    },
+    "non_ranking_posture": {
+      "const": "no_model_ranking_authority",
+      "title": "Non Ranking Posture",
+      "type": "string"
+    },
+    "non_scoring_posture": {
+      "const": "no_benchmark_scoring_authority",
+      "title": "Non Scoring Posture",
+      "type": "string"
+    },
+    "probe_basis_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Probe Basis Continuity Posture",
+      "type": "string"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "sandbox_write_scope_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Sandbox Write Scope Continuity Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_inclusion_control_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Source Visibility Continuity Posture",
+      "type": "string"
+    },
+    "tool_policy_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Tool Policy Continuity Posture",
+      "type": "string"
+    },
+    "worker_profile_continuity_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Worker Profile Continuity Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_inclusion_control_contract_ref",
+    "matrix_inclusion_request_ref",
+    "matrix_horizon",
+    "matrix_revision_scope_posture",
+    "representativeness_posture",
+    "inventory_count_posture",
+    "benchmark_denominator_posture",
+    "baseline_comparison_authority_posture",
+    "worker_profile_continuity_posture",
+    "model_profile_continuity_posture",
+    "tool_policy_continuity_posture",
+    "probe_basis_continuity_posture",
+    "sandbox_write_scope_continuity_posture",
+    "source_visibility_continuity_posture",
+    "multi_profile_matrix_posture",
+    "aggregate_count_posture",
+    "non_ranking_posture",
+    "non_scoring_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixInclusionControlContract",
+  "type": "object"
+}

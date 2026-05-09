@@ -187,6 +187,18 @@ from .programbench_cleanroom_matrix import (
     ProgrambenchLocalCaseMatrixSummary,
     ProgrambenchPostCaseMatrixHandoff,
 )
+from .programbench_cleanroom_matrix_inclusion import (
+    PROGRAMBENCH_LOCAL_MATRIX_CANDIDATE_INTAKE_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_REQUEST_SCHEMA,
+    ProgrambenchLocalMatrixCandidateIntake,
+    ProgrambenchLocalMatrixInclusionControlContract,
+    ProgrambenchLocalMatrixInclusionEligibilityReview,
+    ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
+    ProgrambenchLocalMatrixInclusionRequest,
+)
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
@@ -1608,6 +1620,62 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_case_expansion_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionRequest,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_request.v1.json",
+            root / "spec" / "programbench_local_matrix_inclusion_request.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixCandidateIntake,
+            PROGRAMBENCH_LOCAL_MATRIX_CANDIDATE_INTAKE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_candidate_intake.v1.json",
+            root / "spec" / "programbench_local_matrix_candidate_intake.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionEligibilityReview,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_ELIGIBILITY_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_eligibility_review.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_inclusion_eligibility_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionControlContract,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_CONTROL_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_control_contract.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_inclusion_control_contract.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_inclusion_non_authority_guardrail.schema.json",
         ),
     ]
 

@@ -1,0 +1,130 @@
+{
+  "baseline_comparison_authority_posture": "no_baseline_comparison_authority_granted_by_pb_matrix_inclusion_0a",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0a",
+  "direct_inclusion_authority_posture": "no_direct_matrix_inclusion_authority_granted_by_pb_matrix_inclusion_0a",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_matrix_inclusion_0a",
+  "forbidden_authority_rows": [
+    {
+      "authority_kind": "baseline_comparison",
+      "forbidden_authority_ref": "authority:baseline-comparison",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "batch_execution",
+      "forbidden_authority_ref": "authority:batch-execution",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "benchmark_score",
+      "forbidden_authority_ref": "authority:benchmark-score",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "benchmark_truth",
+      "forbidden_authority_ref": "authority:benchmark-truth",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "candidate_materialization",
+      "forbidden_authority_ref": "authority:candidate-materialization",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "direct_matrix_inclusion",
+      "forbidden_authority_ref": "authority:direct-matrix-inclusion",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbidden_authority_ref": "authority:future-family-selection",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbidden_authority_ref": "authority:hidden-test-inference",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "inclusion_decision",
+      "forbidden_authority_ref": "authority:inclusion-decision",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "matrix_amendment_plan",
+      "forbidden_authority_ref": "authority:matrix-amendment-plan",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "matrix_revision_registration",
+      "forbidden_authority_ref": "authority:matrix-revision-registration",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "matrix_summary",
+      "forbidden_authority_ref": "authority:matrix-summary",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbidden_authority_ref": "authority:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbidden_authority_ref": "authority:official-programbench-participation",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbidden_authority_ref": "authority:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "probe_execution",
+      "forbidden_authority_ref": "authority:probe-execution",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    },
+    {
+      "authority_kind": "result_projection",
+      "forbidden_authority_ref": "authority:result-projection",
+      "forbiddance_posture": "forbidden_by_pb_matrix_inclusion_0a",
+      "limitation_note": "This authority is absent in Slice A."
+    }
+  ],
+  "forbidden_future_artifact_kinds": [
+    "programbench_local_matrix_amendment_plan@1",
+    "programbench_local_matrix_case_delta_manifest@1",
+    "programbench_local_matrix_comparability_delta_review@1",
+    "programbench_local_matrix_contamination_delta_review@1",
+    "programbench_local_matrix_inclusion_decision_record@1",
+    "programbench_local_matrix_inclusion_family_closeout_alignment@1",
+    "programbench_local_matrix_post_inclusion_handoff@1",
+    "programbench_local_matrix_revision_readiness_summary@1",
+    "programbench_local_matrix_revision_registration@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0a",
+  "limitation_note": "Guardrail keeps Slice A as intake and eligibility only.",
+  "matrix_amendment_deferred_posture": "matrix_amendment_deferred_to_pb_matrix_inclusion_0b",
+  "matrix_inclusion_guardrail_ref": "matrix-inclusion-guardrail:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "model_ranking_authority_posture": "no_model_ranking_authority_granted_by_pb_matrix_inclusion_0a",
+  "official_programbench_authority_posture": "no_official_programbench_authority_granted_by_pb_matrix_inclusion_0a",
+  "result_projection_authority_posture": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0a",
+  "schema": "programbench_local_matrix_inclusion_non_authority_guardrail@1"
+}

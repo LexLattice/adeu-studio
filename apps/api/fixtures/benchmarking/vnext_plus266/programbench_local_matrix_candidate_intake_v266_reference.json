@@ -1,0 +1,36 @@
+{
+  "candidate_case_rows": [
+    {
+      "candidate_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "candidate_intake_status": "recorded_for_eligibility_review",
+      "candidate_origin_posture": "released_case_expansion_lineage",
+      "case_lineage_hash": "sha256:1717171717171717171717171717171717171717171717171717171717171717",
+      "case_readiness_posture": "ready_for_later_matrix_candidate_handoff",
+      "contamination_posture": "clean",
+      "contamination_screen_hash": "sha256:1515151515151515151515151515151515151515151515151515151515151515",
+      "dedupe_basis_refs": [
+        "matrix-revision:pb-matrix-0c:base"
+      ],
+      "dedupe_status": "no_duplicate_detected",
+      "duplicate_allowed_posture": "not_applicable_no_duplicate",
+      "duplicate_case_refs": [],
+      "duplicate_of_case_lineage_refs": [],
+      "expansion_family_closeout_ref": "case-expansion-closeout:pb-case-expansion-0c:reference",
+      "handoff_pressure_ref": "handoff-pressure:pb-case-expansion-0c:matrix-review",
+      "intake_blocker_refs": [],
+      "intake_warning_refs": [],
+      "limitation_note": "Candidate intake preserves lineage identity and grants no membership.",
+      "lineage_registration_ref": "case-lineage-registration:pb-case-expansion-0c:diagnostic",
+      "matrix_candidate_status": "eligible_for_later_matrix_amendment_review",
+      "oracle_boundary_hash": "sha256:1414141414141414141414141414141414141414141414141414141414141414",
+      "prior_matrix_membership_status": "absent_from_base_matrix",
+      "probe_contract_hash": "sha256:1616161616161616161616161616161616161616161616161616161616161616",
+      "readiness_summary_ref": "case-expansion-readiness:pb-case-expansion-0c:diagnostic",
+      "source_boundary_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  ],
+  "limitation_note": "Intake records one ready local case lineage as a candidate only.",
+  "matrix_candidate_intake_ref": "matrix-candidate-intake:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "schema": "programbench_local_matrix_candidate_intake@1"
+}

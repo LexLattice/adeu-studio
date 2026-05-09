@@ -1,0 +1,38 @@
+{
+  "base_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "base_matrix_revision_hash": "sha256:2020202020202020202020202020202020202020202020202020202020202020",
+  "base_matrix_revision_ref": "matrix-revision:pb-matrix-0c:base",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_expansion_readiness_summary_ref": "case-expansion-readiness:pb-case-expansion-0c:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "case_matrix_candidate_handoff_ref": "case-matrix-candidate-handoff:pb-case-expansion-0c:diagnostic",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_matrix_inclusion_0a",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0a",
+  "limitation_note": "Request records a local membership revision candidate only.",
+  "matrix_inclusion_horizon": "local_matrix_membership_revision",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "matrix_max_added_case_count": 1,
+  "matrix_revision_horizon": "local_accounting_revision_only",
+  "prior_membership_manifest_hash": "sha256:2121212121212121212121212121212121212121212121212121212121212121",
+  "proposed_membership_manifest_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "requested_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "result_projection_authority_posture": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0a",
+  "revision_delta_hash": "sha256:2323232323232323232323232323232323232323232323232323232323232323",
+  "schema": "programbench_local_matrix_inclusion_request@1",
+  "selection_rationale_rows": [
+    {
+      "candidate_case_lineage_refs": [
+        "case-lineage:pb-case-expansion-0c:diagnostic"
+      ],
+      "limitation_note": "Candidate is reviewed for local membership accounting only.",
+      "rationale_kind": "eligible_lineage_ready",
+      "rationale_scope_posture": "local_matrix_inclusion_only_not_quality_selection",
+      "selection_rationale_ref": "matrix-inclusion-rationale:pb-matrix-inclusion-0a:eligible"
+    }
+  ],
+  "target_matrix_revision_candidate_hash": "sha256:2424242424242424242424242424242424242424242424242424242424242424",
+  "target_matrix_revision_candidate_ref": "matrix-revision-candidate:pb-matrix-inclusion-0a:reference"
+}

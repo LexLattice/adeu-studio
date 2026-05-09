@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixInclusionForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "baseline_comparison",
+            "batch_execution",
+            "benchmark_score",
+            "benchmark_truth",
+            "candidate_materialization",
+            "direct_matrix_inclusion",
+            "future_family_selection",
+            "hidden_test_inference",
+            "inclusion_decision",
+            "matrix_amendment_plan",
+            "matrix_revision_registration",
+            "matrix_summary",
+            "model_ranking",
+            "official_programbench_participation",
+            "official_submission",
+            "probe_execution",
+            "result_projection"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_matrix_inclusion_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixInclusionForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "direct_inclusion_authority_posture": {
+      "const": "no_direct_matrix_inclusion_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Direct Inclusion Authority Posture",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "forbidden_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixInclusionForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Authority Rows",
+      "type": "array"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_amendment_deferred_posture": {
+      "const": "matrix_amendment_deferred_to_pb_matrix_inclusion_0b",
+      "title": "Matrix Amendment Deferred Posture",
+      "type": "string"
+    },
+    "matrix_inclusion_guardrail_ref": {
+      "title": "Matrix Inclusion Guardrail Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "result_projection_authority_posture": {
+      "const": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Result Projection Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_inclusion_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_inclusion_guardrail_ref",
+    "matrix_inclusion_request_ref",
+    "forbidden_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "matrix_amendment_deferred_posture",
+    "direct_inclusion_authority_posture",
+    "execution_authority_posture",
+    "result_projection_authority_posture",
+    "benchmark_score_authority_posture",
+    "baseline_comparison_authority_posture",
+    "model_ranking_authority_posture",
+    "official_programbench_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail",
+  "type": "object"
+}
