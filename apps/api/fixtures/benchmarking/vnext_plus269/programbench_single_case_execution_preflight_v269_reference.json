@@ -1,0 +1,112 @@
+{
+  "decompilation_posture": "disabled",
+  "dispatch_authority_posture": "no_worker_dispatch_authority_granted_by_pb_single_case_run_0a",
+  "docker_socket_posture": "absent",
+  "environment_policy_hash": "sha256:5252525252525252525252525252525252525252525252525252525252525252",
+  "environment_policy_ref": "environment-policy:pb-single-case-run-0a:reference",
+  "host_secret_posture": "absent",
+  "limitation_note": "Preflight records eligibility review only and grants no dispatch.",
+  "network_posture": "disabled",
+  "preflight_check_rows": [
+    {
+      "blocker_refs": [],
+      "check_kind": "decompilation_disabled",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:01"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "docker_socket_absent",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:02"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "host_secret_absent",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:03"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "local_probe_basis_declared",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:04"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "network_disabled",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:05"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "run_budget_bounded",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:06"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "source_lookup_disabled",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:07"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "tool_manifest_closed",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:08"
+    },
+    {
+      "blocker_refs": [],
+      "check_kind": "write_scope_bounded",
+      "check_status": "passed_for_preflight_review",
+      "limitation_note": "Requirement declared for later witness review.",
+      "preflight_check_ref": "preflight-check:pb-single-case-run-0a:09"
+    }
+  ],
+  "preflight_scope_posture": "eligibility_review_only_no_dispatch",
+  "preflight_status": "ready_for_later_local_single_case_execution_review",
+  "required_b_witness_refs": [
+    "decompilation_absence_witness_ref",
+    "docker_socket_absence_witness_ref",
+    "network_mode_witness_ref",
+    "sandbox_attestation_bundle_ref",
+    "sandbox_instance_ref",
+    "secret_absence_witness_ref",
+    "source_lookup_absence_witness_ref",
+    "write_scope_attestation_ref"
+  ],
+  "run_budget_hash": "sha256:4949494949494949494949494949494949494949494949494949494949494949",
+  "run_budget_ref": "run-budget:pb-single-case-run-0a:reference",
+  "runbook_hash": "sha256:4747474747474747474747474747474747474747474747474747474747474747",
+  "runbook_ref": "runbook:pb-single-case-run-0a:reference",
+  "sandbox_policy_hash": "sha256:4848484848484848484848484848484848484848484848484848484848484848",
+  "sandbox_policy_ref": "sandbox-policy:pb-single-case-run-0a:reference",
+  "sandbox_witness_requirement_refs": [
+    "decompilation_absence_witness_ref",
+    "docker_socket_absence_witness_ref",
+    "network_mode_witness_ref",
+    "sandbox_attestation_bundle_ref",
+    "sandbox_instance_ref",
+    "secret_absence_witness_ref",
+    "source_lookup_absence_witness_ref",
+    "write_scope_attestation_ref"
+  ],
+  "schema": "programbench_single_case_execution_preflight@1",
+  "single_case_execution_preflight_ref": "single-case-preflight:pb-single-case-run-0a:reference",
+  "single_case_run_request_ref": "single-case-run-request:pb-single-case-run-0a:reference",
+  "single_case_target_selection_ref": "single-case-target:pb-single-case-run-0a:reference",
+  "source_lookup_posture": "disabled",
+  "tool_manifest_hash": "sha256:5050505050505050505050505050505050505050505050505050505050505050",
+  "tool_manifest_ref": "tool-manifest:pb-single-case-run-0a:reference",
+  "write_scope_hash": "sha256:5151515151515151515151515151515151515151515151515151515151515151",
+  "write_scope_ref": "write-scope:pb-single-case-run-0a:reference"
+}

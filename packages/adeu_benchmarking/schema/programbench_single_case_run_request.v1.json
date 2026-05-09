@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseRunRationaleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rationale_kind": {
+          "enum": [
+            "matrix_member_local_run_probe",
+            "ready_expanded_case_lineage_exception",
+            "direct_adapter_case_exception"
+          ],
+          "title": "Rationale Kind",
+          "type": "string"
+        },
+        "rationale_scope_posture": {
+          "const": "local_single_case_run_selection_only_not_benchmark_result",
+          "title": "Rationale Scope Posture",
+          "type": "string"
+        },
+        "run_rationale_ref": {
+          "title": "Run Rationale Ref",
+          "type": "string"
+        },
+        "selected_case_lineage_ref": {
+          "title": "Selected Case Lineage Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_rationale_ref",
+        "rationale_kind",
+        "selected_case_lineage_ref",
+        "rationale_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseRunRationaleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_pb_single_case_run_0a",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_single_case_run_0a",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_single_case_run_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_single_case_run_0a",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_single_case_run_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "request_source_closeout_ref": {
+      "title": "Request Source Closeout Ref",
+      "type": "string"
+    },
+    "request_source_family_ref": {
+      "title": "Request Source Family Ref",
+      "type": "string"
+    },
+    "requested_case_lineage_hash": {
+      "title": "Requested Case Lineage Hash",
+      "type": "string"
+    },
+    "requested_case_lineage_ref": {
+      "title": "Requested Case Lineage Ref",
+      "type": "string"
+    },
+    "run_horizon": {
+      "const": "local_single_case_cleanroom_specimen_preflight_only",
+      "title": "Run Horizon",
+      "type": "string"
+    },
+    "run_rationale_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseRunRationaleRow"
+      },
+      "minItems": 1,
+      "title": "Run Rationale Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_only_posture": {
+      "const": "exactly_one_case_lineage_selected",
+      "title": "Single Case Only Posture",
+      "type": "string"
+    },
+    "single_case_run_relation_to_prior_lifecycle": {
+      "enum": [
+        "matrix_member_run",
+        "expanded_case_lineage_run",
+        "direct_adapter_case_run_exception"
+      ],
+      "title": "Single Case Run Relation To Prior Lifecycle",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "target_origin_exception_posture": {
+      "enum": [
+        "not_applicable_matrix_member_route",
+        "not_applicable_ready_expanded_case_lineage_route",
+        "direct_adapter_case_exception_declared_with_non_matrix_lineage_warning"
+      ],
+      "title": "Target Origin Exception Posture",
+      "type": "string"
+    },
+    "target_origin_justification": {
+      "title": "Target Origin Justification",
+      "type": "string"
+    },
+    "target_origin_route": {
+      "enum": [
+        "matrix_member",
+        "ready_expanded_case_lineage",
+        "direct_adapter_case_exception"
+      ],
+      "title": "Target Origin Route",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_request_ref",
+    "requested_case_lineage_ref",
+    "requested_case_lineage_hash",
+    "request_source_family_ref",
+    "request_source_closeout_ref",
+    "single_case_run_relation_to_prior_lifecycle",
+    "target_origin_route",
+    "target_origin_justification",
+    "target_origin_exception_posture",
+    "run_horizon",
+    "run_rationale_rows",
+    "single_case_only_posture",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "baseline_comparison_authority_posture",
+    "model_ranking_authority_posture",
+    "batch_execution_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunRequest",
+  "type": "object"
+}

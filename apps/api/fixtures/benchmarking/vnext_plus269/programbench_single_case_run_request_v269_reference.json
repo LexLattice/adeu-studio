@@ -1,0 +1,30 @@
+{
+  "baseline_comparison_authority_posture": "no_baseline_comparison_authority_granted_by_pb_single_case_run_0a",
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_pb_single_case_run_0a",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_single_case_run_0a",
+  "limitation_note": "Run request selects one local cleanroom case lineage and grants no execution.",
+  "model_ranking_authority_posture": "no_model_ranking_authority_granted_by_pb_single_case_run_0a",
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_single_case_run_0a",
+  "request_source_closeout_ref": "matrix-inclusion-family-closeout:pb-matrix-inclusion-0c:reference",
+  "request_source_family_ref": "PB-MATRIX-INCLUSION-0",
+  "requested_case_lineage_hash": "sha256:4141414141414141414141414141414141414141414141414141414141414141",
+  "requested_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+  "run_horizon": "local_single_case_cleanroom_specimen_preflight_only",
+  "run_rationale_rows": [
+    {
+      "limitation_note": "Rationale selects one local matrix member for later preflight review only.",
+      "rationale_kind": "matrix_member_local_run_probe",
+      "rationale_scope_posture": "local_single_case_run_selection_only_not_benchmark_result",
+      "run_rationale_ref": "run-rationale:pb-single-case-run-0a:matrix-member",
+      "selected_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    }
+  ],
+  "schema": "programbench_single_case_run_request@1",
+  "single_case_only_posture": "exactly_one_case_lineage_selected",
+  "single_case_run_relation_to_prior_lifecycle": "matrix_member_run",
+  "single_case_run_request_ref": "single-case-run-request:pb-single-case-run-0a:reference",
+  "target_origin_exception_posture": "not_applicable_matrix_member_route",
+  "target_origin_justification": "Selected from released local matrix membership for one local run preflight only.",
+  "target_origin_route": "matrix_member"
+}

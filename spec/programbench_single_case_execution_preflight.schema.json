@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCasePreflightCheckRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Refs",
+          "type": "array"
+        },
+        "check_kind": {
+          "enum": [
+            "network_disabled",
+            "source_lookup_disabled",
+            "decompilation_disabled",
+            "docker_socket_absent",
+            "host_secret_absent",
+            "tool_manifest_closed",
+            "write_scope_bounded",
+            "run_budget_bounded",
+            "local_probe_basis_declared"
+          ],
+          "title": "Check Kind",
+          "type": "string"
+        },
+        "check_status": {
+          "enum": [
+            "passed_for_preflight_review",
+            "blocked"
+          ],
+          "title": "Check Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "preflight_check_ref": {
+          "title": "Preflight Check Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "preflight_check_ref",
+        "check_kind",
+        "check_status",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCasePreflightCheckRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "decompilation_posture": {
+      "const": "disabled",
+      "title": "Decompilation Posture",
+      "type": "string"
+    },
+    "dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority_granted_by_pb_single_case_run_0a",
+      "title": "Dispatch Authority Posture",
+      "type": "string"
+    },
+    "docker_socket_posture": {
+      "const": "absent",
+      "title": "Docker Socket Posture",
+      "type": "string"
+    },
+    "environment_policy_hash": {
+      "title": "Environment Policy Hash",
+      "type": "string"
+    },
+    "environment_policy_ref": {
+      "title": "Environment Policy Ref",
+      "type": "string"
+    },
+    "host_secret_posture": {
+      "const": "absent",
+      "title": "Host Secret Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_posture": {
+      "const": "disabled",
+      "title": "Network Posture",
+      "type": "string"
+    },
+    "preflight_check_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCasePreflightCheckRow"
+      },
+      "minItems": 1,
+      "title": "Preflight Check Rows",
+      "type": "array"
+    },
+    "preflight_scope_posture": {
+      "const": "eligibility_review_only_no_dispatch",
+      "title": "Preflight Scope Posture",
+      "type": "string"
+    },
+    "preflight_status": {
+      "enum": [
+        "ready_for_later_local_single_case_execution_review",
+        "blocked"
+      ],
+      "title": "Preflight Status",
+      "type": "string"
+    },
+    "required_b_witness_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required B Witness Refs",
+      "type": "array"
+    },
+    "run_budget_hash": {
+      "title": "Run Budget Hash",
+      "type": "string"
+    },
+    "run_budget_ref": {
+      "title": "Run Budget Ref",
+      "type": "string"
+    },
+    "runbook_hash": {
+      "title": "Runbook Hash",
+      "type": "string"
+    },
+    "runbook_ref": {
+      "title": "Runbook Ref",
+      "type": "string"
+    },
+    "sandbox_policy_hash": {
+      "title": "Sandbox Policy Hash",
+      "type": "string"
+    },
+    "sandbox_policy_ref": {
+      "title": "Sandbox Policy Ref",
+      "type": "string"
+    },
+    "sandbox_witness_requirement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Witness Requirement Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_single_case_execution_preflight@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_execution_preflight_ref": {
+      "title": "Single Case Execution Preflight Ref",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "single_case_target_selection_ref": {
+      "title": "Single Case Target Selection Ref",
+      "type": "string"
+    },
+    "source_lookup_posture": {
+      "const": "disabled",
+      "title": "Source Lookup Posture",
+      "type": "string"
+    },
+    "tool_manifest_hash": {
+      "title": "Tool Manifest Hash",
+      "type": "string"
+    },
+    "tool_manifest_ref": {
+      "title": "Tool Manifest Ref",
+      "type": "string"
+    },
+    "write_scope_hash": {
+      "title": "Write Scope Hash",
+      "type": "string"
+    },
+    "write_scope_ref": {
+      "title": "Write Scope Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_execution_preflight_ref",
+    "single_case_run_request_ref",
+    "single_case_target_selection_ref",
+    "runbook_ref",
+    "runbook_hash",
+    "sandbox_policy_ref",
+    "sandbox_policy_hash",
+    "sandbox_witness_requirement_refs",
+    "required_b_witness_refs",
+    "run_budget_ref",
+    "run_budget_hash",
+    "tool_manifest_ref",
+    "tool_manifest_hash",
+    "write_scope_ref",
+    "write_scope_hash",
+    "environment_policy_ref",
+    "environment_policy_hash",
+    "network_posture",
+    "source_lookup_posture",
+    "decompilation_posture",
+    "docker_socket_posture",
+    "host_secret_posture",
+    "preflight_check_rows",
+    "preflight_status",
+    "preflight_scope_posture",
+    "dispatch_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseExecutionPreflight",
+  "type": "object"
+}
