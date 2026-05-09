@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -278,6 +279,88 @@ def test_pb_matrix_0b_bundle_rejects_missing_projection_gap() -> None:
             coverage_register=coverage,
             contamination_register=contamination,
         )
+
+
+def test_pb_matrix_0b_bundle_rejects_retry_projection_not_a_admitted_settlement() -> None:
+    request, manifest, eligibility, control, guardrail = _load_matrix_a_rows()
+    payload = _load_matrix_b_fixture(
+        "programbench_local_case_matrix_result_projection_v261_reference.json"
+    )
+    payload["source_retry_settlement_refs"] = [
+        "retry-remand-settlement:pb-retry-0c:other"
+    ]
+    for row in payload["projection_case_rows"]:
+        if row["case_ref"] == "matrix-case:pb-matrix-0a:retry":
+            row["source_result_ref"] = "retry-remand-settlement:pb-retry-0c:other"
+    for row in payload["projection_basis_rows"]:
+        if row["case_ref"] == "matrix-case:pb-matrix-0a:retry":
+            row["source_result_ref"] = "retry-remand-settlement:pb-retry-0c:other"
+
+    projection = ProgrambenchLocalCaseMatrixResultProjection.model_validate(payload)
+    observation, coverage, contamination = _load_matrix_b_rows()[1:]
+
+    with pytest.raises(ValueError, match="A-admitted settlement"):
+        validate_pb_matrix_0b_projection_bundle(
+            matrix_request=request,
+            inclusion_manifest=manifest,
+            lineage_eligibility_review=eligibility,
+            matrix_control_contract=control,
+            matrix_guardrail=guardrail,
+            result_projection=projection,
+            observation_ledger=observation,
+            coverage_register=coverage,
+            contamination_register=contamination,
+        )
+
+
+def test_pb_matrix_0b_projection_gap_refs_must_follow_row_order() -> None:
+    payload = _load_matrix_b_fixture(
+        "programbench_local_case_matrix_result_projection_v261_reference.json"
+    )
+    payload["projection_currentness"] = "projection_gap_declared"
+    payload["projection_gap_reason"] = "missing_current_result"
+    gap_refs_by_case = {
+        "matrix-case:pb-matrix-0a:retry": "matrix-projection-gap:z",
+        "matrix-case:pb-matrix-0a:trial": "matrix-projection-gap:a",
+    }
+    for row in payload["projection_case_rows"]:
+        row["projection_currentness"] = "projection_gap_declared"
+        row["projected_result_posture"] = "projection_gap"
+        row["projection_gap_reason"] = "missing_current_result"
+        row["projection_gap_ref"] = gap_refs_by_case[row["case_ref"]]
+    payload["projection_gap_refs"] = [
+        "matrix-projection-gap:a",
+        "matrix-projection-gap:z",
+    ]
+
+    with pytest.raises(ValidationError, match="projection_gap_refs must match"):
+        ProgrambenchLocalCaseMatrixResultProjection.model_validate(payload)
+
+
+def test_pb_matrix_0b_observation_rows_require_exhaustive_blocked_reason_policy() -> None:
+    payload = _load_matrix_b_fixture(
+        "programbench_local_case_matrix_observation_ledger_v261_reference.json"
+    )
+    payload["observation_rows"][0]["observation_kind"] = "local_gap_observed"
+
+    with pytest.raises(ValidationError, match="requires a blocked reason"):
+        ProgrambenchLocalCaseMatrixObservationLedger.model_validate(payload)
+
+
+def test_pb_matrix_0b_observation_refs_must_partition_row_state() -> None:
+    payload = copy.deepcopy(
+        _load_matrix_b_fixture(
+            "programbench_local_case_matrix_observation_ledger_v261_reference.json"
+        )
+    )
+    payload["observation_rows"][0]["observation_kind"] = "local_gap_observed"
+    payload["observation_rows"][0]["blocked_observation_reason"] = "projection_gap"
+    payload["blocked_observation_refs"] = [
+        payload["observation_rows"][0]["observation_ref"]
+    ]
+
+    with pytest.raises(ValidationError, match="local_observation_refs must match"):
+        ProgrambenchLocalCaseMatrixObservationLedger.model_validate(payload)
 
 
 @pytest.mark.parametrize(

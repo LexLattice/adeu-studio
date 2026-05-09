@@ -865,11 +865,17 @@ class ProgrambenchLocalCaseMatrixObservationRow(_MatrixBase):
         )
         _ensure_no_soft_scoring_language(self.observation_text, field_name="observation_text")
         _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
-        if (
-            self.observation_kind == "local_projection_observed"
-            and self.blocked_observation_reason != "not_applicable"
-        ):
-            raise ValueError("local projection observations cannot carry blocked reason")
+        is_blocked_observation = self.observation_kind in {
+            "local_blocker_observed",
+            "local_gap_observed",
+        }
+        has_blocked_reason = self.blocked_observation_reason != "not_applicable"
+        if is_blocked_observation and not has_blocked_reason:
+            raise ValueError(f"{self.observation_kind} requires a blocked reason")
+        if not is_blocked_observation and has_blocked_reason:
+            raise ValueError(
+                f"{self.observation_kind} cannot carry a blocked observation reason"
+            )
         return self
 
 
@@ -1002,11 +1008,11 @@ class ProgrambenchLocalCaseMatrixResultProjection(_MatrixBase):
             raise ValueError("projection rows must cover every included case exactly once")
         if self.projected_case_result_rows != row_refs:
             raise ValueError("projected_case_result_rows must match projection row refs")
-        gap_refs = sorted(
+        gap_refs = [
             row.projection_gap_ref
             for row in self.projection_case_rows
             if row.projection_gap_ref is not None
-        )
+        ]
         if self.projection_gap_refs != gap_refs:
             raise ValueError("projection_gap_refs must match projection gap rows")
         if self.projection_gap_refs and self.projection_gap_reason == "not_applicable":
@@ -1050,14 +1056,19 @@ class ProgrambenchLocalCaseMatrixObservationLedger(_MatrixBase):
             self.blocked_observation_refs,
             field_name="blocked_observation_refs",
         )
-        if set(self.local_observation_refs) - set(row_refs):
-            raise ValueError("local_observation_refs must resolve to observation rows")
-        blocked_from_rows = {
+        local_from_rows = [
+            row.observation_ref
+            for row in self.observation_rows
+            if row.blocked_observation_reason == "not_applicable"
+        ]
+        if self.local_observation_refs != local_from_rows:
+            raise ValueError("local_observation_refs must match unblocked observation rows")
+        blocked_from_rows = [
             row.observation_ref
             for row in self.observation_rows
             if row.blocked_observation_reason != "not_applicable"
-        }
-        if set(self.blocked_observation_refs) != blocked_from_rows:
+        ]
+        if self.blocked_observation_refs != blocked_from_rows:
             raise ValueError("blocked_observation_refs must match blocked observation rows")
         _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
         return self
@@ -1325,6 +1336,10 @@ def validate_pb_matrix_0b_projection_bundle(
     for projection_row in result_projection.projection_case_rows:
         candidate = a_candidate_by_case[projection_row.case_ref]
         if candidate.case_lineage_kind == "trial_with_retry_settlement":
+            if projection_row.source_result_ref != candidate.retry_settlement_ref:
+                raise ValueError(
+                    "retry-settlement matrix projections must match A-admitted settlement"
+                )
             if (
                 projection_row.source_result_ref
                 not in result_projection.source_retry_settlement_refs
