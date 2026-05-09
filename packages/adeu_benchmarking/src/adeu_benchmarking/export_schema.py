@@ -196,8 +196,12 @@ from .programbench_cleanroom_matrix_inclusion import (
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_CONTROL_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_DECISION_RECORD_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_POST_INCLUSION_HANDOFF_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_REVISION_READINESS_SUMMARY_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_REVISION_REGISTRATION_SCHEMA,
     ProgrambenchLocalMatrixAmendmentPlan,
     ProgrambenchLocalMatrixCandidateIntake,
     ProgrambenchLocalMatrixCaseDeltaManifest,
@@ -206,8 +210,12 @@ from .programbench_cleanroom_matrix_inclusion import (
     ProgrambenchLocalMatrixInclusionControlContract,
     ProgrambenchLocalMatrixInclusionDecisionRecord,
     ProgrambenchLocalMatrixInclusionEligibilityReview,
+    ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
     ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
     ProgrambenchLocalMatrixInclusionRequest,
+    ProgrambenchLocalMatrixPostInclusionHandoff,
+    ProgrambenchLocalMatrixRevisionReadinessSummary,
+    ProgrambenchLocalMatrixRevisionRegistration,
 )
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
@@ -1742,6 +1750,54 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_matrix_inclusion_decision_record.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixRevisionRegistration,
+            PROGRAMBENCH_LOCAL_MATRIX_REVISION_REGISTRATION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_revision_registration.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_revision_registration.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixRevisionReadinessSummary,
+            PROGRAMBENCH_LOCAL_MATRIX_REVISION_READINESS_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_revision_readiness_summary.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_revision_readiness_summary.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixPostInclusionHandoff,
+            PROGRAMBENCH_LOCAL_MATRIX_POST_INCLUSION_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_post_inclusion_handoff.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_post_inclusion_handoff.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_inclusion_family_closeout_alignment.schema.json",
         ),
     ]
 

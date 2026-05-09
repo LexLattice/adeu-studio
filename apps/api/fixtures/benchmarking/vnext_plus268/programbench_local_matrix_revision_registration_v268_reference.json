@@ -1,0 +1,30 @@
+{
+  "base_matrix_revision_hash": "sha256:2020202020202020202020202020202020202020202020202020202020202020",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0c",
+  "case_delta_manifest_hash": "sha256:2525252525252525252525252525252525252525252525252525252525252525",
+  "comparability_delta_review_hash": "sha256:3535353535353535353535353535353535353535353535353535353535353535",
+  "contamination_delta_review_hash": "sha256:f19fa83abd7c75666c9d9c231237bb584d7f54bfdb44399d69c6fcdca00346aa",
+  "deferred_case_lineage_refs": [],
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_matrix_inclusion_0c",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c",
+  "included_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "inclusion_decision_hash": "sha256:5f27791e6049d4d2fc7e33f1455c615e7cb503fcb920d75c8dfad74c16b6080d",
+  "limitation_note": "Registration records revised local matrix membership only.",
+  "local_accounting_scope_posture": "local_membership_accounting_only_not_result_projection",
+  "matrix_amendment_plan_hash": "sha256:169a6ad59e1d0e7040e7616b7ae120a8c03e77f0bf7214dcc6755d35dddd71b1",
+  "matrix_amendment_plan_ref": "matrix-amendment-plan:pb-matrix-inclusion-0b:reference",
+  "matrix_case_delta_manifest_ref": "matrix-case-delta-manifest:pb-matrix-inclusion-0b:reference",
+  "matrix_inclusion_decision_ref": "matrix-inclusion-decision:pb-matrix-inclusion-0b:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "matrix_revision_registration_ref": "matrix-revision-registration:pb-matrix-inclusion-0c:reference",
+  "matrix_revision_scope_posture": "local_matrix_membership_revision_registration_only",
+  "registered_matrix_revision_hash": "sha256:3636363636363636363636363636363636363636363636363636363636363636",
+  "registered_matrix_revision_ref": "matrix-revision:pb-matrix-inclusion-0c:registered",
+  "registered_membership_manifest_hash": "sha256:4040404040404040404040404040404040404040404040404040404040404040",
+  "rejected_case_lineage_refs": [],
+  "result_projection_authority_posture": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c",
+  "schema": "programbench_local_matrix_revision_registration@1",
+  "target_matrix_ref": "case-matrix:pb-matrix-0a:reference"
+}

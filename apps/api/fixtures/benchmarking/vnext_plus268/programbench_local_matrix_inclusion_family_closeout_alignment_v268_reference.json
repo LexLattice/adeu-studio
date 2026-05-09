@@ -1,0 +1,71 @@
+{
+  "amendment_plan_refs": [
+    "matrix-amendment-plan:pb-matrix-inclusion-0b:reference"
+  ],
+  "baseline_comparison_posture": "no_baseline_comparison_authority",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "candidate_intake_refs": [
+    "matrix-candidate-intake:pb-matrix-inclusion-0a:reference"
+  ],
+  "case_delta_manifest_refs": [
+    "matrix-case-delta-manifest:pb-matrix-inclusion-0b:reference"
+  ],
+  "closed_family_ref": "PB-MATRIX-INCLUSION-0",
+  "closed_slice_refs": [
+    "PB-MATRIX-INCLUSION-0-A",
+    "PB-MATRIX-INCLUSION-0-B",
+    "PB-MATRIX-INCLUSION-0-C"
+  ],
+  "comparability_delta_review_refs": [
+    "matrix-comparability-delta:pb-matrix-inclusion-0b:reference"
+  ],
+  "contamination_delta_review_refs": [
+    "matrix-contamination-delta-review:pb-matrix-inclusion-0b:reference"
+  ],
+  "control_contract_refs": [
+    "matrix-inclusion-control:pb-matrix-inclusion-0a:reference"
+  ],
+  "eligibility_review_refs": [
+    "matrix-inclusion-eligibility:pb-matrix-inclusion-0a:reference"
+  ],
+  "future_family_authority_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c",
+  "guardrail_refs": [
+    "matrix-inclusion-guardrail:pb-matrix-inclusion-0a:reference"
+  ],
+  "inclusion_decision_refs": [
+    "matrix-inclusion-decision:pb-matrix-inclusion-0b:reference"
+  ],
+  "limitation_note": "Closeout closes matrix inclusion only and grants no benchmark authority.",
+  "matrix_inclusion_family_closeout_ref": "matrix-inclusion-family-closeout:pb-matrix-inclusion-0c:reference",
+  "matrix_inclusion_request_refs": [
+    "matrix-inclusion-request:pb-matrix-inclusion-0a:reference"
+  ],
+  "model_ranking_posture": "no_model_ranking_authority",
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_inclusion_0c",
+  "post_inclusion_handoff_refs": [
+    "matrix-post-inclusion-handoff:pb-matrix-inclusion-0c:reference"
+  ],
+  "revision_readiness_summary_refs": [
+    "matrix-revision-readiness:pb-matrix-inclusion-0c:reference"
+  ],
+  "revision_registration_refs": [
+    "matrix-revision-registration:pb-matrix-inclusion-0c:reference"
+  ],
+  "schema": "programbench_local_matrix_inclusion_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "programbench_local_matrix_amendment_plan@1",
+    "programbench_local_matrix_candidate_intake@1",
+    "programbench_local_matrix_case_delta_manifest@1",
+    "programbench_local_matrix_comparability_delta_review@1",
+    "programbench_local_matrix_contamination_delta_review@1",
+    "programbench_local_matrix_inclusion_control_contract@1",
+    "programbench_local_matrix_inclusion_decision_record@1",
+    "programbench_local_matrix_inclusion_eligibility_review@1",
+    "programbench_local_matrix_inclusion_family_closeout_alignment@1",
+    "programbench_local_matrix_inclusion_non_authority_guardrail@1",
+    "programbench_local_matrix_inclusion_request@1",
+    "programbench_local_matrix_post_inclusion_handoff@1",
+    "programbench_local_matrix_revision_readiness_summary@1",
+    "programbench_local_matrix_revision_registration@1"
+  ]
+}

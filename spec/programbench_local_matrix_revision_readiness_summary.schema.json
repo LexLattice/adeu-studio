@@ -1,0 +1,108 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "deferred_case_count": {
+      "minimum": 0,
+      "title": "Deferred Case Count",
+      "type": "integer"
+    },
+    "included_case_count": {
+      "minimum": 0,
+      "title": "Included Case Count",
+      "type": "integer"
+    },
+    "included_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Included Case Lineage Refs",
+      "type": "array"
+    },
+    "inventory_count_posture": {
+      "const": "local_membership_inventory_only_not_result_count",
+      "title": "Inventory Count Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_denominator_posture": {
+      "const": "local_matrix_denominator_only_not_benchmark_denominator",
+      "title": "Matrix Denominator Posture",
+      "type": "string"
+    },
+    "matrix_revision_readiness_summary_ref": {
+      "title": "Matrix Revision Readiness Summary Ref",
+      "type": "string"
+    },
+    "matrix_revision_registration_ref": {
+      "title": "Matrix Revision Registration Ref",
+      "type": "string"
+    },
+    "registered_matrix_revision_ref": {
+      "title": "Registered Matrix Revision Ref",
+      "type": "string"
+    },
+    "rejected_case_count": {
+      "minimum": 0,
+      "title": "Rejected Case Count",
+      "type": "integer"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "revision_readiness_posture": {
+      "enum": [
+        "ready_for_later_local_matrix_review",
+        "open_with_deferred_or_rejected_membership",
+        "blocked_by_carried_blockers"
+      ],
+      "title": "Revision Readiness Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_revision_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_revision_readiness_summary_ref",
+    "matrix_revision_registration_ref",
+    "registered_matrix_revision_ref",
+    "included_case_count",
+    "deferred_case_count",
+    "rejected_case_count",
+    "revision_readiness_posture",
+    "inventory_count_posture",
+    "matrix_denominator_posture",
+    "representativeness_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixRevisionReadinessSummary",
+  "type": "object"
+}

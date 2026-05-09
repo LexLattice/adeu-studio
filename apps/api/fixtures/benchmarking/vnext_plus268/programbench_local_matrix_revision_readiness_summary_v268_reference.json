@@ -1,0 +1,20 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "deferred_case_count": 0,
+  "included_case_count": 1,
+  "included_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "inventory_count_posture": "local_membership_inventory_only_not_result_count",
+  "limitation_note": "Readiness counts are local inventory only.",
+  "matrix_denominator_posture": "local_matrix_denominator_only_not_benchmark_denominator",
+  "matrix_revision_readiness_summary_ref": "matrix-revision-readiness:pb-matrix-inclusion-0c:reference",
+  "matrix_revision_registration_ref": "matrix-revision-registration:pb-matrix-inclusion-0c:reference",
+  "registered_matrix_revision_ref": "matrix-revision:pb-matrix-inclusion-0c:registered",
+  "rejected_case_count": 0,
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "revision_readiness_posture": "ready_for_later_local_matrix_review",
+  "schema": "programbench_local_matrix_revision_readiness_summary@1"
+}
