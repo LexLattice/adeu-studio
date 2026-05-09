@@ -4,6 +4,7 @@ import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from urm_runtime.hashing import sha256_canonical_json
 
 from .programbench_cleanroom_case_expansion import (
     ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment,
@@ -84,6 +85,11 @@ PB_MATRIX_INCLUSION_0C_ARTIFACT_KINDS = {
     PROGRAMBENCH_LOCAL_MATRIX_POST_INCLUSION_HANDOFF_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
 }
+PB_MATRIX_INCLUSION_0_ARTIFACT_KINDS = (
+    PB_MATRIX_INCLUSION_0A_ARTIFACT_KINDS
+    | PB_MATRIX_INCLUSION_0B_ARTIFACT_KINDS
+    | PB_MATRIX_INCLUSION_0C_ARTIFACT_KINDS
+)
 PB_MATRIX_INCLUSION_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
     PB_MATRIX_INCLUSION_0B_ARTIFACT_KINDS | PB_MATRIX_INCLUSION_0C_ARTIFACT_KINDS
 )
@@ -167,6 +173,10 @@ def _ensure_sorted_unique_allow_empty(values: list[str], *, field_name: str) -> 
 def _ensure_hash(value: str, *, field_name: str) -> None:
     if not _SHA256_RE.match(value):
         raise ValueError(f"{field_name} must be a sha256:<64 lowercase hex> hash")
+
+
+def _model_hash(value: BaseModel) -> str:
+    return f"sha256:{sha256_canonical_json(value.model_dump(by_alias=True, mode='json'))}"
 
 
 def _ensure_no_forbidden_refs(values: list[str], *, field_name: str) -> None:
@@ -1299,6 +1309,356 @@ class ProgrambenchLocalMatrixInclusionDecisionRecord(_MatrixInclusionBase):
         return self
 
 
+class ProgrambenchLocalMatrixPostInclusionHandoffPressureRow(_MatrixInclusionBase):
+    handoff_pressure_ref: str
+    handoff_pressure_kind: Literal[
+        "future_local_matrix_result_projection_review",
+        "future_local_batch_execution_governance_review",
+        "future_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_family_only",
+    ]
+    source_ref: str
+    handoff_non_selection_posture: Literal[
+        "pressure_only_no_future_family_selection"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_pressure_row(
+        self,
+    ) -> "ProgrambenchLocalMatrixPostInclusionHandoffPressureRow":
+        _ensure_no_forbidden_refs(
+            [self.handoff_pressure_ref, self.source_ref],
+            field_name="handoff_pressure_row_refs",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixRevisionRegistration(_MatrixInclusionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_MATRIX_REVISION_REGISTRATION_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_revision_registration_ref: str
+    matrix_inclusion_request_ref: str
+    matrix_amendment_plan_ref: str
+    matrix_case_delta_manifest_ref: str
+    matrix_inclusion_decision_ref: str
+    target_matrix_ref: str
+    registered_matrix_revision_ref: str
+    registered_matrix_revision_hash: str
+    base_matrix_revision_hash: str
+    matrix_amendment_plan_hash: str
+    case_delta_manifest_hash: str
+    comparability_delta_review_hash: str
+    contamination_delta_review_hash: str
+    inclusion_decision_hash: str
+    registered_membership_manifest_hash: str
+    included_case_lineage_refs: list[str] = Field(default_factory=list)
+    deferred_case_lineage_refs: list[str] = Field(default_factory=list)
+    rejected_case_lineage_refs: list[str] = Field(default_factory=list)
+    matrix_revision_scope_posture: Literal[
+        "local_matrix_membership_revision_registration_only"
+    ]
+    local_accounting_scope_posture: Literal[
+        "local_membership_accounting_only_not_result_projection"
+    ]
+    execution_authority_posture: Literal[
+        "no_execution_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    result_projection_authority_posture: Literal[
+        "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    benchmark_score_authority_posture: Literal[
+        "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_revision_registration(
+        self,
+    ) -> "ProgrambenchLocalMatrixRevisionRegistration":
+        for field_name in (
+            "registered_matrix_revision_hash",
+            "base_matrix_revision_hash",
+            "matrix_amendment_plan_hash",
+            "case_delta_manifest_hash",
+            "comparability_delta_review_hash",
+            "contamination_delta_review_hash",
+            "inclusion_decision_hash",
+            "registered_membership_manifest_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        lineage_sets = []
+        for field_name in (
+            "included_case_lineage_refs",
+            "deferred_case_lineage_refs",
+            "rejected_case_lineage_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+            lineage_sets.append(set(values))
+        if not set().union(*lineage_sets):
+            raise ValueError("matrix revision registration requires at least one lineage")
+        if sum(len(values) for values in lineage_sets) != len(set().union(*lineage_sets)):
+            raise ValueError(
+                "included, deferred, and rejected revision lineage refs must be disjoint"
+            )
+        _ensure_no_forbidden_refs(
+            [
+                self.matrix_revision_registration_ref,
+                self.matrix_inclusion_request_ref,
+                self.matrix_amendment_plan_ref,
+                self.matrix_case_delta_manifest_ref,
+                self.matrix_inclusion_decision_ref,
+                self.target_matrix_ref,
+                self.registered_matrix_revision_ref,
+            ],
+            field_name="matrix_revision_registration_refs",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixRevisionReadinessSummary(_MatrixInclusionBase):
+    schema_id: Literal[
+        PROGRAMBENCH_LOCAL_MATRIX_REVISION_READINESS_SUMMARY_SCHEMA
+    ] = Field(alias="schema")
+    matrix_revision_readiness_summary_ref: str
+    matrix_revision_registration_ref: str
+    registered_matrix_revision_ref: str
+    included_case_count: int = Field(ge=0)
+    deferred_case_count: int = Field(ge=0)
+    rejected_case_count: int = Field(ge=0)
+    included_case_lineage_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    revision_readiness_posture: Literal[
+        "ready_for_later_local_matrix_review",
+        "open_with_deferred_or_rejected_membership",
+        "blocked_by_carried_blockers",
+    ]
+    inventory_count_posture: Literal[
+        "local_membership_inventory_only_not_result_count"
+    ]
+    matrix_denominator_posture: Literal[
+        "local_matrix_denominator_only_not_benchmark_denominator"
+    ]
+    representativeness_posture: Literal["not_representative_benchmark_sample"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_revision_readiness(
+        self,
+    ) -> "ProgrambenchLocalMatrixRevisionReadinessSummary":
+        _ensure_sorted_unique_allow_empty(
+            self.included_case_lineage_refs,
+            field_name="included_case_lineage_refs",
+        )
+        _ensure_sorted_unique_allow_empty(
+            self.carried_blocker_refs,
+            field_name="carried_blocker_refs",
+        )
+        _ensure_sorted_unique_allow_empty(
+            self.carried_warning_refs,
+            field_name="carried_warning_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.included_case_lineage_refs
+            + self.carried_blocker_refs
+            + self.carried_warning_refs,
+            field_name="revision_readiness_refs",
+        )
+        _ensure_no_forbidden_refs(
+            [
+                self.matrix_revision_readiness_summary_ref,
+                self.matrix_revision_registration_ref,
+                self.registered_matrix_revision_ref,
+            ],
+            field_name="revision_readiness_top_level_refs",
+        )
+        if self.revision_readiness_posture == "ready_for_later_local_matrix_review":
+            if self.carried_blocker_refs:
+                raise ValueError("ready matrix revision summary cannot carry blockers")
+            if self.deferred_case_count or self.rejected_case_count:
+                raise ValueError(
+                    "ready matrix revision summary cannot carry deferred or rejected counts"
+                )
+        elif self.revision_readiness_posture == "blocked_by_carried_blockers":
+            if not self.carried_blocker_refs:
+                raise ValueError("blocked readiness requires carried blockers")
+        elif not (self.deferred_case_count or self.rejected_case_count):
+            raise ValueError(
+                "open revision readiness requires deferred or rejected membership"
+            )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixPostInclusionHandoff(_MatrixInclusionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_MATRIX_POST_INCLUSION_HANDOFF_SCHEMA] = (
+        Field(alias="schema")
+    )
+    matrix_post_inclusion_handoff_ref: str
+    matrix_revision_registration_ref: str
+    registered_matrix_revision_ref: str
+    handoff_pressure_rows: list[
+        ProgrambenchLocalMatrixPostInclusionHandoffPressureRow
+    ] = Field(min_length=1)
+    handoff_pressure_kind: Literal[
+        "future_local_matrix_result_projection_review",
+        "future_local_batch_execution_governance_review",
+        "future_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_family_only",
+    ]
+    handoff_non_selection_posture: Literal[
+        "pressure_only_no_family_or_execution_selection"
+    ]
+    batch_execution_authority_posture: Literal[
+        "no_batch_execution_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    result_projection_authority_posture: Literal[
+        "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    benchmark_score_authority_posture: Literal[
+        "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    baseline_comparison_authority_posture: Literal[
+        "no_baseline_comparison_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    model_ranking_authority_posture: Literal[
+        "no_model_ranking_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_post_inclusion_handoff(
+        self,
+    ) -> "ProgrambenchLocalMatrixPostInclusionHandoff":
+        row_refs = [row.handoff_pressure_ref for row in self.handoff_pressure_rows]
+        _ensure_sorted_unique(row_refs, field_name="handoff_pressure_rows")
+        row_kinds = {row.handoff_pressure_kind for row in self.handoff_pressure_rows}
+        if self.handoff_pressure_kind not in row_kinds:
+            raise ValueError("handoff pressure kind must be represented by a row")
+        _ensure_no_forbidden_refs(
+            [
+                self.matrix_post_inclusion_handoff_ref,
+                self.matrix_revision_registration_ref,
+                self.registered_matrix_revision_ref,
+            ],
+            field_name="post_inclusion_handoff_refs",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment(_MatrixInclusionBase):
+    schema_id: Literal[
+        PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    ] = Field(alias="schema")
+    matrix_inclusion_family_closeout_ref: str
+    closed_family_ref: Literal["PB-MATRIX-INCLUSION-0"]
+    closed_slice_refs: list[str]
+    shipped_record_shapes: list[str]
+    matrix_inclusion_request_refs: list[str]
+    candidate_intake_refs: list[str]
+    eligibility_review_refs: list[str]
+    control_contract_refs: list[str]
+    guardrail_refs: list[str]
+    amendment_plan_refs: list[str]
+    case_delta_manifest_refs: list[str]
+    comparability_delta_review_refs: list[str]
+    contamination_delta_review_refs: list[str]
+    inclusion_decision_refs: list[str]
+    revision_registration_refs: list[str]
+    revision_readiness_summary_refs: list[str]
+    post_inclusion_handoff_refs: list[str]
+    official_programbench_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    baseline_comparison_posture: Literal["no_baseline_comparison_authority"]
+    model_ranking_posture: Literal["no_model_ranking_authority"]
+    future_family_authority_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(
+        self,
+    ) -> "ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment":
+        expected_slices = [
+            "PB-MATRIX-INCLUSION-0-A",
+            "PB-MATRIX-INCLUSION-0-B",
+            "PB-MATRIX-INCLUSION-0-C",
+        ]
+        _ensure_non_empty_trimmed(
+            self.closed_slice_refs,
+            field_name="closed_slice_refs",
+        )
+        if len(self.closed_slice_refs) != len(set(self.closed_slice_refs)):
+            raise ValueError("closed_slice_refs must not contain duplicates")
+        if sorted(self.closed_slice_refs) != expected_slices:
+            raise ValueError("matrix inclusion closeout must close A, B, and C slices")
+        expected_shapes = sorted(PB_MATRIX_INCLUSION_0_ARTIFACT_KINDS)
+        if self.shipped_record_shapes != expected_shapes:
+            raise ValueError(
+                "matrix inclusion closeout shipped shapes must cover A, B, and C"
+            )
+        for field_name in (
+            "matrix_inclusion_request_refs",
+            "candidate_intake_refs",
+            "eligibility_review_refs",
+            "control_contract_refs",
+            "guardrail_refs",
+            "amendment_plan_refs",
+            "case_delta_manifest_refs",
+            "comparability_delta_review_refs",
+            "contamination_delta_review_refs",
+            "inclusion_decision_refs",
+            "revision_registration_refs",
+            "revision_readiness_summary_refs",
+            "post_inclusion_handoff_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [self.matrix_inclusion_family_closeout_ref],
+            field_name="matrix_inclusion_family_closeout_ref",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
 def validate_pb_matrix_inclusion_0a_bundle(
     *,
     matrix_family_closeout: ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
@@ -1644,3 +2004,212 @@ def validate_pb_matrix_inclusion_0b_bundle(
     }
     if decision_basis_by_lineage != delta_reason_by_lineage:
         raise ValueError("decision basis kinds must match case delta reasons")
+
+
+def validate_pb_matrix_inclusion_0c_bundle(
+    *,
+    inclusion_request: ProgrambenchLocalMatrixInclusionRequest,
+    candidate_intake: ProgrambenchLocalMatrixCandidateIntake,
+    eligibility_review: ProgrambenchLocalMatrixInclusionEligibilityReview,
+    control_contract: ProgrambenchLocalMatrixInclusionControlContract,
+    non_authority_guardrail: ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
+    amendment_plan: ProgrambenchLocalMatrixAmendmentPlan,
+    case_delta_manifest: ProgrambenchLocalMatrixCaseDeltaManifest,
+    comparability_delta_review: ProgrambenchLocalMatrixComparabilityDeltaReview,
+    contamination_delta_review: ProgrambenchLocalMatrixContaminationDeltaReview,
+    inclusion_decision_record: ProgrambenchLocalMatrixInclusionDecisionRecord,
+    revision_registration: ProgrambenchLocalMatrixRevisionRegistration,
+    revision_readiness_summary: ProgrambenchLocalMatrixRevisionReadinessSummary,
+    post_inclusion_handoff: ProgrambenchLocalMatrixPostInclusionHandoff,
+    family_closeout: ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
+) -> None:
+    """Validate the PB-MATRIX-INCLUSION-0-C revision registration chain."""
+
+    validate_pb_matrix_inclusion_0b_bundle(
+        inclusion_request=inclusion_request,
+        candidate_intake=candidate_intake,
+        eligibility_review=eligibility_review,
+        control_contract=control_contract,
+        non_authority_guardrail=non_authority_guardrail,
+        amendment_plan=amendment_plan,
+        case_delta_manifest=case_delta_manifest,
+        comparability_delta_review=comparability_delta_review,
+        contamination_delta_review=contamination_delta_review,
+        inclusion_decision_record=inclusion_decision_record,
+    )
+
+    if revision_registration.matrix_inclusion_request_ref != (
+        inclusion_request.matrix_inclusion_request_ref
+    ):
+        raise ValueError("revision registration must reference A request")
+    if revision_registration.matrix_amendment_plan_ref != (
+        amendment_plan.matrix_amendment_plan_ref
+    ):
+        raise ValueError("revision registration must reference B amendment plan")
+    if revision_registration.matrix_case_delta_manifest_ref != (
+        case_delta_manifest.matrix_case_delta_manifest_ref
+    ):
+        raise ValueError("revision registration must reference B case delta manifest")
+    if revision_registration.matrix_inclusion_decision_ref != (
+        inclusion_decision_record.matrix_inclusion_decision_ref
+    ):
+        raise ValueError("revision registration must reference B inclusion decision")
+    if revision_registration.target_matrix_ref != inclusion_request.base_matrix_ref:
+        raise ValueError("revision registration must preserve target matrix ref")
+    if revision_registration.base_matrix_revision_hash != (
+        inclusion_request.base_matrix_revision_hash
+    ):
+        raise ValueError("revision registration must bind the base matrix revision hash")
+    if revision_registration.matrix_amendment_plan_hash != _model_hash(amendment_plan):
+        raise ValueError("revision registration must bind the amendment plan hash")
+    if revision_registration.case_delta_manifest_hash != (
+        case_delta_manifest.delta_manifest_hash
+    ):
+        raise ValueError("revision registration must bind the case delta manifest hash")
+    if revision_registration.comparability_delta_review_hash != (
+        comparability_delta_review.comparability_delta_hash
+    ):
+        raise ValueError(
+            "revision registration must bind the comparability delta review hash"
+        )
+    if revision_registration.contamination_delta_review_hash != _model_hash(
+        contamination_delta_review
+    ):
+        raise ValueError(
+            "revision registration must bind the contamination delta review hash"
+        )
+    if revision_registration.inclusion_decision_hash != _model_hash(
+        inclusion_decision_record
+    ):
+        raise ValueError("revision registration must bind the inclusion decision hash")
+
+    if set(revision_registration.included_case_lineage_refs) != set(
+        inclusion_decision_record.included_case_lineage_refs
+    ):
+        raise ValueError("revision included membership must match B decision")
+    if set(revision_registration.deferred_case_lineage_refs) != set(
+        inclusion_decision_record.deferred_case_lineage_refs
+    ):
+        raise ValueError("revision deferred membership must match B decision")
+    if set(revision_registration.rejected_case_lineage_refs) != set(
+        inclusion_decision_record.rejected_case_lineage_refs
+    ):
+        raise ValueError("revision rejected membership must match B decision")
+
+    if revision_readiness_summary.matrix_revision_registration_ref != (
+        revision_registration.matrix_revision_registration_ref
+    ):
+        raise ValueError("readiness summary must reference revision registration")
+    if revision_readiness_summary.registered_matrix_revision_ref != (
+        revision_registration.registered_matrix_revision_ref
+    ):
+        raise ValueError("readiness summary must reference registered matrix revision")
+    if revision_readiness_summary.included_case_count != len(
+        revision_registration.included_case_lineage_refs
+    ):
+        raise ValueError("readiness included count must match revision registration")
+    if revision_readiness_summary.deferred_case_count != len(
+        revision_registration.deferred_case_lineage_refs
+    ):
+        raise ValueError("readiness deferred count must match revision registration")
+    if revision_readiness_summary.rejected_case_count != len(
+        revision_registration.rejected_case_lineage_refs
+    ):
+        raise ValueError("readiness rejected count must match revision registration")
+    if set(revision_readiness_summary.included_case_lineage_refs) != set(
+        revision_registration.included_case_lineage_refs
+    ):
+        raise ValueError("readiness included lineage refs must match registration")
+    if (
+        revision_readiness_summary.inventory_count_posture
+        != "local_membership_inventory_only_not_result_count"
+    ):
+        raise ValueError("readiness counts must remain inventory-only")
+    if (
+        revision_readiness_summary.matrix_denominator_posture
+        != "local_matrix_denominator_only_not_benchmark_denominator"
+    ):
+        raise ValueError("readiness denominator cannot become a benchmark denominator")
+    if revision_readiness_summary.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("readiness summary cannot claim benchmark truth")
+
+    if post_inclusion_handoff.matrix_revision_registration_ref != (
+        revision_registration.matrix_revision_registration_ref
+    ):
+        raise ValueError("post-inclusion handoff must reference revision registration")
+    if post_inclusion_handoff.registered_matrix_revision_ref != (
+        revision_registration.registered_matrix_revision_ref
+    ):
+        raise ValueError("post-inclusion handoff must reference registered revision")
+    if (
+        post_inclusion_handoff.batch_execution_authority_posture
+        != "no_batch_execution_authority_granted_by_pb_matrix_inclusion_0c"
+    ):
+        raise ValueError("post-inclusion handoff cannot grant batch execution")
+    if (
+        post_inclusion_handoff.result_projection_authority_posture
+        != "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c"
+    ):
+        raise ValueError("post-inclusion handoff cannot grant result projection")
+    if (
+        post_inclusion_handoff.future_family_selection_posture
+        != "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c"
+    ):
+        raise ValueError("post-inclusion handoff cannot select a future family")
+
+    if family_closeout.matrix_inclusion_request_refs != [
+        inclusion_request.matrix_inclusion_request_ref
+    ]:
+        raise ValueError("family closeout must reference the released A request")
+    if family_closeout.candidate_intake_refs != [
+        candidate_intake.matrix_candidate_intake_ref
+    ]:
+        raise ValueError("family closeout must reference candidate intake")
+    if family_closeout.eligibility_review_refs != [
+        eligibility_review.matrix_inclusion_eligibility_review_ref
+    ]:
+        raise ValueError("family closeout must reference eligibility review")
+    if family_closeout.control_contract_refs != [
+        control_contract.matrix_inclusion_control_contract_ref
+    ]:
+        raise ValueError("family closeout must reference control contract")
+    if family_closeout.guardrail_refs != [
+        non_authority_guardrail.matrix_inclusion_guardrail_ref
+    ]:
+        raise ValueError("family closeout must reference non-authority guardrail")
+    if family_closeout.amendment_plan_refs != [
+        amendment_plan.matrix_amendment_plan_ref
+    ]:
+        raise ValueError("family closeout must reference amendment plan")
+    if family_closeout.case_delta_manifest_refs != [
+        case_delta_manifest.matrix_case_delta_manifest_ref
+    ]:
+        raise ValueError("family closeout must reference case delta manifest")
+    if family_closeout.comparability_delta_review_refs != [
+        comparability_delta_review.matrix_comparability_delta_review_ref
+    ]:
+        raise ValueError("family closeout must reference comparability review")
+    if family_closeout.contamination_delta_review_refs != [
+        contamination_delta_review.matrix_contamination_delta_review_ref
+    ]:
+        raise ValueError("family closeout must reference contamination review")
+    if family_closeout.inclusion_decision_refs != [
+        inclusion_decision_record.matrix_inclusion_decision_ref
+    ]:
+        raise ValueError("family closeout must reference inclusion decision")
+    if family_closeout.revision_registration_refs != [
+        revision_registration.matrix_revision_registration_ref
+    ]:
+        raise ValueError("family closeout must reference revision registration")
+    if family_closeout.revision_readiness_summary_refs != [
+        revision_readiness_summary.matrix_revision_readiness_summary_ref
+    ]:
+        raise ValueError("family closeout must reference revision readiness summary")
+    if family_closeout.post_inclusion_handoff_refs != [
+        post_inclusion_handoff.matrix_post_inclusion_handoff_ref
+    ]:
+        raise ValueError("family closeout must reference post-inclusion handoff")
+    if family_closeout.future_family_authority_posture != (
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c"
+    ):
+        raise ValueError("family closeout cannot grant future-family authority")

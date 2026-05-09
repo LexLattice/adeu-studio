@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixPostInclusionHandoffPressureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "handoff_non_selection_posture": {
+          "const": "pressure_only_no_future_family_selection",
+          "title": "Handoff Non Selection Posture",
+          "type": "string"
+        },
+        "handoff_pressure_kind": {
+          "enum": [
+            "future_local_matrix_result_projection_review",
+            "future_local_batch_execution_governance_review",
+            "future_case_expansion_review",
+            "future_official_participation_governance_review",
+            "future_benchmark_result_governance_review",
+            "future_family_only"
+          ],
+          "title": "Handoff Pressure Kind",
+          "type": "string"
+        },
+        "handoff_pressure_ref": {
+          "title": "Handoff Pressure Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_pressure_ref",
+        "handoff_pressure_kind",
+        "source_ref",
+        "handoff_non_selection_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixPostInclusionHandoffPressureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_non_selection_posture": {
+      "const": "pressure_only_no_family_or_execution_selection",
+      "title": "Handoff Non Selection Posture",
+      "type": "string"
+    },
+    "handoff_pressure_kind": {
+      "enum": [
+        "future_local_matrix_result_projection_review",
+        "future_local_batch_execution_governance_review",
+        "future_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_family_only"
+      ],
+      "title": "Handoff Pressure Kind",
+      "type": "string"
+    },
+    "handoff_pressure_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixPostInclusionHandoffPressureRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Pressure Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_post_inclusion_handoff_ref": {
+      "title": "Matrix Post Inclusion Handoff Ref",
+      "type": "string"
+    },
+    "matrix_revision_registration_ref": {
+      "title": "Matrix Revision Registration Ref",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "registered_matrix_revision_ref": {
+      "title": "Registered Matrix Revision Ref",
+      "type": "string"
+    },
+    "result_projection_authority_posture": {
+      "const": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Result Projection Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_post_inclusion_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_post_inclusion_handoff_ref",
+    "matrix_revision_registration_ref",
+    "registered_matrix_revision_ref",
+    "handoff_pressure_rows",
+    "handoff_pressure_kind",
+    "handoff_non_selection_posture",
+    "batch_execution_authority_posture",
+    "result_projection_authority_posture",
+    "benchmark_score_authority_posture",
+    "baseline_comparison_authority_posture",
+    "model_ranking_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixPostInclusionHandoff",
+  "type": "object"
+}

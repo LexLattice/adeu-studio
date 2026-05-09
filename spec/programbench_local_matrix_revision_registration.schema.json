@@ -1,0 +1,152 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "base_matrix_revision_hash": {
+      "title": "Base Matrix Revision Hash",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "case_delta_manifest_hash": {
+      "title": "Case Delta Manifest Hash",
+      "type": "string"
+    },
+    "comparability_delta_review_hash": {
+      "title": "Comparability Delta Review Hash",
+      "type": "string"
+    },
+    "contamination_delta_review_hash": {
+      "title": "Contamination Delta Review Hash",
+      "type": "string"
+    },
+    "deferred_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Case Lineage Refs",
+      "type": "array"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "included_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Included Case Lineage Refs",
+      "type": "array"
+    },
+    "inclusion_decision_hash": {
+      "title": "Inclusion Decision Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_accounting_scope_posture": {
+      "const": "local_membership_accounting_only_not_result_projection",
+      "title": "Local Accounting Scope Posture",
+      "type": "string"
+    },
+    "matrix_amendment_plan_hash": {
+      "title": "Matrix Amendment Plan Hash",
+      "type": "string"
+    },
+    "matrix_amendment_plan_ref": {
+      "title": "Matrix Amendment Plan Ref",
+      "type": "string"
+    },
+    "matrix_case_delta_manifest_ref": {
+      "title": "Matrix Case Delta Manifest Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_decision_ref": {
+      "title": "Matrix Inclusion Decision Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "matrix_revision_registration_ref": {
+      "title": "Matrix Revision Registration Ref",
+      "type": "string"
+    },
+    "matrix_revision_scope_posture": {
+      "const": "local_matrix_membership_revision_registration_only",
+      "title": "Matrix Revision Scope Posture",
+      "type": "string"
+    },
+    "registered_matrix_revision_hash": {
+      "title": "Registered Matrix Revision Hash",
+      "type": "string"
+    },
+    "registered_matrix_revision_ref": {
+      "title": "Registered Matrix Revision Ref",
+      "type": "string"
+    },
+    "registered_membership_manifest_hash": {
+      "title": "Registered Membership Manifest Hash",
+      "type": "string"
+    },
+    "rejected_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rejected Case Lineage Refs",
+      "type": "array"
+    },
+    "result_projection_authority_posture": {
+      "const": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Result Projection Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_revision_registration@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_matrix_ref": {
+      "title": "Target Matrix Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_revision_registration_ref",
+    "matrix_inclusion_request_ref",
+    "matrix_amendment_plan_ref",
+    "matrix_case_delta_manifest_ref",
+    "matrix_inclusion_decision_ref",
+    "target_matrix_ref",
+    "registered_matrix_revision_ref",
+    "registered_matrix_revision_hash",
+    "base_matrix_revision_hash",
+    "matrix_amendment_plan_hash",
+    "case_delta_manifest_hash",
+    "comparability_delta_review_hash",
+    "contamination_delta_review_hash",
+    "inclusion_decision_hash",
+    "registered_membership_manifest_hash",
+    "matrix_revision_scope_posture",
+    "local_accounting_scope_posture",
+    "execution_authority_posture",
+    "result_projection_authority_posture",
+    "benchmark_score_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixRevisionRegistration",
+  "type": "object"
+}

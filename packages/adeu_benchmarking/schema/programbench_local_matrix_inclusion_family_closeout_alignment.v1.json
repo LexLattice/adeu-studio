@@ -1,0 +1,181 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "amendment_plan_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Amendment Plan Refs",
+      "type": "array"
+    },
+    "baseline_comparison_posture": {
+      "const": "no_baseline_comparison_authority",
+      "title": "Baseline Comparison Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_intake_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Candidate Intake Refs",
+      "type": "array"
+    },
+    "case_delta_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Case Delta Manifest Refs",
+      "type": "array"
+    },
+    "closed_family_ref": {
+      "const": "PB-MATRIX-INCLUSION-0",
+      "title": "Closed Family Ref",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "comparability_delta_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Comparability Delta Review Refs",
+      "type": "array"
+    },
+    "contamination_delta_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Contamination Delta Review Refs",
+      "type": "array"
+    },
+    "control_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Control Contract Refs",
+      "type": "array"
+    },
+    "eligibility_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Eligibility Review Refs",
+      "type": "array"
+    },
+    "future_family_authority_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Future Family Authority Posture",
+      "type": "string"
+    },
+    "guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Guardrail Refs",
+      "type": "array"
+    },
+    "inclusion_decision_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Inclusion Decision Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_inclusion_family_closeout_ref": {
+      "title": "Matrix Inclusion Family Closeout Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Matrix Inclusion Request Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_authority",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_inclusion_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "post_inclusion_handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Post Inclusion Handoff Refs",
+      "type": "array"
+    },
+    "revision_readiness_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Revision Readiness Summary Refs",
+      "type": "array"
+    },
+    "revision_registration_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Revision Registration Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_inclusion_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_inclusion_family_closeout_ref",
+    "closed_family_ref",
+    "closed_slice_refs",
+    "shipped_record_shapes",
+    "matrix_inclusion_request_refs",
+    "candidate_intake_refs",
+    "eligibility_review_refs",
+    "control_contract_refs",
+    "guardrail_refs",
+    "amendment_plan_refs",
+    "case_delta_manifest_refs",
+    "comparability_delta_review_refs",
+    "contamination_delta_review_refs",
+    "inclusion_decision_refs",
+    "revision_registration_refs",
+    "revision_readiness_summary_refs",
+    "post_inclusion_handoff_refs",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "baseline_comparison_posture",
+    "model_ranking_posture",
+    "future_family_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment",
+  "type": "object"
+}
