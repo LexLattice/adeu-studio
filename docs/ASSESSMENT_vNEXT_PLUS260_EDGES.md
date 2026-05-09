@@ -1,8 +1,8 @@
 # Assessment vNext+260 Edges
 
-Status: pre-lock edge assessment for `PB-MATRIX-0-A`.
+Status: post-closeout edge assessment for `PB-MATRIX-0-A`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS260_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,92 +20,103 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: A Inclusion Could Bypass Released Case Lineage
 
-- Risk:
-  a matrix case could be included from a support note, loose fixture label, or
-  unreleased local row instead of released `PB-TRIAL-0` and optional
-  `PB-RETRY-0` lineage.
-- Required containment:
-  A validators must require concrete released local cleanroom lineage refs for
-  every included case and fail closed on unreleased, support-only, or missing
-  family closeout refs.
+- Closeout state:
+  contained.
+- Evidence:
+  bundle validation consumes released local cleanroom lineage refs and
+  rejects unreleased, support-only, contaminated, hidden-test-derived,
+  evaluator-derived, source-lookup-derived, decompilation-derived,
+  internet-derived, external-repo-derived, and postmortem-only included cases.
 
 ### Edge 2: Case Candidate Lists Could Hide Lineage Drift
 
-- Risk:
-  `included_case_refs` could become a flat list that hides mismatched adapter,
-  workbench, attempt, trial, retry, or boundary refs.
-- Required containment:
-  inclusion manifests must use row-shaped `matrix_case_candidate_row` entries
-  with explicit lineage refs, visibility boundary hash, cleanroom boundary
-  hash, result-source posture, contamination posture, origin posture, and
-  inclusion decision.
+- Closeout state:
+  contained.
+- Evidence:
+  inclusion manifests require row-shaped case candidates with explicit
+  adapter, workbench, attempt, trial, optional retry, visibility-boundary,
+  cleanroom-boundary, result-source, contamination, origin, inclusion
+  decision, and inclusion reason fields.
 
-### Edge 3: Matrix Selection Could Look Representative
+### Edge 3: Candidate Eligibility Could Be Checked Only For Included Cases
 
-- Risk:
-  a small local matrix could be described as a representative ProgramBench
-  sample or benchmark-like subset.
-- Required containment:
-  matrix requests must carry `matrix_horizon`, `matrix_max_case_count`,
-  selection rationale rows, and representativeness posture. Local smoke,
-  research, regression, or coverage-probe matrices cannot claim benchmark
-  representativeness.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  bundle validation now requires lineage eligibility rows to cover every
+  manifest case candidate, including blocked, deferred, and support-only
+  candidates.
 
-### Edge 4: Aggregate Counts Could Become Scores
+### Edge 4: Matrix Selection Could Look Representative
 
-- Risk:
-  included/resolved/remanded/blocked counts could be phrased as pass rate,
-  solve rate, success rate, benchmark score, model score, or official success
-  rate.
-- Required containment:
-  A rows must carry aggregate count posture as local inventory/accounting only,
-  and reject benchmark-score or soft scoring language before B/C summary rows
-  exist.
+- Closeout state:
+  contained.
+- Evidence:
+  matrix requests require `matrix_horizon`, `matrix_max_case_count`,
+  selection rationale rows, and `not_representative_benchmark_sample`
+  posture where applicable. Representative benchmark subset claims are
+  rejected.
 
-### Edge 5: Matrix Controls Could Become Model Comparison
+### Edge 5: Aggregate Counts Could Become Scores
 
-- Risk:
-  multiple worker/model profiles could turn the matrix into a model-comparison
-  or ranking surface.
-- Required containment:
-  A defaults to one worker/model profile, one tool policy, one probe basis,
-  and one sandbox/write-scope posture. Multi-profile matrices require
-  comparability-accounting-only non-ranking posture and still cannot rank
+- Closeout state:
+  contained.
+- Evidence:
+  request and control rows carry local inventory/accounting aggregate-count
+  posture, and validators reject benchmark score, pass rate, solve rate,
+  success rate, official-like score, leaderboard, model superiority, and
+  model-ranking language.
+
+### Edge 6: Matrix Controls Could Become Model Comparison
+
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  multi-profile or multi-control matrices require both profile-level and
+  matrix-level comparability-accounting-only posture, and still cannot rank
   models.
 
-### Edge 6: Matrix Controls Could Grant Batch Execution
+### Edge 7: Matrix Controls Could Grant Batch Execution
 
-- Risk:
-  matrix control rows could be read as permission to run cases, execute
-  commands, materialize candidates, or contact official ProgramBench surfaces.
-- Required containment:
-  A guardrails and control contracts must reject command execution, batch
-  execution, official runner/evaluator access, source lookup, decompilation,
-  internet lookup, Docker socket, host secrets, wider write scope, hidden-test
-  access, official submission authority, and future-family selection.
+- Closeout state:
+  contained.
+- Evidence:
+  control contracts and guardrails reject command execution, batch execution,
+  official runner/evaluator access, source lookup, decompilation, internet
+  lookup, Docker socket, host secrets, wider write scope, hidden-test access,
+  second retry authority, retry-chain authority, and future-family selection.
 
-### Edge 7: A Could Prematurely Emit B/C Artifacts
+### Edge 8: Duplicate Action Or Authority Rows Could Mask Drift
 
-- Risk:
-  A could include result projections, observation ledgers, coverage registers,
-  contamination registers, matrix summaries, handoffs, or family closeout
-  rows.
-- Required containment:
-  A fixture and bundle validation must reject `PB-MATRIX-0-B/C` artifact
-  kinds. Result projection and matrix summary remain deferred.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  validators reject duplicate `action_kind` rows in forbidden matrix actions
+  and duplicate `authority_kind` rows in non-authority guardrails.
+
+### Edge 9: A Could Prematurely Emit B/C Artifacts
+
+- Closeout state:
+  contained.
+- Evidence:
+  A emits only request, inclusion manifest, eligibility review, control
+  contract, and non-authority guardrail shapes. Result projection,
+  observation ledger, coverage register, contamination register, matrix
+  summary, handoff, and family closeout remain deferred.
 
 ## Residual Edges
 
-- The implementation PR must add focused reference and reject fixtures under
-  `apps/api/fixtures/benchmarking/vnext_plus260/`.
-- The implementation PR must run the focused `PB-MATRIX-0-A` tests and
-  `make check` before opening the PR.
-- Later `PB-MATRIX-0-B` must preserve projection as derived local posture, not
-  new outcome truth.
-- Later `PB-MATRIX-0-C` must prevent aggregate-count and summary laundering
-  into benchmark score, model ranking, or official ProgramBench success.
+- `PB-MATRIX-0-B` must consume released `PB-MATRIX-0-A` rows before result
+  projection, observation ledger, coverage register, or contamination
+  register rows can validate.
+- `PB-MATRIX-0-B` must preserve projection as derived local posture, not new
+  outcome truth.
+- `PB-MATRIX-0-B` must keep coverage local-only and reject hidden-test or
+  official-evaluator coverage.
+- `PB-MATRIX-0-C` must prevent aggregate-count and summary laundering into
+  benchmark score, model ranking, official ProgramBench success, or
+  leaderboard posture.
 
 ## Current Judgment
 
-The `PB-MATRIX-0-A` starter is bounded enough to proceed to implementation
-after `make arc-start-check ARC=260` passes.
+`PB-MATRIX-0-A` is closed. The next bounded slice is `PB-MATRIX-0-B`.

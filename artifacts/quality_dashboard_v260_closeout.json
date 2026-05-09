@@ -1,0 +1,144 @@
+{
+  "actions": {
+    "concepts.questions": {
+      "avg_solver_calls": 13.333,
+      "sample_count": 60
+    },
+    "concepts.tournament.replay_candidates": {
+      "avg_solver_calls": 6.0,
+      "sample_count": 2
+    }
+  },
+  "config": {
+    "budget_version": "budget.v1",
+    "coherence_schema_version": "concepts.coherence.v1",
+    "evaluation_ts": "1970-01-01T00:00:00Z",
+    "question_rank_version": "concepts.qrank.v3",
+    "question_repeats": 20,
+    "session_steps": 10,
+    "tournament_score_version": "concepts.tscore.v3"
+  },
+  "dashboard_version": "quality.dashboard.v1",
+  "delta_report": {
+    "baseline": {
+      "artifact_hash": "11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "artifact_ref": "artifact:quality_dashboard:11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "dashboard_version": "quality.dashboard.v1"
+    },
+    "current": {
+      "artifact_hash": "11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "artifact_ref": "artifact:quality_dashboard:11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "dashboard_version": "quality.dashboard.v1"
+    },
+    "delta_rules": {
+      "bridge_loss_utilization_rate": "non_decreasing",
+      "coherence_alert_count": "non_increasing",
+      "evidence_coverage_rate": "non_decreasing",
+      "redundancy_rate": "non_increasing",
+      "top_k_stability@10": "non_decreasing"
+    },
+    "metric_deltas": {
+      "bridge_loss_utilization_rate": 0.0,
+      "coherence_alert_count": 0.0,
+      "evidence_coverage_rate": 0.0,
+      "redundancy_rate": 0.0,
+      "top_k_stability@10": 0.0
+    },
+    "non_negative_quality": true,
+    "schema": "quality.dashboard.delta.v1"
+  },
+  "fixture_counts": {
+    "questions": 3,
+    "tournament": 2
+  },
+  "fixture_roots": {
+    "questions": "examples/eval/questions",
+    "tournament": "examples/eval/tournament"
+  },
+  "generated_at": "1970-01-01T00:00:00Z",
+  "input_manifest": {
+    "baseline": {
+      "artifact_hash": "11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "artifact_ref": "artifact:quality_dashboard:11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "source": "self"
+    },
+    "current": {
+      "artifact_hash": "11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "artifact_ref": "artifact:quality_dashboard:11437828e4ccfdd100419ae4bd5559dd8d85e3aaf17cdebc7ab3edd9f2e5986f",
+      "source": "generated"
+    },
+    "schema": "quality.dashboard.inputs.v1"
+  },
+  "metrics": {
+    "avg_questions_per_ir": 2.0,
+    "avg_resolved_per_session": 0.667,
+    "avg_solver_calls_per_action": 13.097,
+    "bridge_loss_utilization_rate": 0.0,
+    "coherence_alert_count": 2,
+    "evidence_coverage_rate": 1.0,
+    "question_stability_pct": 100.0,
+    "redundancy_rate": 0.0,
+    "top_k_stability@10": 0.2
+  },
+  "quality_metric_rules": {
+    "bridge_loss_utilization_rate": "non_decreasing",
+    "coherence_alert_count": "non_increasing",
+    "evidence_coverage_rate": "non_decreasing",
+    "redundancy_rate": "non_increasing",
+    "top_k_stability@10": "non_decreasing"
+  },
+  "question_fixtures": [
+    {
+      "fixture": "bank_lax_forced.json",
+      "fixture_ref": "examples/eval/questions/bank_lax_forced.json",
+      "include_forced_details": true,
+      "mode": "LAX",
+      "question_count": 3,
+      "redundancy_rate": 0.0,
+      "resolved_in_session": 1,
+      "unique_questions": 3
+    },
+    {
+      "fixture": "bank_lax_no_forced.json",
+      "fixture_ref": "examples/eval/questions/bank_lax_no_forced.json",
+      "include_forced_details": false,
+      "mode": "LAX",
+      "question_count": 3,
+      "redundancy_rate": 0.0,
+      "resolved_in_session": 1,
+      "unique_questions": 3
+    },
+    {
+      "fixture": "claim_resolution_strict_forced.json",
+      "fixture_ref": "examples/eval/questions/claim_resolution_strict_forced.json",
+      "include_forced_details": true,
+      "mode": "STRICT",
+      "question_count": 0,
+      "redundancy_rate": 1.0,
+      "resolved_in_session": 0,
+      "unique_questions": 0
+    }
+  ],
+  "tournament_fixtures": [
+    {
+      "candidate_count": 2,
+      "coherence_alert_count": 1,
+      "evaluated_count": 2,
+      "fixture": "replay_choose_better_patch.json",
+      "fixture_ref": "examples/eval/tournament/replay_choose_better_patch.json",
+      "mode": "LAX",
+      "no_safe_improvement": false,
+      "tournament_mode": "replay_candidates"
+    },
+    {
+      "candidate_count": 1,
+      "coherence_alert_count": 1,
+      "evaluated_count": 1,
+      "fixture": "replay_no_safe_improvement.json",
+      "fixture_ref": "examples/eval/tournament/replay_no_safe_improvement.json",
+      "mode": "LAX",
+      "no_safe_improvement": true,
+      "tournament_mode": "replay_candidates"
+    }
+  ]
+}
