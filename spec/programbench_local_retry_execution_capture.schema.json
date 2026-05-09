@@ -1,0 +1,136 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "forbidden_content_screen_verdict": {
+      "enum": [
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed"
+      ],
+      "title": "Forbidden Content Screen Verdict",
+      "type": "string"
+    },
+    "forbidden_content_screening_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Content Screening Basis Refs",
+      "type": "array"
+    },
+    "full_output_capture_policy_ref": {
+      "title": "Full Output Capture Policy Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "retry_dispatch_record_ref": {
+      "title": "Retry Dispatch Record Ref",
+      "type": "string"
+    },
+    "retry_execution_capture_ref": {
+      "title": "Retry Execution Capture Ref",
+      "type": "string"
+    },
+    "sandbox_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Violation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_execution_capture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "screened_output_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Screened Output Hashes",
+      "type": "array"
+    },
+    "screening_reviewer_or_policy_ref": {
+      "title": "Screening Reviewer Or Policy Ref",
+      "type": "string"
+    },
+    "stderr_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stderr Excerpt Bounded",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "title": "Stderr Hash",
+      "type": "string"
+    },
+    "stdout_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stdout Excerpt Bounded",
+      "type": "string"
+    },
+    "stdout_hash": {
+      "title": "Stdout Hash",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "not_timed_out",
+        "timed_out_with_capture"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    },
+    "transcript_excerpt_bounded": {
+      "maxLength": 1024,
+      "title": "Transcript Excerpt Bounded",
+      "type": "string"
+    },
+    "transcript_hash": {
+      "title": "Transcript Hash",
+      "type": "string"
+    },
+    "worker_tool_call_manifest_ref": {
+      "title": "Worker Tool Call Manifest Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_execution_capture_ref",
+    "retry_dispatch_record_ref",
+    "stdout_hash",
+    "stdout_excerpt_bounded",
+    "stderr_hash",
+    "stderr_excerpt_bounded",
+    "transcript_hash",
+    "transcript_excerpt_bounded",
+    "exit_code",
+    "duration_ms",
+    "timeout_status",
+    "worker_tool_call_manifest_ref",
+    "full_output_capture_policy_ref",
+    "forbidden_content_screen_verdict",
+    "forbidden_content_screening_basis_refs",
+    "screened_output_hashes",
+    "screening_reviewer_or_policy_ref",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryExecutionCapture",
+  "type": "object"
+}

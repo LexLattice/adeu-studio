@@ -1,0 +1,87 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "decompilation_absence_witness_ref": {
+      "title": "Decompilation Absence Witness Ref",
+      "type": "string"
+    },
+    "docker_socket_absence_witness_ref": {
+      "title": "Docker Socket Absence Witness Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "network_mode_witness_ref": {
+      "title": "Network Mode Witness Ref",
+      "type": "string"
+    },
+    "resource_limit_attestation_ref": {
+      "title": "Resource Limit Attestation Ref",
+      "type": "string"
+    },
+    "retry_dispatch_record_ref": {
+      "title": "Retry Dispatch Record Ref",
+      "type": "string"
+    },
+    "retry_sandbox_trace_ref": {
+      "title": "Retry Sandbox Trace Ref",
+      "type": "string"
+    },
+    "sandbox_attestation_bundle_ref": {
+      "title": "Sandbox Attestation Bundle Ref",
+      "type": "string"
+    },
+    "sandbox_instance_ref": {
+      "title": "Sandbox Instance Ref",
+      "type": "string"
+    },
+    "sandbox_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Violation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_sandbox_application_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "secret_absence_witness_ref": {
+      "title": "Secret Absence Witness Ref",
+      "type": "string"
+    },
+    "source_lookup_absence_witness_ref": {
+      "title": "Source Lookup Absence Witness Ref",
+      "type": "string"
+    },
+    "tool_manifest_match_ref": {
+      "title": "Tool Manifest Match Ref",
+      "type": "string"
+    },
+    "write_scope_attestation_ref": {
+      "title": "Write Scope Attestation Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_sandbox_trace_ref",
+    "retry_dispatch_record_ref",
+    "sandbox_instance_ref",
+    "sandbox_attestation_bundle_ref",
+    "network_mode_witness_ref",
+    "docker_socket_absence_witness_ref",
+    "secret_absence_witness_ref",
+    "source_lookup_absence_witness_ref",
+    "decompilation_absence_witness_ref",
+    "write_scope_attestation_ref",
+    "resource_limit_attestation_ref",
+    "tool_manifest_match_ref",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetrySandboxApplicationTrace",
+  "type": "object"
+}

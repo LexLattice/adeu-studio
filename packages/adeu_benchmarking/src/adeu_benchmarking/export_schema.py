@@ -162,16 +162,26 @@ from .programbench_cleanroom_reconstruction import (
     ProgrambenchReconstructionWorkOrder,
 )
 from .programbench_cleanroom_retry import (
+    PROGRAMBENCH_LOCAL_RETRY_CANDIDATE_DELTA_SNAPSHOT_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_DISPATCH_RECORD_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_EXECUTION_CAPTURE_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_LIFECYCLE_PROJECTION_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_LINEAGE_REGISTRY_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_SANDBOX_APPLICATION_TRACE_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_SCOPE_CONTRACT_SCHEMA,
     PROGRAMBENCH_TRIAL_REMAND_SOURCE_INDEX_SCHEMA,
+    ProgrambenchLocalRetryCandidateDeltaSnapshot,
+    ProgrambenchLocalRetryDispatchRecord,
     ProgrambenchLocalRetryEligibilityReview,
+    ProgrambenchLocalRetryExecutionCapture,
+    ProgrambenchLocalRetryLifecycleProjection,
     ProgrambenchLocalRetryLineageRegistry,
     ProgrambenchLocalRetryNonAuthorityGuardrail,
     ProgrambenchLocalRetryRequest,
+    ProgrambenchLocalRetrySandboxApplicationTrace,
     ProgrambenchLocalRetryScopeContract,
     ProgrambenchTrialRemandSourceIndex,
 )
@@ -1174,6 +1184,60 @@ def main() -> None:
             / "schema"
             / "programbench_local_retry_non_authority_guardrail.v1.json",
             root / "spec" / "programbench_local_retry_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryDispatchRecord,
+            PROGRAMBENCH_LOCAL_RETRY_DISPATCH_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_dispatch_record.v1.json",
+            root / "spec" / "programbench_local_retry_dispatch_record.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryExecutionCapture,
+            PROGRAMBENCH_LOCAL_RETRY_EXECUTION_CAPTURE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_execution_capture.v1.json",
+            root / "spec" / "programbench_local_retry_execution_capture.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryCandidateDeltaSnapshot,
+            PROGRAMBENCH_LOCAL_RETRY_CANDIDATE_DELTA_SNAPSHOT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_candidate_delta_snapshot.v1.json",
+            root
+            / "spec"
+            / "programbench_local_retry_candidate_delta_snapshot.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryLifecycleProjection,
+            PROGRAMBENCH_LOCAL_RETRY_LIFECYCLE_PROJECTION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_lifecycle_projection.v1.json",
+            root / "spec" / "programbench_local_retry_lifecycle_projection.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetrySandboxApplicationTrace,
+            PROGRAMBENCH_LOCAL_RETRY_SANDBOX_APPLICATION_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_sandbox_application_trace.v1.json",
+            root
+            / "spec"
+            / "programbench_local_retry_sandbox_application_trace.schema.json",
         ),
     ]
 

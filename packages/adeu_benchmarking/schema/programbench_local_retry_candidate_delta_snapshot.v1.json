@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "forbidden_content_screen_verdict": {
+      "const": "passed",
+      "title": "Forbidden Content Screen Verdict",
+      "type": "string"
+    },
+    "generated_file_manifest_ref": {
+      "title": "Generated File Manifest Ref",
+      "type": "string"
+    },
+    "inside_released_write_scope": {
+      "const": true,
+      "title": "Inside Released Write Scope",
+      "type": "boolean"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "materialization_input_hash": {
+      "title": "Materialization Input Hash",
+      "type": "string"
+    },
+    "materialization_output_manifest_hash": {
+      "title": "Materialization Output Manifest Hash",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_retry_0b",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "retry_candidate_delta_snapshot_ref": {
+      "title": "Retry Candidate Delta Snapshot Ref",
+      "type": "string"
+    },
+    "retry_execution_capture_ref": {
+      "title": "Retry Execution Capture Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_candidate_delta_snapshot@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_trial_candidate_snapshot_ref": {
+      "title": "Source Trial Candidate Snapshot Ref",
+      "type": "string"
+    },
+    "write_scope_ref": {
+      "title": "Write Scope Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_candidate_delta_snapshot_ref",
+    "retry_execution_capture_ref",
+    "source_trial_candidate_snapshot_ref",
+    "generated_file_manifest_ref",
+    "materialization_input_hash",
+    "materialization_output_manifest_hash",
+    "write_scope_ref",
+    "inside_released_write_scope",
+    "forbidden_content_screen_verdict",
+    "official_submission_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryCandidateDeltaSnapshot",
+  "type": "object"
+}

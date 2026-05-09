@@ -1,0 +1,14 @@
+{
+  "forbidden_content_screen_verdict": "blocked_hidden_evidence",
+  "generated_file_manifest_ref": "generated-file-manifest:pb-retry-0b:delta",
+  "inside_released_write_scope": true,
+  "limitation_note": "Reject fixture attempts candidate delta materialization before passed screening.",
+  "materialization_input_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "materialization_output_manifest_hash": "sha256:1414141414141414141414141414141414141414141414141414141414141414",
+  "official_submission_posture": "no_official_submission_authority_by_pb_retry_0b",
+  "retry_candidate_delta_snapshot_ref": "retry-candidate-delta:pb-retry-0b:reference",
+  "retry_execution_capture_ref": "retry-execution-capture:pb-retry-0b:reference",
+  "schema": "programbench_local_retry_candidate_delta_snapshot@1",
+  "source_trial_candidate_snapshot_ref": "candidate-snapshot:pb-trial-0b:reference",
+  "write_scope_ref": "write-scope:pb-recon-0a:sandbox"
+}

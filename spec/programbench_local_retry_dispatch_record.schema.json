@@ -1,0 +1,158 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_tool_manifest_hash": {
+      "title": "Allowed Tool Manifest Hash",
+      "type": "string"
+    },
+    "dispatch_cardinality_posture": {
+      "const": "one_retry_dispatch_specimen_per_retry_request",
+      "title": "Dispatch Cardinality Posture",
+      "type": "string"
+    },
+    "forbidden_tool_manifest_hash": {
+      "title": "Forbidden Tool Manifest Hash",
+      "type": "string"
+    },
+    "input_packet_materialization_hash": {
+      "title": "Input Packet Materialization Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_participation_by_pb_retry_0b",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "retry_allowed_tool_manifest_hash": {
+      "title": "Retry Allowed Tool Manifest Hash",
+      "type": "string"
+    },
+    "retry_depth": {
+      "minimum": 1,
+      "title": "Retry Depth",
+      "type": "integer"
+    },
+    "retry_dispatch_authority_ref": {
+      "title": "Retry Dispatch Authority Ref",
+      "type": "string"
+    },
+    "retry_dispatch_record_ref": {
+      "title": "Retry Dispatch Record Ref",
+      "type": "string"
+    },
+    "retry_eligibility_review_ref": {
+      "title": "Retry Eligibility Review Ref",
+      "type": "string"
+    },
+    "retry_forbidden_tool_manifest_hash": {
+      "title": "Retry Forbidden Tool Manifest Hash",
+      "type": "string"
+    },
+    "retry_input_packet_hash": {
+      "title": "Retry Input Packet Hash",
+      "type": "string"
+    },
+    "retry_lineage_ref": {
+      "title": "Retry Lineage Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "retry_run_budget_hash": {
+      "title": "Retry Run Budget Hash",
+      "type": "string"
+    },
+    "retry_sandbox_policy_hash": {
+      "title": "Retry Sandbox Policy Hash",
+      "type": "string"
+    },
+    "retry_scope_contract_hash": {
+      "title": "Retry Scope Contract Hash",
+      "type": "string"
+    },
+    "retry_scope_contract_ref": {
+      "title": "Retry Scope Contract Ref",
+      "type": "string"
+    },
+    "retry_scope_delta_hash": {
+      "title": "Retry Scope Delta Hash",
+      "type": "string"
+    },
+    "retry_worker_visible_context_hash": {
+      "title": "Retry Worker Visible Context Hash",
+      "type": "string"
+    },
+    "sandbox_attestation_bundle_ref": {
+      "title": "Sandbox Attestation Bundle Ref",
+      "type": "string"
+    },
+    "sandbox_instance_ref": {
+      "title": "Sandbox Instance Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_dispatch_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_trial_dispatch_ref": {
+      "title": "Source Trial Dispatch Ref",
+      "type": "string"
+    },
+    "tool_manifest_ref": {
+      "title": "Tool Manifest Ref",
+      "type": "string"
+    },
+    "worker_input_packet_hash": {
+      "title": "Worker Input Packet Hash",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    },
+    "worker_visible_context_hash": {
+      "title": "Worker Visible Context Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_dispatch_record_ref",
+    "retry_request_ref",
+    "retry_lineage_ref",
+    "source_trial_dispatch_ref",
+    "retry_eligibility_review_ref",
+    "retry_scope_contract_ref",
+    "retry_dispatch_authority_ref",
+    "retry_depth",
+    "worker_profile_ref",
+    "worker_input_packet_hash",
+    "worker_visible_context_hash",
+    "retry_scope_delta_hash",
+    "retry_input_packet_hash",
+    "retry_worker_visible_context_hash",
+    "retry_scope_contract_hash",
+    "retry_allowed_tool_manifest_hash",
+    "retry_forbidden_tool_manifest_hash",
+    "retry_sandbox_policy_hash",
+    "retry_run_budget_hash",
+    "tool_manifest_ref",
+    "allowed_tool_manifest_hash",
+    "forbidden_tool_manifest_hash",
+    "sandbox_instance_ref",
+    "sandbox_attestation_bundle_ref",
+    "input_packet_materialization_hash",
+    "dispatch_cardinality_posture",
+    "official_programbench_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryDispatchRecord",
+  "type": "object"
+}

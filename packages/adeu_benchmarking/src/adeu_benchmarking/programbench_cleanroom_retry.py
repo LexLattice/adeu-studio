@@ -6,10 +6,13 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .programbench_cleanroom_trial import (
+    ProgrambenchLocalTrialCandidateArtifactSnapshot,
     ProgrambenchLocalTrialFamilyCloseoutAlignment,
+    ProgrambenchLocalTrialLifecycleProjection,
     ProgrambenchLocalTrialObservationSummary,
     ProgrambenchLocalTrialOutcomeAudit,
     ProgrambenchLocalTrialRemandDecision,
+    ProgrambenchLocalTrialWorkerDispatchRecord,
 )
 
 MODEL_CONFIG = ConfigDict(
@@ -115,6 +118,8 @@ _ALLOWED_RETRY_RATIONALE_KINDS = {
     "runbook_satisfaction_gap",
     "worker_declared_uncertainty",
 }
+_PB_RETRY_0B_DISPATCH_AUTHORITY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS258.md"
+_PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT = "passed"
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -655,6 +660,235 @@ class ProgrambenchLocalRetryNonAuthorityGuardrail(_RetryBase):
         return self
 
 
+class ProgrambenchLocalRetryDispatchRecord(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_DISPATCH_RECORD_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_dispatch_record_ref: str
+    retry_request_ref: str
+    retry_lineage_ref: str
+    source_trial_dispatch_ref: str
+    retry_eligibility_review_ref: str
+    retry_scope_contract_ref: str
+    retry_dispatch_authority_ref: str
+    retry_depth: int = Field(ge=1)
+    worker_profile_ref: str
+    worker_input_packet_hash: str
+    worker_visible_context_hash: str
+    retry_scope_delta_hash: str
+    retry_input_packet_hash: str
+    retry_worker_visible_context_hash: str
+    retry_scope_contract_hash: str
+    retry_allowed_tool_manifest_hash: str
+    retry_forbidden_tool_manifest_hash: str
+    retry_sandbox_policy_hash: str
+    retry_run_budget_hash: str
+    tool_manifest_ref: str
+    allowed_tool_manifest_hash: str
+    forbidden_tool_manifest_hash: str
+    sandbox_instance_ref: str
+    sandbox_attestation_bundle_ref: str
+    input_packet_materialization_hash: str
+    dispatch_cardinality_posture: Literal[
+        "one_retry_dispatch_specimen_per_retry_request"
+    ]
+    official_programbench_posture: Literal[
+        "no_official_programbench_participation_by_pb_retry_0b"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_record(self) -> "ProgrambenchLocalRetryDispatchRecord":
+        if self.retry_dispatch_authority_ref != _PB_RETRY_0B_DISPATCH_AUTHORITY_REF:
+            raise ValueError("retry dispatch requires released PB-RETRY-0-B lock authority")
+        if self.retry_depth != 1:
+            raise ValueError("PB-RETRY-0-B allows only retry_depth = 1")
+        for field_name in (
+            "worker_input_packet_hash",
+            "worker_visible_context_hash",
+            "retry_scope_delta_hash",
+            "retry_input_packet_hash",
+            "retry_worker_visible_context_hash",
+            "retry_scope_contract_hash",
+            "retry_allowed_tool_manifest_hash",
+            "retry_forbidden_tool_manifest_hash",
+            "retry_sandbox_policy_hash",
+            "retry_run_budget_hash",
+            "allowed_tool_manifest_hash",
+            "forbidden_tool_manifest_hash",
+            "input_packet_materialization_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        if self.retry_input_packet_hash != self.worker_input_packet_hash:
+            raise ValueError("retry input packet hash must match worker input packet hash")
+        if self.retry_worker_visible_context_hash != self.worker_visible_context_hash:
+            raise ValueError(
+                "retry worker-visible context hash must match worker-visible context hash"
+            )
+        if self.retry_allowed_tool_manifest_hash != self.allowed_tool_manifest_hash:
+            raise ValueError("retry allowed tool hash must match allowed tool hash")
+        if self.retry_forbidden_tool_manifest_hash != self.forbidden_tool_manifest_hash:
+            raise ValueError("retry forbidden tool hash must match forbidden tool hash")
+        return self
+
+
+class ProgrambenchLocalRetryExecutionCapture(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_EXECUTION_CAPTURE_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_execution_capture_ref: str
+    retry_dispatch_record_ref: str
+    stdout_hash: str
+    stdout_excerpt_bounded: str = Field(max_length=512)
+    stderr_hash: str
+    stderr_excerpt_bounded: str = Field(max_length=512)
+    transcript_hash: str
+    transcript_excerpt_bounded: str = Field(max_length=1024)
+    exit_code: int
+    duration_ms: int = Field(ge=0)
+    timeout_status: Literal["not_timed_out", "timed_out_with_capture"]
+    worker_tool_call_manifest_ref: str
+    full_output_capture_policy_ref: str
+    forbidden_content_screen_verdict: Literal[
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed",
+    ]
+    forbidden_content_screening_basis_refs: list[str] = Field(min_length=1)
+    screened_output_hashes: list[str] = Field(min_length=1)
+    screening_reviewer_or_policy_ref: str
+    sandbox_violation_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_execution_capture(self) -> "ProgrambenchLocalRetryExecutionCapture":
+        for field_name in ("stdout_hash", "stderr_hash", "transcript_hash"):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        _ensure_sorted_unique(
+            self.forbidden_content_screening_basis_refs,
+            field_name="forbidden_content_screening_basis_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.forbidden_content_screening_basis_refs,
+            field_name="forbidden_content_screening_basis_refs",
+        )
+        _ensure_sorted_unique(
+            self.screened_output_hashes,
+            field_name="screened_output_hashes",
+        )
+        for screened_output_hash in self.screened_output_hashes:
+            _ensure_hash(screened_output_hash, field_name="screened_output_hashes")
+        _ensure_sorted_unique_allow_empty(
+            self.sandbox_violation_refs,
+            field_name="sandbox_violation_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.sandbox_violation_refs,
+            field_name="sandbox_violation_refs",
+        )
+        return self
+
+
+class ProgrambenchLocalRetryCandidateDeltaSnapshot(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_CANDIDATE_DELTA_SNAPSHOT_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_candidate_delta_snapshot_ref: str
+    retry_execution_capture_ref: str
+    source_trial_candidate_snapshot_ref: str
+    generated_file_manifest_ref: str
+    materialization_input_hash: str
+    materialization_output_manifest_hash: str
+    write_scope_ref: str
+    inside_released_write_scope: Literal[True]
+    forbidden_content_screen_verdict: Literal["passed"]
+    official_submission_posture: Literal[
+        "no_official_submission_authority_by_pb_retry_0b"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_candidate_delta_snapshot(
+        self,
+    ) -> "ProgrambenchLocalRetryCandidateDeltaSnapshot":
+        _ensure_hash(self.materialization_input_hash, field_name="materialization_input_hash")
+        _ensure_hash(
+            self.materialization_output_manifest_hash,
+            field_name="materialization_output_manifest_hash",
+        )
+        return self
+
+
+class ProgrambenchLocalRetryLifecycleProjection(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_LIFECYCLE_PROJECTION_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_lifecycle_projection_ref: str
+    retry_request_ref: str
+    retry_dispatch_record_ref: str
+    retry_execution_capture_ref: str
+    retry_candidate_delta_snapshot_ref: str
+    trial_lifecycle_projection_ref: str
+    attempt_lifecycle_projection_refs: list[str] = Field(min_length=1)
+    pb_trial_validator_binding_refs: list[str] = Field(min_length=1)
+    pb_attempt_validator_binding_refs: list[str] = Field(min_length=1)
+    projection_validation_posture: Literal[
+        "projected_to_released_trial_and_attempt_lifecycle_refs"
+    ]
+    new_evidence_law_posture: Literal["no_new_evidence_law_defined_by_pb_retry_0b"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_lifecycle_projection(
+        self,
+    ) -> "ProgrambenchLocalRetryLifecycleProjection":
+        for field_name in (
+            "attempt_lifecycle_projection_refs",
+            "pb_trial_validator_binding_refs",
+            "pb_attempt_validator_binding_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+            _ensure_no_forbidden_refs(getattr(self, field_name), field_name=field_name)
+        return self
+
+
+class ProgrambenchLocalRetrySandboxApplicationTrace(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_SANDBOX_APPLICATION_TRACE_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_sandbox_trace_ref: str
+    retry_dispatch_record_ref: str
+    sandbox_instance_ref: str
+    sandbox_attestation_bundle_ref: str
+    network_mode_witness_ref: str
+    docker_socket_absence_witness_ref: str
+    secret_absence_witness_ref: str
+    source_lookup_absence_witness_ref: str
+    decompilation_absence_witness_ref: str
+    write_scope_attestation_ref: str
+    resource_limit_attestation_ref: str
+    tool_manifest_match_ref: str
+    sandbox_violation_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_sandbox_trace(
+        self,
+    ) -> "ProgrambenchLocalRetrySandboxApplicationTrace":
+        _ensure_sorted_unique_allow_empty(
+            self.sandbox_violation_refs,
+            field_name="sandbox_violation_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.sandbox_violation_refs,
+            field_name="sandbox_violation_refs",
+        )
+        return self
+
+
 def validate_pb_retry_0a_retry_bundle(
     *,
     trial_outcome_audit: ProgrambenchLocalTrialOutcomeAudit,
@@ -775,3 +1009,185 @@ def validate_pb_retry_0a_retry_bundle(
         "no_retry_dispatch_authority_granted_by_pb_retry_0a"
     ):
         raise ValueError("retry guardrail must deny dispatch authority")
+
+
+def validate_pb_retry_0b_dispatch_bundle(
+    *,
+    retry_request: ProgrambenchLocalRetryRequest,
+    retry_lineage_registry: ProgrambenchLocalRetryLineageRegistry,
+    remand_source_index: ProgrambenchTrialRemandSourceIndex,
+    retry_eligibility_review: ProgrambenchLocalRetryEligibilityReview,
+    retry_scope_contract: ProgrambenchLocalRetryScopeContract,
+    retry_guardrail: ProgrambenchLocalRetryNonAuthorityGuardrail,
+    source_trial_dispatch: ProgrambenchLocalTrialWorkerDispatchRecord,
+    source_trial_candidate_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
+    source_trial_lifecycle_projection: ProgrambenchLocalTrialLifecycleProjection,
+    retry_dispatch_record: ProgrambenchLocalRetryDispatchRecord,
+    retry_execution_capture: ProgrambenchLocalRetryExecutionCapture,
+    retry_candidate_delta_snapshot: ProgrambenchLocalRetryCandidateDeltaSnapshot,
+    retry_lifecycle_projection: ProgrambenchLocalRetryLifecycleProjection,
+    retry_sandbox_trace: ProgrambenchLocalRetrySandboxApplicationTrace,
+) -> None:
+    if retry_eligibility_review.eligibility_posture != (
+        "eligible_for_later_local_retry_dispatch_review"
+    ):
+        raise ValueError("PB-RETRY-0-B requires released eligible A retry review")
+    if retry_eligibility_review.ready_basis_posture != "ready_no_blockers":
+        raise ValueError("PB-RETRY-0-B requires ready_no_blockers A basis")
+    if retry_eligibility_review.carried_blocker_refs:
+        raise ValueError("PB-RETRY-0-B cannot dispatch with A carried blockers")
+    if retry_eligibility_review.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry eligibility review must reference retry request")
+    if retry_eligibility_review.retry_lineage_registry_ref != (
+        retry_lineage_registry.retry_lineage_registry_ref
+    ):
+        raise ValueError("retry eligibility review must reference retry lineage registry")
+    if retry_scope_contract.retry_scope_contract_ref not in (
+        retry_eligibility_review.retry_scope_contract_refs
+    ):
+        raise ValueError("retry eligibility review must release retry scope contract")
+    if retry_guardrail.retry_guardrail_ref not in (
+        retry_eligibility_review.non_authority_guardrail_refs
+    ):
+        raise ValueError("retry eligibility review must release retry guardrail")
+    if retry_request.retry_request_ref not in retry_lineage_registry.eligible_retry_request_refs:
+        raise ValueError("retry request must be released by retry lineage registry")
+    if retry_request.prior_retry_request_refs or retry_lineage_registry.existing_retry_request_refs:
+        raise ValueError("PB-RETRY-0-B cannot dispatch after an existing retry request")
+    if remand_source_index.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("remand source index must reference retry request")
+    if retry_scope_contract.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry scope contract must reference retry request")
+    if retry_guardrail.retry_dispatch_posture != (
+        "no_retry_dispatch_authority_granted_by_pb_retry_0a"
+    ):
+        raise ValueError("A guardrail must deny retry dispatch authority")
+
+    if retry_dispatch_record.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry dispatch must reference retry request")
+    if retry_dispatch_record.retry_lineage_ref != retry_request.retry_lineage_ref:
+        raise ValueError("retry dispatch must preserve retry lineage")
+    if retry_dispatch_record.retry_eligibility_review_ref != (
+        retry_eligibility_review.retry_eligibility_review_ref
+    ):
+        raise ValueError("retry dispatch must reference A eligibility review")
+    if retry_dispatch_record.retry_scope_contract_ref != (
+        retry_scope_contract.retry_scope_contract_ref
+    ):
+        raise ValueError("retry dispatch must reference A scope contract")
+    if retry_dispatch_record.source_trial_dispatch_ref != (
+        source_trial_dispatch.trial_worker_dispatch_ref
+    ):
+        raise ValueError("retry dispatch must bind to source trial dispatch")
+    if retry_dispatch_record.retry_depth != retry_request.retry_depth_limit:
+        raise ValueError("retry dispatch must preserve retry depth limit")
+    if retry_dispatch_record.retry_dispatch_authority_ref != (
+        _PB_RETRY_0B_DISPATCH_AUTHORITY_REF
+    ):
+        raise ValueError("retry dispatch requires PB-RETRY-0-B lock authority")
+    if retry_dispatch_record.retry_scope_delta_hash != (
+        retry_scope_contract.retry_scope_delta_manifest_hash
+    ):
+        raise ValueError("retry dispatch must bind to A retry scope delta hash")
+    if retry_dispatch_record.retry_sandbox_policy_hash != (
+        retry_scope_contract.unchanged_sandbox_policy_hash
+    ):
+        raise ValueError("retry dispatch must preserve A unchanged sandbox policy hash")
+    if retry_dispatch_record.worker_input_packet_hash != (
+        source_trial_dispatch.worker_input_packet_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial worker input hash")
+    if retry_dispatch_record.worker_visible_context_hash != (
+        source_trial_dispatch.worker_visible_context_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial worker context hash")
+    if retry_dispatch_record.worker_profile_ref != source_trial_dispatch.worker_profile_ref:
+        raise ValueError("retry dispatch must preserve source trial worker profile")
+    if retry_dispatch_record.tool_manifest_ref != source_trial_dispatch.tool_manifest_ref:
+        raise ValueError("retry dispatch must preserve source trial tool manifest")
+    if retry_dispatch_record.allowed_tool_manifest_hash != (
+        source_trial_dispatch.allowed_tool_manifest_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial allowed tool hash")
+    if retry_dispatch_record.forbidden_tool_manifest_hash != (
+        source_trial_dispatch.forbidden_tool_manifest_hash
+    ):
+        raise ValueError("retry dispatch must preserve source trial forbidden tool hash")
+    if retry_dispatch_record.input_packet_materialization_hash != (
+        source_trial_dispatch.input_packet_materialization_hash
+    ):
+        raise ValueError(
+            "retry dispatch must preserve source trial input materialization hash"
+        )
+
+    if retry_execution_capture.retry_dispatch_record_ref != (
+        retry_dispatch_record.retry_dispatch_record_ref
+    ):
+        raise ValueError("retry execution capture must reference retry dispatch")
+    if retry_execution_capture.forbidden_content_screen_verdict != (
+        _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
+    ):
+        raise ValueError("retry execution capture requires passed forbidden-content screening")
+    if retry_execution_capture.sandbox_violation_refs:
+        raise ValueError("retry execution capture cannot carry sandbox violations")
+
+    if retry_candidate_delta_snapshot.retry_execution_capture_ref != (
+        retry_execution_capture.retry_execution_capture_ref
+    ):
+        raise ValueError("retry candidate delta must reference execution capture")
+    if retry_candidate_delta_snapshot.source_trial_candidate_snapshot_ref != (
+        source_trial_candidate_snapshot.candidate_artifact_snapshot_ref
+    ):
+        raise ValueError("retry candidate delta must bind to source trial candidate snapshot")
+    if retry_candidate_delta_snapshot.forbidden_content_screen_verdict != (
+        retry_execution_capture.forbidden_content_screen_verdict
+    ):
+        raise ValueError("retry candidate delta must preserve screening verdict")
+    if retry_candidate_delta_snapshot.materialization_input_hash not in (
+        retry_execution_capture.screened_output_hashes
+    ):
+        raise ValueError("retry candidate delta input hash must be a screened output hash")
+    if retry_candidate_delta_snapshot.write_scope_ref != (
+        source_trial_candidate_snapshot.write_scope_ref
+    ):
+        raise ValueError("retry candidate delta must preserve released source write scope")
+
+    if retry_lifecycle_projection.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry lifecycle projection must reference retry request")
+    if retry_lifecycle_projection.retry_dispatch_record_ref != (
+        retry_dispatch_record.retry_dispatch_record_ref
+    ):
+        raise ValueError("retry lifecycle projection must reference retry dispatch")
+    if retry_lifecycle_projection.retry_execution_capture_ref != (
+        retry_execution_capture.retry_execution_capture_ref
+    ):
+        raise ValueError("retry lifecycle projection must reference execution capture")
+    if retry_lifecycle_projection.retry_candidate_delta_snapshot_ref != (
+        retry_candidate_delta_snapshot.retry_candidate_delta_snapshot_ref
+    ):
+        raise ValueError("retry lifecycle projection must reference candidate delta")
+    if retry_lifecycle_projection.trial_lifecycle_projection_ref != (
+        source_trial_lifecycle_projection.trial_lifecycle_projection_ref
+    ):
+        raise ValueError("retry lifecycle projection must bind to source trial lifecycle")
+    if retry_lifecycle_projection.projection_validation_posture != (
+        "projected_to_released_trial_and_attempt_lifecycle_refs"
+    ):
+        raise ValueError("retry lifecycle projection must use released lifecycle refs")
+    if retry_lifecycle_projection.new_evidence_law_posture != (
+        "no_new_evidence_law_defined_by_pb_retry_0b"
+    ):
+        raise ValueError("retry lifecycle projection cannot define new evidence law")
+
+    if retry_sandbox_trace.retry_dispatch_record_ref != (
+        retry_dispatch_record.retry_dispatch_record_ref
+    ):
+        raise ValueError("retry sandbox trace must reference retry dispatch")
+    if retry_sandbox_trace.sandbox_instance_ref != retry_dispatch_record.sandbox_instance_ref:
+        raise ValueError("retry sandbox trace must bind to dispatch sandbox instance")
+    if retry_sandbox_trace.sandbox_attestation_bundle_ref != (
+        retry_dispatch_record.sandbox_attestation_bundle_ref
+    ):
+        raise ValueError("retry sandbox trace must bind to dispatch sandbox attestation")
+    if retry_sandbox_trace.sandbox_violation_refs:
+        raise ValueError("retry sandbox trace cannot carry sandbox violations")
