@@ -1,8 +1,8 @@
 # Assessment vNext+269 Edges
 
-Status: pre-lock edge assessment for `PB-SINGLE-CASE-RUN-0-A`.
+Status: post-closeout edge assessment for `PB-SINGLE-CASE-RUN-0-A`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,93 +10,107 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS269_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edges
 
 ### Edge 1: Slice A Could Become A Second Trial Surface
 
-- Risk:
-  `PB-SINGLE-CASE-RUN-0-A` could duplicate `PB-TRIAL-0-A` semantics instead
-  of acting as a selected case-lineage run wrapper.
-- Required containment:
-  A must record `single_case_run_relation_to_prior_lifecycle` and bind the
-  selected target to released adapter, workbench, attempt, trial, optional
-  retry, case-expansion, matrix, or matrix-inclusion lineage as constraints.
+- Outcome:
+  `pass`.
+- Evidence:
+  A records single-case run relation to prior lifecycle and consumes matrix
+  inclusion C lineage as target-selection substrate. It does not duplicate
+  `PB-TRIAL-0` execution semantics.
 
 ### Edge 2: Target Origin Could Be Under-Specified
 
-- Risk:
-  a run request could cite a case lineage without saying whether it came from
-  matrix membership, expanded case readiness, or direct adapter exception.
-- Required containment:
-  A must require `target_origin_route`, route-specific required refs, and
-  route-specific validation.
+- Outcome:
+  `pass`.
+- Evidence:
+  A requires `target_origin_route`, route-specific posture, required refs, and
+  matrix revision identity for the default `matrix_member` route.
 
 ### Edge 3: Deferred Or Rejected Matrix Candidates Could Be Run
 
-- Risk:
-  a case seen during matrix inclusion could be selected even though it was
-  deferred or rejected rather than included.
-- Required containment:
-  matrix-origin targets must bind source matrix revision identity and
-  `matrix_membership_status = included`.
+- Outcome:
+  `pass`.
+- Evidence:
+  target selection requires `matrix_membership_status = included`; bundle
+  validation also rejects blocked target selections and blocker refs.
 
 ### Edge 4: Direct Adapter Intake Could Bypass Matrix Governance
 
-- Risk:
-  direct adapter case selection could become the normal path, bypassing the
-  matrix/case-lineage governance that motivated this family.
-- Required containment:
-  `direct_adapter_case_exception` requires explicit exception posture and
-  non-matrix-lineage warning.
+- Outcome:
+  `pass`.
+- Evidence:
+  the default reference path is matrix-member only; non-matrix routes require
+  explicit exception posture and are not the accepted bundle path.
 
 ### Edge 5: Preflight Could Be Misread As Dispatch Authority
 
-- Risk:
-  a ready preflight packet could be treated as permission to run a worker.
-- Required containment:
-  A must require `preflight_scope_posture =
+- Outcome:
+  `pass`.
+- Evidence:
+  preflight requires `preflight_scope_posture =
   eligibility_review_only_no_dispatch` and
   `dispatch_authority_posture =
   no_worker_dispatch_authority_granted_by_pb_single_case_run_0a`.
 
 ### Edge 6: B Witnesses Could Be Claimed In A
 
-- Risk:
-  A could appear to prove sandbox instance, network, Docker socket, secret,
-  source lookup, decompilation, or write-scope attestations before execution.
-- Required containment:
-  A may list `required_b_witness_refs`, but those witnesses remain deferred
-  for B.
+- Outcome:
+  `pass`.
+- Evidence:
+  A records required B witness refs only. It does not record a sandbox
+  instance, sandbox attestation bundle, network witness, Docker socket witness,
+  secret witness, source lookup witness, decompilation witness, or write-scope
+  attestation.
 
 ### Edge 7: Single Case Run Could Become Single Benchmark Result
 
-- Risk:
-  a local run target could be framed as ProgramBench pass/fail truth,
-  benchmark score, baseline comparison, or model performance.
-- Required containment:
-  A guardrail must reject benchmark score, pass-rate, solve-rate,
-  success-rate, baseline, model-ranking, leaderboard, official participation,
-  and hidden-test-equivalence authority.
+- Outcome:
+  `pass`.
+- Evidence:
+  A rejects benchmark-like result language and grants no benchmark truth,
+  benchmark score, pass-rate, solve-rate, success-rate, baseline comparison,
+  model ranking, leaderboard, official participation, hidden-test equivalence,
+  or official submission authority.
+
+## Review Feedback Integrated
+
+- Codex review:
+  - ready preflight now requires the full required check-kind set and rejects
+    duplicate check kinds;
+  - bundle validation rejects target selections that are blocked or carry
+    blocker refs.
+- Gemini review:
+  - required B witness refs are immutable in module scope while payloads remain
+    sorted-list validated;
+  - bundle hash comparisons were expanded from dynamic `getattr` loops to
+    explicit field comparisons for auditability.
 
 ## Residual Edges
 
 - Actual worker dispatch and local execution remain deferred to
   `PB-SINGLE-CASE-RUN-0-B`.
-- Local outcome audit, remand/acceptance decision, and handoff remain
-  deferred to `PB-SINGLE-CASE-RUN-0-C`.
+- Local probe observation, candidate artifact capture, and lifecycle
+  projection remain deferred to `PB-SINGLE-CASE-RUN-0-B`.
+- Local outcome audit, observation summary, remand/acceptance decision, and
+  handoff remain deferred to `PB-SINGLE-CASE-RUN-0-C`.
 - Official ProgramBench runner/evaluator integration remains unselected.
 - Hidden-test handling and hidden-test equivalence remain unselected.
 - Benchmark scoring, baseline comparison, and model ranking remain unselected.
 - Batch execution over a matrix remains unselected.
-- Future-family selection remains unselected by this starter.
+- Future-family selection remains unselected by this slice.
 
 ## Current Judgment
 
-The `PB-SINGLE-CASE-RUN-0-A` starter is bounded enough to proceed to
-implementation after `make arc-start-check ARC=269` passes.
+`PB-SINGLE-CASE-RUN-0-A` is closed on `main` as preflight-only single-case
+target selection. The next selected seam may be `PB-SINGLE-CASE-RUN-0-B`,
+which is action-adjacent and must require explicit B-slice dispatch authority
+before any local specimen record is accepted.

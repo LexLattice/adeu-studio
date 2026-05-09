@@ -291,3 +291,11 @@ Recommended first-slice decision after review:
 ```text
 SELECT_PB_SINGLE_CASE_RUN_0A_RUN_REQUEST_TARGET_SELECTION_AND_PREFLIGHT_ONLY
 ```
+
+Post-`PB-SINGLE-CASE-RUN-0-A` continuation posture: after
+`PB-SINGLE-CASE-RUN-0-A` closes on `main`, select `PB-SINGLE-CASE-RUN-0-B` as the next default candidate for the next canonical starter bundle.
+`PB-SINGLE-CASE-RUN-0-B` remains bounded to one local execution specimen
+capture under released A controls and does not authorize outcome audit,
+acceptance/remand, retry authority, batch execution, benchmark scoring,
+baseline comparison, model ranking, official participation, or future-family
+selection.

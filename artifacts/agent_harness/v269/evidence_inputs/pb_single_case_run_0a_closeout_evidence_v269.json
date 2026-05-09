@@ -1,0 +1,49 @@
+{
+  "arc": "vNext+269",
+  "baseline_comparison_authority_granted": false,
+  "batch_execution_authority_granted": false,
+  "benchmark_truth_authority_granted": false,
+  "b_witnesses_declared_not_satisfied": true,
+  "candidate_artifact_capture_granted": false,
+  "closed_slice": "PB-SINGLE-CASE-RUN-0-A",
+  "default_target_origin_route": "matrix_member",
+  "dispatch_authority_granted": false,
+  "execution_authority_granted": false,
+  "family": "PB-SINGLE-CASE-RUN-0",
+  "future_family_selection_granted": false,
+  "implementation_commits": [
+    "bfbfdd220198508cc46438e1578866b67fd01666",
+    "c2d98f370bd6f9342d793368266e72bc910b9d28"
+  ],
+  "implementation_package": "packages/adeu_benchmarking",
+  "matrix_member_target_required": true,
+  "merge_commit": "67e264aef3c80cc1544e4874f322d3e33b155ebd",
+  "merged_at": "2026-05-09T23:14:51Z",
+  "merged_pr": "#497",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v269/evidence_inputs/metric_key_continuity_assertion_v269.json",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "preflight_requires_complete_check_kind_set": true,
+  "preflight_scope_posture": "eligibility_review_only_no_dispatch",
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus269",
+  "runtime_event_stream_path": "artifacts/agent_harness/v269/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v269/evidence_inputs/runtime_observability_comparison_v269.json",
+  "schema": "pb_single_case_run_0a_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_single_case_run_request@1",
+    "programbench_single_case_target_selection@1",
+    "programbench_single_case_execution_preflight@1",
+    "programbench_single_case_run_control_contract@1",
+    "programbench_single_case_run_non_authority_guardrail@1"
+  ],
+  "single_case_only_enforced": true,
+  "soft_benchmark_result_language_rejected": true,
+  "target_blocker_refs_rejected_in_bundle": true,
+  "target_selection_must_be_selected_for_preflight": true,
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0a.py",
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0a.py -q",
+    "make check",
+    "make arc-closeout-check ARC=269"
+  ]
+}
