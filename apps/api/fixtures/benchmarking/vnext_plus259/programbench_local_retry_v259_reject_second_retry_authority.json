@@ -1,0 +1,18 @@
+{
+  "future_family_posture": "no_future_family_selected_by_pb_retry_0c",
+  "limitation_note": "Invalid settlement tries to create another retry.",
+  "new_local_remand_refs": [],
+  "retry_outcome_audit_ref": "retry-outcome-audit:pb-retry-0c:reference",
+  "retry_remand_settlement_ref": "retry-remand-settlement:pb-retry-0c:bad-second-retry",
+  "schema": "programbench_local_retry_remand_settlement@1",
+  "second_retry_authority_posture": "second_retry_dispatch_authority_granted",
+  "second_retry_requestability_posture": "no_second_retry_authority_granted_by_pb_retry_0c",
+  "settled_remand_refs": [
+    "remand-row:pb-trial-0c:runbook-gap"
+  ],
+  "settlement_posture": "local_remand_settled",
+  "settlement_scope_posture": "local_retry_lineage_only_not_benchmark_truth",
+  "source_trial_remand_decision_ref": "trial-remand-decision:pb-trial-0c:reference",
+  "unresolved_remand_future_posture": "unresolved_remand_pressure_only_no_retry_authority",
+  "unresolved_remand_refs": []
+}

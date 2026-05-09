@@ -1,0 +1,70 @@
+{
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "hidden_test_equivalence_posture": "no_hidden_test_equivalence_claimed_by_pb_retry_0c",
+  "limitation_note": "Reference retry outcome audit resolves the declared local remand using local cleanroom evidence only.",
+  "local_probe_basis_refs": [
+    "remand-row:pb-trial-0c:runbook-gap",
+    "retry-execution-capture:pb-retry-0b:reference"
+  ],
+  "local_remand_refs": [
+    "remand-row:pb-trial-0c:runbook-gap"
+  ],
+  "local_retry_result_posture": "local_retry_resolved",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_retry_0c",
+  "official_submission_posture": "no_official_submission_authority_by_pb_retry_0c",
+  "remand_satisfaction_rows": [
+    {
+      "evidence_refs": [
+        "retry-candidate-delta:pb-retry-0b:reference"
+      ],
+      "limitation_note": "Candidate delta evidence addresses the declared local remand.",
+      "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:candidate-delta",
+      "satisfaction_kind": "candidate_delta_addresses_remand",
+      "satisfaction_posture": "satisfied",
+      "source_remand_ref": "remand-row:pb-trial-0c:runbook-gap"
+    },
+    {
+      "evidence_refs": [
+        "retry-execution-capture:pb-retry-0b:reference"
+      ],
+      "limitation_note": "Execution capture evidence addresses the declared local remand.",
+      "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:execution-capture",
+      "satisfaction_kind": "execution_capture_addresses_remand",
+      "satisfaction_posture": "satisfied",
+      "source_remand_ref": "remand-row:pb-trial-0c:runbook-gap"
+    },
+    {
+      "evidence_refs": [
+        "retry-lifecycle-projection:pb-retry-0b:reference"
+      ],
+      "limitation_note": "Lifecycle projection evidence addresses the declared local remand.",
+      "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:lifecycle-projection",
+      "satisfaction_kind": "lifecycle_projection_addresses_remand",
+      "satisfaction_posture": "satisfied",
+      "source_remand_ref": "remand-row:pb-trial-0c:runbook-gap"
+    },
+    {
+      "evidence_refs": [
+        "retry-candidate-delta:pb-retry-0b:reference",
+        "retry-execution-capture:pb-retry-0b:reference"
+      ],
+      "limitation_note": "The declared local remand is satisfied within the same retry lineage.",
+      "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:remand-settled",
+      "satisfaction_kind": "local_remand_satisfied",
+      "satisfaction_posture": "satisfied",
+      "source_remand_ref": "remand-row:pb-trial-0c:runbook-gap"
+    }
+  ],
+  "retry_candidate_delta_snapshot_ref": "retry-candidate-delta:pb-retry-0b:reference",
+  "retry_dispatch_record_ref": "retry-dispatch:pb-retry-0b:reference",
+  "retry_eligibility_review_ref": "retry-eligibility:pb-retry-0a:reference",
+  "retry_execution_capture_ref": "retry-execution-capture:pb-retry-0b:reference",
+  "retry_lifecycle_projection_ref": "retry-lifecycle-projection:pb-retry-0b:reference",
+  "retry_lineage_ref": "retry-lineage:pb-retry-0:reference",
+  "retry_outcome_audit_ref": "retry-outcome-audit:pb-retry-0c:reference",
+  "retry_request_ref": "retry-request:pb-retry-0a:reference",
+  "retry_sandbox_trace_ref": "retry-sandbox-trace:pb-retry-0b:reference",
+  "retry_scope_contract_ref": "retry-scope-contract:pb-retry-0a:reference",
+  "schema": "programbench_local_retry_outcome_audit@1"
+}

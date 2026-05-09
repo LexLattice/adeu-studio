@@ -1,0 +1,58 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "comparison_scope_posture": "same_trial_lineage_only_no_model_or_benchmark_comparison",
+  "limitation_note": "Reference delta summary is limited to same-lineage local retry evidence.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_retry_0c",
+  "observation_scope_posture": "single_retry_lineage_local_only",
+  "retry_candidate_delta_snapshot_refs": [
+    "retry-candidate-delta:pb-retry-0b:reference"
+  ],
+  "retry_delta_observation_summary_ref": "retry-delta-summary:pb-retry-0c:reference",
+  "retry_execution_capture_refs": [
+    "retry-execution-capture:pb-retry-0b:reference"
+  ],
+  "retry_outcome_audit_ref": "retry-outcome-audit:pb-retry-0c:reference",
+  "same_lineage_delta_rows": [
+    {
+      "delta_kind": "candidate_delta_observed",
+      "delta_scope_posture": "same_lineage_local_delta_only",
+      "delta_text": "candidate delta was observed inside the unchanged local write scope",
+      "limitation_note": "The observation compares only source trial and retry rows from the same lineage.",
+      "retry_refs": [
+        "retry-candidate-delta:pb-retry-0b:reference"
+      ],
+      "same_lineage_delta_ref": "same-lineage-delta:pb-retry-0c:candidate-delta",
+      "source_trial_refs": [
+        "candidate-snapshot:pb-trial-0b:reference"
+      ]
+    },
+    {
+      "delta_kind": "execution_delta_observed",
+      "delta_scope_posture": "same_lineage_local_delta_only",
+      "delta_text": "retry execution capture was observed against the declared local remand",
+      "limitation_note": "The observation is local to this retry lineage.",
+      "retry_refs": [
+        "retry-execution-capture:pb-retry-0b:reference"
+      ],
+      "same_lineage_delta_ref": "same-lineage-delta:pb-retry-0c:execution-capture",
+      "source_trial_refs": [
+        "trial-observation-summary:pb-trial-0c:reference"
+      ]
+    },
+    {
+      "delta_kind": "local_remand_resolution_observed",
+      "delta_scope_posture": "same_lineage_local_delta_only",
+      "delta_text": "declared local remand was resolved by retry evidence",
+      "limitation_note": "The observation does not claim broader benchmark meaning.",
+      "retry_refs": [
+        "retry-outcome-audit:pb-retry-0c:reference"
+      ],
+      "same_lineage_delta_ref": "same-lineage-delta:pb-retry-0c:remand-resolution",
+      "source_trial_refs": [
+        "trial-remand-decision:pb-trial-0c:reference"
+      ]
+    }
+  ],
+  "schema": "programbench_local_retry_delta_observation_summary@1",
+  "source_trial_observation_summary_ref": "trial-observation-summary:pb-trial-0c:reference"
+}

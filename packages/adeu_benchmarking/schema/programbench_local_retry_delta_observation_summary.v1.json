@@ -1,0 +1,146 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetrySameLineageDeltaRow": {
+      "additionalProperties": false,
+      "properties": {
+        "delta_kind": {
+          "enum": [
+            "candidate_delta_observed",
+            "execution_delta_observed",
+            "local_remand_resolution_observed"
+          ],
+          "title": "Delta Kind",
+          "type": "string"
+        },
+        "delta_scope_posture": {
+          "const": "same_lineage_local_delta_only",
+          "title": "Delta Scope Posture",
+          "type": "string"
+        },
+        "delta_text": {
+          "title": "Delta Text",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "retry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Retry Refs",
+          "type": "array"
+        },
+        "same_lineage_delta_ref": {
+          "title": "Same Lineage Delta Ref",
+          "type": "string"
+        },
+        "source_trial_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Trial Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "same_lineage_delta_ref",
+        "delta_kind",
+        "source_trial_refs",
+        "retry_refs",
+        "delta_scope_posture",
+        "delta_text",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetrySameLineageDeltaRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "comparison_scope_posture": {
+      "const": "same_trial_lineage_only_no_model_or_benchmark_comparison",
+      "title": "Comparison Scope Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_retry_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "observation_scope_posture": {
+      "const": "single_retry_lineage_local_only",
+      "title": "Observation Scope Posture",
+      "type": "string"
+    },
+    "retry_candidate_delta_snapshot_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Candidate Delta Snapshot Refs",
+      "type": "array"
+    },
+    "retry_delta_observation_summary_ref": {
+      "title": "Retry Delta Observation Summary Ref",
+      "type": "string"
+    },
+    "retry_execution_capture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Execution Capture Refs",
+      "type": "array"
+    },
+    "retry_outcome_audit_ref": {
+      "title": "Retry Outcome Audit Ref",
+      "type": "string"
+    },
+    "same_lineage_delta_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetrySameLineageDeltaRow"
+      },
+      "minItems": 1,
+      "title": "Same Lineage Delta Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_delta_observation_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_trial_observation_summary_ref": {
+      "title": "Source Trial Observation Summary Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_delta_observation_summary_ref",
+    "retry_outcome_audit_ref",
+    "source_trial_observation_summary_ref",
+    "retry_execution_capture_refs",
+    "retry_candidate_delta_snapshot_refs",
+    "same_lineage_delta_rows",
+    "observation_scope_posture",
+    "comparison_scope_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryDeltaObservationSummary",
+  "type": "object"
+}

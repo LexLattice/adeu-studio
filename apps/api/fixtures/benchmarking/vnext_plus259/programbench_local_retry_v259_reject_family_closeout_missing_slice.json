@@ -1,0 +1,41 @@
+{
+  "closed_slice_refs": [
+    "PB-RETRY-0-A",
+    "PB-RETRY-0-C"
+  ],
+  "family_closeout_posture": "pb_retry_0_closed_local_retry_only",
+  "future_family_authority_posture": "no_future_family_selected_by_pb_retry_0c",
+  "limitation_note": "Invalid closeout omits PB-RETRY-0-B.",
+  "retry_candidate_delta_snapshot_refs": [
+    "retry-candidate-delta:pb-retry-0b:reference"
+  ],
+  "retry_delta_observation_summary_refs": [
+    "retry-delta-summary:pb-retry-0c:reference"
+  ],
+  "retry_dispatch_record_refs": [
+    "retry-dispatch:pb-retry-0b:reference"
+  ],
+  "retry_eligibility_review_refs": [
+    "retry-eligibility:pb-retry-0a:reference"
+  ],
+  "retry_execution_capture_refs": [
+    "retry-execution-capture:pb-retry-0b:reference"
+  ],
+  "retry_family_closeout_ref": "retry-family-closeout:pb-retry-0c:bad-missing-slice",
+  "retry_lifecycle_projection_refs": [
+    "retry-lifecycle-projection:pb-retry-0b:reference"
+  ],
+  "retry_outcome_audit_refs": [
+    "retry-outcome-audit:pb-retry-0c:reference"
+  ],
+  "retry_remand_settlement_refs": [
+    "retry-remand-settlement:pb-retry-0c:reference"
+  ],
+  "retry_request_refs": [
+    "retry-request:pb-retry-0a:reference"
+  ],
+  "retry_scope_contract_refs": [
+    "retry-scope-contract:pb-retry-0a:reference"
+  ],
+  "schema": "programbench_local_retry_family_closeout_alignment@1"
+}

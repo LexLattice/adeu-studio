@@ -1,0 +1,96 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "future_family_posture": {
+      "const": "no_future_family_selected_by_pb_retry_0c",
+      "title": "Future Family Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "new_local_remand_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "New Local Remand Refs",
+      "type": "array"
+    },
+    "retry_outcome_audit_ref": {
+      "title": "Retry Outcome Audit Ref",
+      "type": "string"
+    },
+    "retry_remand_settlement_ref": {
+      "title": "Retry Remand Settlement Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_remand_settlement@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "second_retry_authority_posture": {
+      "const": "no_second_retry_dispatch_authority_granted_by_pb_retry_0c",
+      "title": "Second Retry Authority Posture",
+      "type": "string"
+    },
+    "second_retry_requestability_posture": {
+      "const": "no_second_retry_authority_granted_by_pb_retry_0c",
+      "title": "Second Retry Requestability Posture",
+      "type": "string"
+    },
+    "settled_remand_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Settled Remand Refs",
+      "type": "array"
+    },
+    "settlement_posture": {
+      "enum": [
+        "local_remand_settled",
+        "local_remand_unresolved",
+        "local_settlement_blocked"
+      ],
+      "title": "Settlement Posture",
+      "type": "string"
+    },
+    "settlement_scope_posture": {
+      "const": "local_retry_lineage_only_not_benchmark_truth",
+      "title": "Settlement Scope Posture",
+      "type": "string"
+    },
+    "source_trial_remand_decision_ref": {
+      "title": "Source Trial Remand Decision Ref",
+      "type": "string"
+    },
+    "unresolved_remand_future_posture": {
+      "const": "unresolved_remand_pressure_only_no_retry_authority",
+      "title": "Unresolved Remand Future Posture",
+      "type": "string"
+    },
+    "unresolved_remand_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Remand Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_remand_settlement_ref",
+    "retry_outcome_audit_ref",
+    "source_trial_remand_decision_ref",
+    "settlement_posture",
+    "second_retry_requestability_posture",
+    "unresolved_remand_future_posture",
+    "settlement_scope_posture",
+    "second_retry_authority_posture",
+    "future_family_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryRemandSettlement",
+  "type": "object"
+}
