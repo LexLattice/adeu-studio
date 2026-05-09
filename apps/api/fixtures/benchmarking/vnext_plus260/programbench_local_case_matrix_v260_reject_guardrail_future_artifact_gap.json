@@ -1,0 +1,130 @@
+{
+  "batch_execution_posture": "no_batch_execution_authority_granted_by_pb_matrix_0a",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_matrix_refs": [
+    "case-matrix:pb-matrix-0a:reference"
+  ],
+  "forbidden_future_artifact_kinds": [
+    "programbench_local_case_matrix_contamination_register@1",
+    "programbench_local_case_matrix_coverage_register@1",
+    "programbench_local_case_matrix_family_closeout_alignment@1",
+    "programbench_local_case_matrix_handoff@1",
+    "programbench_local_case_matrix_observation_ledger@1",
+    "programbench_local_case_matrix_summary@1"
+  ],
+  "future_family_posture": "no_future_family_selected_by_pb_matrix_0a",
+  "guardrail_source_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS260.md"
+  ],
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "This invalid guardrail omits result projection from forbidden future artifact kinds.",
+  "matrix_guardrail_ref": "matrix-guardrail:pb-matrix-0a:reference",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0a",
+  "non_authority_rows": [
+    {
+      "authority_kind": "batch_execution",
+      "forbidden_authority_ref": "matrix-authority-forbidden:01-batch-execution",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Batch execution is not selected."
+    },
+    {
+      "authority_kind": "benchmark_score",
+      "forbidden_authority_ref": "matrix-authority-forbidden:02-benchmark-score",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Benchmark scoring is not selected."
+    },
+    {
+      "authority_kind": "benchmark_truth",
+      "forbidden_authority_ref": "matrix-authority-forbidden:03-benchmark-truth",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Benchmark truth is not selected."
+    },
+    {
+      "authority_kind": "candidate_materialization",
+      "forbidden_authority_ref": "matrix-authority-forbidden:04-candidate-materialization",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Candidate materialization is not selected."
+    },
+    {
+      "authority_kind": "contamination_register",
+      "forbidden_authority_ref": "matrix-authority-forbidden:05-contamination-register",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Contamination register is deferred."
+    },
+    {
+      "authority_kind": "coverage_register",
+      "forbidden_authority_ref": "matrix-authority-forbidden:06-coverage-register",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Coverage register is deferred."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbidden_authority_ref": "matrix-authority-forbidden:07-future-family",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Future family selection is not authorized."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbidden_authority_ref": "matrix-authority-forbidden:08-hidden-test",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Hidden-test inference is forbidden."
+    },
+    {
+      "authority_kind": "matrix_handoff",
+      "forbidden_authority_ref": "matrix-authority-forbidden:09-handoff",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Matrix handoff is deferred."
+    },
+    {
+      "authority_kind": "matrix_observation_ledger",
+      "forbidden_authority_ref": "matrix-authority-forbidden:10-observation-ledger",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Observation ledger is deferred."
+    },
+    {
+      "authority_kind": "matrix_summary",
+      "forbidden_authority_ref": "matrix-authority-forbidden:11-summary",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Matrix summary is deferred."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbidden_authority_ref": "matrix-authority-forbidden:12-model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Model ranking is not authorized."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbidden_authority_ref": "matrix-authority-forbidden:13-official-participation",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Official participation is not authorized."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbidden_authority_ref": "matrix-authority-forbidden:14-official-submission",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Official submission is not authorized."
+    },
+    {
+      "authority_kind": "per_case_result_projection",
+      "forbidden_authority_ref": "matrix-authority-forbidden:15-result-projection",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Per-case result projection is deferred."
+    },
+    {
+      "authority_kind": "retry_chain",
+      "forbidden_authority_ref": "matrix-authority-forbidden:16-retry-chain",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Retry-chain authority is not authorized."
+    },
+    {
+      "authority_kind": "second_retry",
+      "forbidden_authority_ref": "matrix-authority-forbidden:17-second-retry",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Second retry authority is not authorized."
+    }
+  ],
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0a",
+  "schema": "programbench_local_case_matrix_non_authority_guardrail@1",
+  "second_retry_posture": "no_second_retry_authority_granted_by_pb_matrix_0a"
+}

@@ -1,0 +1,288 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixCandidateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter_case_packet_ref": {
+          "title": "Adapter Case Packet Ref",
+          "type": "string"
+        },
+        "attempt_ref": {
+          "title": "Attempt Ref",
+          "type": "string"
+        },
+        "case_cleanroom_boundary_hash": {
+          "title": "Case Cleanroom Boundary Hash",
+          "type": "string"
+        },
+        "case_contamination_posture": {
+          "enum": [
+            "clean",
+            "contaminated",
+            "hidden_or_forbidden_derived",
+            "postmortem_only"
+          ],
+          "title": "Case Contamination Posture",
+          "type": "string"
+        },
+        "case_lineage_kind": {
+          "enum": [
+            "trial_only",
+            "trial_with_retry_settlement"
+          ],
+          "title": "Case Lineage Kind",
+          "type": "string"
+        },
+        "case_origin_posture": {
+          "enum": [
+            "released_local_cleanroom_lineage",
+            "support_only",
+            "unreleased"
+          ],
+          "title": "Case Origin Posture",
+          "type": "string"
+        },
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "case_result_source_posture": {
+          "enum": [
+            "local_released_result_only",
+            "no_result_projection_by_pb_matrix_0a",
+            "official_evaluator_derived",
+            "support_only"
+          ],
+          "title": "Case Result Source Posture",
+          "type": "string"
+        },
+        "case_visibility_boundary_hash": {
+          "title": "Case Visibility Boundary Hash",
+          "type": "string"
+        },
+        "inclusion_decision": {
+          "enum": [
+            "blocked",
+            "deferred",
+            "included",
+            "support_only"
+          ],
+          "title": "Inclusion Decision",
+          "type": "string"
+        },
+        "inclusion_reason": {
+          "title": "Inclusion Reason",
+          "type": "string"
+        },
+        "retry_lineage_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Lineage Ref"
+        },
+        "retry_settlement_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry Settlement Ref"
+        },
+        "trial_lineage_ref": {
+          "title": "Trial Lineage Ref",
+          "type": "string"
+        },
+        "trial_ref": {
+          "title": "Trial Ref",
+          "type": "string"
+        },
+        "workbench_ref": {
+          "title": "Workbench Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_ref",
+        "case_lineage_kind",
+        "trial_lineage_ref",
+        "adapter_case_packet_ref",
+        "workbench_ref",
+        "attempt_ref",
+        "trial_ref",
+        "case_visibility_boundary_hash",
+        "case_cleanroom_boundary_hash",
+        "case_result_source_posture",
+        "case_contamination_posture",
+        "case_origin_posture",
+        "inclusion_decision",
+        "inclusion_reason"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixCandidateRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseMatrixSelectionRationaleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rationale_kind": {
+          "enum": [
+            "local_coverage_probe",
+            "local_regression_tracking",
+            "local_research_inventory",
+            "local_smoke_coverage"
+          ],
+          "title": "Rationale Kind",
+          "type": "string"
+        },
+        "rationale_scope_posture": {
+          "const": "local_matrix_selection_only_not_representative",
+          "title": "Rationale Scope Posture",
+          "type": "string"
+        },
+        "selected_case_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Selected Case Refs",
+          "type": "array"
+        },
+        "selection_rationale_ref": {
+          "title": "Selection Rationale Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selection_rationale_ref",
+        "rationale_kind",
+        "selected_case_refs",
+        "rationale_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixSelectionRationaleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Refs",
+      "type": "array"
+    },
+    "case_candidate_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixCandidateRow"
+      },
+      "minItems": 1,
+      "title": "Case Candidate Rows",
+      "type": "array"
+    },
+    "case_inclusion_manifest_ref": {
+      "title": "Case Inclusion Manifest Ref",
+      "type": "string"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "case_origin_posture": {
+      "const": "released_local_cleanroom_lineage_only",
+      "title": "Case Origin Posture",
+      "type": "string"
+    },
+    "case_result_source_posture": {
+      "const": "released_local_results_only_no_projection",
+      "title": "Case Result Source Posture",
+      "type": "string"
+    },
+    "case_visibility_posture": {
+      "const": "released_cleanroom_boundary_only",
+      "title": "Case Visibility Posture",
+      "type": "string"
+    },
+    "deferred_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Case Refs",
+      "type": "array"
+    },
+    "hidden_or_forbidden_exposure_posture": {
+      "const": "hidden_and_forbidden_sources_not_exposed_or_summarized",
+      "title": "Hidden Or Forbidden Exposure Posture",
+      "type": "string"
+    },
+    "included_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Included Case Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_selection_rationale_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixSelectionRationaleRow"
+      },
+      "minItems": 1,
+      "title": "Matrix Selection Rationale Rows",
+      "type": "array"
+    },
+    "released_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Case Lineage Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_inclusion_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "support_only_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Support Only Case Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "case_inclusion_manifest_ref",
+    "case_matrix_ref",
+    "case_candidate_rows",
+    "matrix_selection_rationale_rows",
+    "included_case_refs",
+    "released_case_lineage_refs",
+    "case_origin_posture",
+    "case_visibility_posture",
+    "case_result_source_posture",
+    "hidden_or_forbidden_exposure_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseInclusionManifest",
+  "type": "object"
+}

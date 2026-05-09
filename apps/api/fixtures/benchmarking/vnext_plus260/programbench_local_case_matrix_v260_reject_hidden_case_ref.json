@@ -1,0 +1,48 @@
+{
+  "blocked_case_refs": [],
+  "case_candidate_rows": [
+    {
+      "adapter_case_packet_ref": "adapter-case-packet:pb-adapter-0c:reference",
+      "attempt_ref": "attempt-request:pb-attempt-0a:reference",
+      "case_cleanroom_boundary_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "case_contamination_posture": "clean",
+      "case_lineage_kind": "trial_only",
+      "case_origin_posture": "released_local_cleanroom_lineage",
+      "case_ref": "matrix-case:hidden-test:leaked",
+      "case_result_source_posture": "local_released_result_only",
+      "case_visibility_boundary_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "inclusion_decision": "included",
+      "inclusion_reason": "Hidden-test named case should fail closed.",
+      "trial_lineage_ref": "trial-lineage:pb-trial-0a:reference",
+      "trial_ref": "trial-docket:pb-trial-0a:reference",
+      "workbench_ref": "work-order:pb-recon-0a:reference"
+    }
+  ],
+  "case_inclusion_manifest_ref": "matrix-inclusion:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "case_origin_posture": "released_local_cleanroom_lineage_only",
+  "case_result_source_posture": "released_local_results_only_no_projection",
+  "case_visibility_posture": "released_cleanroom_boundary_only",
+  "deferred_case_refs": [],
+  "hidden_or_forbidden_exposure_posture": "hidden_and_forbidden_sources_not_exposed_or_summarized",
+  "included_case_refs": [
+    "matrix-case:hidden-test:leaked"
+  ],
+  "limitation_note": "Hidden case ref should not validate.",
+  "matrix_selection_rationale_rows": [
+    {
+      "limitation_note": "Smoke matrix selection is local and not representative.",
+      "rationale_kind": "local_smoke_coverage",
+      "rationale_scope_posture": "local_matrix_selection_only_not_representative",
+      "selected_case_refs": [
+        "matrix-case:hidden-test:leaked"
+      ],
+      "selection_rationale_ref": "matrix-rationale:pb-matrix-0a:smoke"
+    }
+  ],
+  "released_case_lineage_refs": [
+    "trial-lineage:pb-trial-0a:reference"
+  ],
+  "schema": "programbench_local_case_inclusion_manifest@1",
+  "support_only_case_refs": []
+}

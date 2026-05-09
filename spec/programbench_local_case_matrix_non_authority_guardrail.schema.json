@@ -1,0 +1,154 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "batch_execution",
+            "benchmark_score",
+            "benchmark_truth",
+            "candidate_materialization",
+            "contamination_register",
+            "coverage_register",
+            "future_family_selection",
+            "hidden_test_inference",
+            "matrix_handoff",
+            "matrix_observation_ledger",
+            "matrix_summary",
+            "model_ranking",
+            "official_programbench_participation",
+            "official_submission",
+            "per_case_result_projection",
+            "retry_chain",
+            "second_retry"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_matrix_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "batch_execution_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_matrix_0a",
+      "title": "Batch Execution Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_matrix_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Matrix Refs",
+      "type": "array"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_posture": {
+      "const": "no_future_family_selected_by_pb_matrix_0a",
+      "title": "Future Family Posture",
+      "type": "string"
+    },
+    "guardrail_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Source Refs",
+      "type": "array"
+    },
+    "hidden_test_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_guardrail_ref": {
+      "title": "Matrix Guardrail Ref",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_matrix_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "non_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Non Authority Rows",
+      "type": "array"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "second_retry_posture": {
+      "const": "no_second_retry_authority_granted_by_pb_matrix_0a",
+      "title": "Second Retry Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_guardrail_ref",
+    "case_matrix_refs",
+    "guardrail_source_refs",
+    "non_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "official_programbench_posture",
+    "hidden_test_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "batch_execution_posture",
+    "second_retry_posture",
+    "future_family_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixNonAuthorityGuardrail",
+  "type": "object"
+}

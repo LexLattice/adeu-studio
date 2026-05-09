@@ -1,0 +1,45 @@
+{
+  "blocked_case_refs": [],
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "case_eligibility_rows": [
+    {
+      "blocker_refs": [],
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "eligibility_posture": "eligible_for_local_matrix_inclusion",
+      "eligibility_row_ref": "matrix-eligibility-row:pb-matrix-0a:retry",
+      "limitation_note": "Retry-settlement case is locally eligible only.",
+      "lineage_release_refs": [
+        "family-closeout:pb-trial-0c:reference",
+        "retry-family-closeout:pb-retry-0c:reference"
+      ],
+      "warning_refs": []
+    },
+    {
+      "blocker_refs": [],
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "eligibility_posture": "eligible_for_local_matrix_inclusion",
+      "eligibility_row_ref": "matrix-eligibility-row:pb-matrix-0a:trial",
+      "limitation_note": "Trial-only case is locally eligible only.",
+      "lineage_release_refs": [
+        "family-closeout:pb-trial-0c:reference"
+      ],
+      "warning_refs": []
+    }
+  ],
+  "case_lineage_eligibility_review_ref": "matrix-eligibility:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "eligible_case_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "limitation_note": "Reference eligibility review admits released local case lineages only.",
+  "non_authority_guardrail_refs": [
+    "matrix-guardrail:pb-matrix-0a:reference"
+  ],
+  "released_family_closeout_refs": [
+    "family-closeout:pb-trial-0c:reference",
+    "retry-family-closeout:pb-retry-0c:reference"
+  ],
+  "schema": "programbench_local_case_lineage_eligibility_review@1"
+}

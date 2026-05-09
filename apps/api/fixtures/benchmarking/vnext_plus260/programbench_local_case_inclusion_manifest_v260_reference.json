@@ -1,0 +1,69 @@
+{
+  "blocked_case_refs": [],
+  "case_candidate_rows": [
+    {
+      "adapter_case_packet_ref": "adapter-case-packet:pb-adapter-0c:reference",
+      "attempt_ref": "attempt-request:pb-attempt-0a:reference",
+      "case_cleanroom_boundary_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "case_contamination_posture": "clean",
+      "case_lineage_kind": "trial_with_retry_settlement",
+      "case_origin_posture": "released_local_cleanroom_lineage",
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "case_result_source_posture": "local_released_result_only",
+      "case_visibility_boundary_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "inclusion_decision": "included",
+      "inclusion_reason": "Released local retry settlement lineage is included for local inventory.",
+      "retry_lineage_ref": "retry-lineage:pb-retry-0a:reference",
+      "retry_settlement_ref": "retry-remand-settlement:pb-retry-0c:reference",
+      "trial_lineage_ref": "trial-lineage:pb-trial-0a:reference",
+      "trial_ref": "trial-docket:pb-trial-0a:reference",
+      "workbench_ref": "work-order:pb-recon-0a:reference"
+    },
+    {
+      "adapter_case_packet_ref": "adapter-case-packet:pb-adapter-0c:reference",
+      "attempt_ref": "attempt-request:pb-attempt-0a:reference",
+      "case_cleanroom_boundary_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "case_contamination_posture": "clean",
+      "case_lineage_kind": "trial_only",
+      "case_origin_posture": "released_local_cleanroom_lineage",
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "case_result_source_posture": "local_released_result_only",
+      "case_visibility_boundary_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "inclusion_decision": "included",
+      "inclusion_reason": "Released local trial lineage is included for local inventory.",
+      "trial_lineage_ref": "trial-lineage:pb-trial-0a:reference",
+      "trial_ref": "trial-docket:pb-trial-0a:reference",
+      "workbench_ref": "work-order:pb-recon-0a:reference"
+    }
+  ],
+  "case_inclusion_manifest_ref": "matrix-inclusion:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "case_origin_posture": "released_local_cleanroom_lineage_only",
+  "case_result_source_posture": "released_local_results_only_no_projection",
+  "case_visibility_posture": "released_cleanroom_boundary_only",
+  "deferred_case_refs": [],
+  "hidden_or_forbidden_exposure_posture": "hidden_and_forbidden_sources_not_exposed_or_summarized",
+  "included_case_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "limitation_note": "Reference inclusion manifest records local case membership only.",
+  "matrix_selection_rationale_rows": [
+    {
+      "limitation_note": "Smoke matrix selection is local and not representative.",
+      "rationale_kind": "local_smoke_coverage",
+      "rationale_scope_posture": "local_matrix_selection_only_not_representative",
+      "selected_case_refs": [
+        "matrix-case:pb-matrix-0a:retry",
+        "matrix-case:pb-matrix-0a:trial"
+      ],
+      "selection_rationale_ref": "matrix-rationale:pb-matrix-0a:smoke"
+    }
+  ],
+  "released_case_lineage_refs": [
+    "retry-lineage:pb-retry-0a:reference",
+    "trial-lineage:pb-trial-0a:reference"
+  ],
+  "schema": "programbench_local_case_inclusion_manifest@1",
+  "support_only_case_refs": []
+}

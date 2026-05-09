@@ -1,0 +1,145 @@
+{
+  "aggregate_count_posture": "local_inventory_count_only",
+  "allowed_matrix_action_rows": [
+    {
+      "action_kind": "case_inclusion_review",
+      "action_scope_posture": "allowed_for_pb_matrix_0a_review_only",
+      "allowed_action_ref": "matrix-action-allowed:pb-matrix-0a:case-inclusion",
+      "limitation_note": "Case inclusion review is local only.",
+      "source_refs": [
+        "matrix-request:pb-matrix-0a:reference"
+      ]
+    }
+  ],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "forbidden_matrix_action_rows": [
+    {
+      "action_kind": "batch_command_execution",
+      "forbidden_action_ref": "matrix-action-forbidden:01-batch-command-execution",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Slice A does not execute a batch."
+    },
+    {
+      "action_kind": "benchmark_scoring",
+      "forbidden_action_ref": "matrix-action-forbidden:02-benchmark-scoring",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Slice A does not score benchmarks."
+    },
+    {
+      "action_kind": "candidate_materialization",
+      "forbidden_action_ref": "matrix-action-forbidden:03-candidate-materialization",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Slice A does not materialize candidates."
+    },
+    {
+      "action_kind": "decompilation",
+      "forbidden_action_ref": "matrix-action-forbidden:04-decompilation",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Decompilation remains forbidden."
+    },
+    {
+      "action_kind": "docker_socket_access",
+      "forbidden_action_ref": "matrix-action-forbidden:05-docker-socket",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Docker socket access remains forbidden."
+    },
+    {
+      "action_kind": "external_repo_lookup",
+      "forbidden_action_ref": "matrix-action-forbidden:06-external-repo",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "External repository lookup remains forbidden."
+    },
+    {
+      "action_kind": "hidden_test_access",
+      "forbidden_action_ref": "matrix-action-forbidden:07-hidden-test",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Hidden tests remain unavailable."
+    },
+    {
+      "action_kind": "host_secret_access",
+      "forbidden_action_ref": "matrix-action-forbidden:08-host-secret",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Host secret access remains forbidden."
+    },
+    {
+      "action_kind": "internet_lookup",
+      "forbidden_action_ref": "matrix-action-forbidden:09-internet",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Internet lookup remains forbidden."
+    },
+    {
+      "action_kind": "matrix_result_projection",
+      "forbidden_action_ref": "matrix-action-forbidden:10-result-projection",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Result projection is deferred."
+    },
+    {
+      "action_kind": "model_ranking",
+      "forbidden_action_ref": "matrix-action-forbidden:11-model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Model ranking is not selected."
+    },
+    {
+      "action_kind": "official_evaluator_access",
+      "forbidden_action_ref": "matrix-action-forbidden:12-official-evaluator",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Official evaluator access is not selected."
+    },
+    {
+      "action_kind": "official_submission",
+      "forbidden_action_ref": "matrix-action-forbidden:13-official-submission",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Official submission is not selected."
+    },
+    {
+      "action_kind": "second_retry_authority",
+      "forbidden_action_ref": "matrix-action-forbidden:14-second-retry",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Second retry authority is not selected."
+    },
+    {
+      "action_kind": "source_lookup",
+      "forbidden_action_ref": "matrix-action-forbidden:15-source-lookup",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Source lookup remains forbidden."
+    },
+    {
+      "action_kind": "widen_write_scope",
+      "forbidden_action_ref": "matrix-action-forbidden:16-widen-write-scope",
+      "forbiddance_posture": "forbidden_by_pb_matrix_0a",
+      "limitation_note": "Write scope cannot widen in Slice A."
+    }
+  ],
+  "limitation_note": "This invalid matrix adds a second profile but keeps single-profile posture.",
+  "matrix_comparability_posture": "single_profile_controls",
+  "matrix_control_contract_ref": "matrix-control:pb-matrix-0a:reference",
+  "matrix_non_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0a",
+  "matrix_probe_basis_control_ref": "probe-basis-control:pb-matrix-0a:reference",
+  "matrix_sandbox_policy_control_ref": "sandbox-policy-control:pb-matrix-0a:reference",
+  "matrix_tool_policy_control_ref": "tool-policy-control:pb-matrix-0a:reference",
+  "matrix_visibility_control_ref": "visibility-control:pb-matrix-0a:reference",
+  "matrix_worker_profile_control_ref": "worker-profile-control:pb-matrix-0a:reference",
+  "matrix_write_scope_control_ref": "write-scope-control:pb-matrix-0a:reference",
+  "model_profile_refs": [
+    "model-profile:pb-trial-0:reference",
+    "model-profile:pb-trial-0:second"
+  ],
+  "multi_profile_matrix_posture": "single_profile_matrix",
+  "probe_basis_refs": [
+    "probe-basis:pb-trial-0:reference"
+  ],
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "sandbox_policy_refs": [
+    "sandbox-policy:pb-trial-0:reference"
+  ],
+  "schema": "programbench_local_case_matrix_control_contract@1",
+  "tool_policy_refs": [
+    "tool-policy:pb-trial-0:reference"
+  ],
+  "worker_profile_refs": [
+    "worker-profile:pb-trial-0:reference"
+  ],
+  "write_scope_refs": [
+    "write-scope:pb-trial-0:reference"
+  ]
+}

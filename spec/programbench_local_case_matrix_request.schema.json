@@ -1,0 +1,128 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_count_posture": {
+      "enum": [
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score"
+      ],
+      "title": "Aggregate Count Posture",
+      "type": "string"
+    },
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_matrix_0a",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "case_inclusion_manifest_ref": {
+      "title": "Case Inclusion Manifest Ref",
+      "type": "string"
+    },
+    "case_lineage_eligibility_review_ref": {
+      "title": "Case Lineage Eligibility Review Ref",
+      "type": "string"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_matrix_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_case_candidate_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Case Candidate Refs",
+      "type": "array"
+    },
+    "matrix_control_contract_ref": {
+      "title": "Matrix Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_horizon": {
+      "enum": [
+        "local_coverage_probe_matrix",
+        "local_regression_matrix",
+        "local_research_matrix",
+        "local_smoke_matrix",
+        "not_representative_benchmark_sample"
+      ],
+      "title": "Matrix Horizon",
+      "type": "string"
+    },
+    "matrix_max_case_count": {
+      "minimum": 1,
+      "title": "Matrix Max Case Count",
+      "type": "integer"
+    },
+    "matrix_request_ref": {
+      "title": "Matrix Request Ref",
+      "type": "string"
+    },
+    "matrix_selection_rationale_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Selection Rationale Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_matrix_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_benchmark_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_0a",
+      "title": "Official Benchmark Authority Posture",
+      "type": "string"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "requested_case_count": {
+      "minimum": 1,
+      "title": "Requested Case Count",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_request@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_matrix_ref",
+    "matrix_request_ref",
+    "matrix_horizon",
+    "matrix_max_case_count",
+    "matrix_selection_rationale_refs",
+    "matrix_case_candidate_refs",
+    "case_inclusion_manifest_ref",
+    "case_lineage_eligibility_review_ref",
+    "matrix_control_contract_ref",
+    "requested_case_count",
+    "official_benchmark_authority_posture",
+    "model_ranking_posture",
+    "batch_execution_authority_posture",
+    "future_family_selection_posture",
+    "representativeness_posture",
+    "aggregate_count_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixRequest",
+  "type": "object"
+}
