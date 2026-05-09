@@ -1,0 +1,27 @@
+{
+  "batch_execution_posture": "no_batch_execution_authority_granted_by_pb_matrix_0c",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "future_family_selection_posture": "future_family_selected_by_pb_matrix_0c",
+  "future_pressure_refs": [
+    "matrix-pressure:pb-matrix-0c:future-local-case-expansion"
+  ],
+  "handoff_authority_posture": "no_authority_granted_by_pb_matrix_0c",
+  "handoff_non_selection_posture": "handoff_pressure_only_no_family_selection",
+  "handoff_pressure_kind": "future_local_case_expansion_review",
+  "handoff_rows": [
+    {
+      "handoff_pressure_kind": "future_local_case_expansion_review",
+      "handoff_pressure_ref": "matrix-pressure:pb-matrix-0c:future-local-case-expansion",
+      "handoff_ref": "matrix-handoff-row:pb-matrix-0c:future-local-case-expansion",
+      "handoff_sequence_posture": "pressure_only_not_selection",
+      "limitation_note": "Pressure records possible later local case expansion review only."
+    }
+  ],
+  "hidden_evaluator_posture": "no_hidden_evaluator_access_or_inference_granted_by_pb_matrix_0c",
+  "limitation_note": "Handoff rows are pressure-only.",
+  "matrix_summary_ref": "matrix-summary:pb-matrix-0c:reference",
+  "model_ranking_posture": "no_model_ranking_authority_granted_by_pb_matrix_0c",
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0c",
+  "post_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reject-selection",
+  "schema": "programbench_post_case_matrix_handoff@1"
+}

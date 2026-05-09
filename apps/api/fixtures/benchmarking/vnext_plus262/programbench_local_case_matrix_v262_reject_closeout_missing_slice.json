@@ -1,0 +1,65 @@
+{
+  "aggregate_count_posture": "local_case_posture_count_only",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_inclusion_manifest_refs": [
+    "matrix-inclusion:pb-matrix-0a:reference"
+  ],
+  "case_lineage_eligibility_review_refs": [
+    "matrix-eligibility:pb-matrix-0a:reference"
+  ],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "closed_family_ref": "PB-MATRIX-0",
+  "closed_slice_refs": [
+    "PB-MATRIX-0-A",
+    "PB-MATRIX-0-C"
+  ],
+  "future_family_authority_posture": "no_future_family_authority_granted_by_pb_matrix_0c",
+  "limitation_note": "PB-MATRIX-0 closeout is local matrix accounting only.",
+  "matrix_summary_refs": [
+    "matrix-summary:pb-matrix-0c:reference"
+  ],
+  "matrix_contamination_register_refs": [
+    "matrix-contamination-register:pb-matrix-0b:reference"
+  ],
+  "matrix_control_contract_refs": [
+    "matrix-control:pb-matrix-0a:reference"
+  ],
+  "matrix_coverage_register_refs": [
+    "matrix-coverage-register:pb-matrix-0b:reference"
+  ],
+  "matrix_family_closeout_ref": "matrix-family-closeout:pb-matrix-0c:reject-missing-slice",
+  "matrix_guardrail_refs": [
+    "matrix-guardrail:pb-matrix-0a:reference"
+  ],
+  "matrix_observation_ledger_refs": [
+    "matrix-observation-ledger:pb-matrix-0b:reference"
+  ],
+  "matrix_request_refs": [
+    "matrix-request:pb-matrix-0a:reference"
+  ],
+  "matrix_result_projection_refs": [
+    "matrix-result-projection:pb-matrix-0b:reference"
+  ],
+  "matrix_summary_ref": "matrix-summary:pb-matrix-0c:reference",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0c",
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0c",
+  "post_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reference",
+  "post_matrix_handoff_refs": [
+    "matrix-handoff:pb-matrix-0c:reference"
+  ],
+  "schema": "programbench_local_case_matrix_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "programbench_local_case_inclusion_manifest@1",
+    "programbench_local_case_lineage_eligibility_review@1",
+    "programbench_local_case_matrix_contamination_register@1",
+    "programbench_local_case_matrix_control_contract@1",
+    "programbench_local_case_matrix_coverage_register@1",
+    "programbench_local_case_matrix_family_closeout_alignment@1",
+    "programbench_local_case_matrix_non_authority_guardrail@1",
+    "programbench_local_case_matrix_observation_ledger@1",
+    "programbench_local_case_matrix_request@1",
+    "programbench_local_case_matrix_result_projection@1",
+    "programbench_local_case_matrix_summary@1",
+    "programbench_post_case_matrix_handoff@1"
+  ]
+}

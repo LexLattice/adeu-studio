@@ -8,9 +8,9 @@
     "programbench_local_case_matrix_contamination_register@1",
     "programbench_local_case_matrix_coverage_register@1",
     "programbench_local_case_matrix_family_closeout_alignment@1",
-    "programbench_local_case_matrix_handoff@1",
     "programbench_local_case_matrix_observation_ledger@1",
-    "programbench_local_case_matrix_summary@1"
+    "programbench_local_case_matrix_summary@1",
+    "programbench_post_case_matrix_handoff@1"
   ],
   "future_family_posture": "no_future_family_selected_by_pb_matrix_0a",
   "guardrail_source_refs": [

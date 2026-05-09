@@ -40,7 +40,7 @@ PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTAMINATION_REGISTER_SCHEMA = (
     "programbench_local_case_matrix_contamination_register@1"
 )
 PROGRAMBENCH_LOCAL_CASE_MATRIX_SUMMARY_SCHEMA = "programbench_local_case_matrix_summary@1"
-PROGRAMBENCH_LOCAL_CASE_MATRIX_HANDOFF_SCHEMA = "programbench_local_case_matrix_handoff@1"
+PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA = "programbench_post_case_matrix_handoff@1"
 PROGRAMBENCH_LOCAL_CASE_MATRIX_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA = (
     "programbench_local_case_matrix_family_closeout_alignment@1"
 )
@@ -60,7 +60,7 @@ PB_MATRIX_0B_ARTIFACT_KINDS = {
 }
 PB_MATRIX_0C_ARTIFACT_KINDS = {
     PROGRAMBENCH_LOCAL_CASE_MATRIX_SUMMARY_SCHEMA,
-    PROGRAMBENCH_LOCAL_CASE_MATRIX_HANDOFF_SCHEMA,
+    PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
 }
 PB_MATRIX_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
@@ -86,8 +86,13 @@ _FORBIDDEN_REF_MARKERS = (
 _SOFT_SCORING_LANGUAGE_MARKERS = (
     "beats baseline",
     "benchmark score",
+    "benchmark-like result",
+    "leaderboard standing",
     "leaderboard-like",
+    "model ranking",
+    "model superiority",
     "model wins",
+    "official score",
     "official-like score",
     "pass rate",
     "representative benchmark subset",
@@ -1181,6 +1186,286 @@ class ProgrambenchLocalCaseMatrixContaminationRegister(_MatrixBase):
         return self
 
 
+class ProgrambenchPostCaseMatrixHandoffRow(_MatrixBase):
+    handoff_ref: str
+    handoff_pressure_kind: Literal[
+        "future_batch_execution_governance_review",
+        "future_family_only",
+        "future_hidden_evaluator_governance_review",
+        "future_local_case_expansion_review",
+        "future_model_comparison_governance_review",
+        "future_official_participation_governance_review",
+    ]
+    handoff_pressure_ref: str
+    handoff_sequence_posture: Literal["pressure_only_not_selection"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_row(self) -> "ProgrambenchPostCaseMatrixHandoffRow":
+        _ensure_no_forbidden_refs(
+            [self.handoff_ref, self.handoff_pressure_ref],
+            field_name="handoff_row refs",
+        )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixSummary(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_SUMMARY_SCHEMA] = Field(alias="schema")
+    matrix_summary_ref: str
+    case_matrix_ref: str
+    matrix_request_ref: str
+    case_inclusion_manifest_ref: str
+    case_lineage_eligibility_review_ref: str
+    matrix_control_contract_ref: str
+    matrix_guardrail_ref: str
+    matrix_result_projection_ref: str
+    matrix_observation_ledger_ref: str
+    matrix_coverage_register_ref: str
+    matrix_contamination_register_ref: str
+    included_case_refs: list[str] = Field(min_length=1)
+    projected_case_refs: list[str] = Field(default_factory=list)
+    remanded_case_refs: list[str] = Field(default_factory=list)
+    resolved_case_refs: list[str] = Field(default_factory=list)
+    inconclusive_case_refs: list[str] = Field(default_factory=list)
+    blocked_case_refs: list[str] = Field(default_factory=list)
+    unresolved_case_refs: list[str] = Field(default_factory=list)
+    local_matrix_posture: Literal[
+        "local_matrix_blocked_by_contamination",
+        "local_matrix_complete_relative_to_declared_cases",
+        "local_matrix_inconclusive_local_only",
+        "local_matrix_open_with_projection_gaps",
+    ]
+    aggregate_count_posture: Literal[
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score",
+    ]
+    representativeness_posture: Literal["not_representative_benchmark_sample"]
+    matrix_scope_statement: str
+    not_benchmark_score_statement: Literal[
+        "local_matrix_accounting_only_not_benchmark_truth_or_score"
+    ]
+    coverage_posture: Literal[
+        "local_coverage_complete_for_declared_matrix_cases",
+        "local_coverage_missing_for_declared_matrix_cases",
+    ]
+    contamination_status: Literal["blocked", "clean"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_matrix_0c"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_matrix_0c"
+    ]
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_summary(self) -> "ProgrambenchLocalCaseMatrixSummary":
+        for field_name in (
+            "included_case_refs",
+            "projected_case_refs",
+            "remanded_case_refs",
+            "resolved_case_refs",
+            "inconclusive_case_refs",
+            "blocked_case_refs",
+            "unresolved_case_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            values = getattr(self, field_name)
+            if field_name == "included_case_refs":
+                _ensure_sorted_unique(values, field_name=field_name)
+            else:
+                _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        included = set(self.included_case_refs)
+        for field_name in (
+            "projected_case_refs",
+            "remanded_case_refs",
+            "resolved_case_refs",
+            "inconclusive_case_refs",
+            "blocked_case_refs",
+            "unresolved_case_refs",
+        ):
+            _ensure_refs_resolve(
+                getattr(self, field_name),
+                included,
+                field_name=field_name,
+            )
+        posture_refs = (
+            set(self.remanded_case_refs)
+            | set(self.resolved_case_refs)
+            | set(self.inconclusive_case_refs)
+            | set(self.blocked_case_refs)
+            | set(self.unresolved_case_refs)
+        )
+        if posture_refs != included:
+            missing = sorted(included - posture_refs)
+            extra = sorted(posture_refs - included)
+            raise ValueError(
+                "case posture refs must account for every included case; "
+                f"missing={missing}, extra={extra}"
+            )
+        seen_posture_refs: set[str] = set()
+        overlapping_posture_refs: set[str] = set()
+        for refs in (
+            self.remanded_case_refs,
+            self.resolved_case_refs,
+            self.inconclusive_case_refs,
+            self.blocked_case_refs,
+            self.unresolved_case_refs,
+        ):
+            for ref in refs:
+                if ref in seen_posture_refs:
+                    overlapping_posture_refs.add(ref)
+                seen_posture_refs.add(ref)
+        overlaps = sorted(overlapping_posture_refs)
+        if overlaps:
+            raise ValueError(f"case posture refs must not overlap: {overlaps}")
+        if set(self.projected_case_refs) - included:
+            raise ValueError("projected_case_refs must be included case refs")
+        if self.local_matrix_posture == "local_matrix_complete_relative_to_declared_cases":
+            if self.contamination_status != "clean":
+                raise ValueError("complete local matrix summaries require clean contamination")
+            if self.coverage_posture != "local_coverage_complete_for_declared_matrix_cases":
+                raise ValueError("complete local matrix summaries require complete coverage")
+            if self.blocked_case_refs or self.unresolved_case_refs or self.carried_blocker_refs:
+                raise ValueError(
+                    "complete local matrix summaries cannot carry blocked, unresolved, "
+                    "or blocker refs"
+                )
+            if set(self.projected_case_refs) != included:
+                raise ValueError("complete local matrix summaries require every case projected")
+        if self.local_matrix_posture == "local_matrix_blocked_by_contamination":
+            if self.contamination_status != "blocked":
+                raise ValueError("contamination-blocked summaries require blocked contamination")
+            if not (self.blocked_case_refs or self.carried_blocker_refs):
+                raise ValueError("contamination-blocked summaries require blocked evidence")
+        if self.local_matrix_posture == "local_matrix_open_with_projection_gaps":
+            if not self.unresolved_case_refs:
+                raise ValueError("projection-gap summaries require unresolved case refs")
+        _ensure_no_soft_scoring_language(
+            self.matrix_scope_statement,
+            field_name="matrix_scope_statement",
+        )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchPostCaseMatrixHandoff(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA] = Field(alias="schema")
+    post_matrix_handoff_ref: str
+    case_matrix_ref: str
+    matrix_summary_ref: str
+    handoff_rows: list[ProgrambenchPostCaseMatrixHandoffRow] = Field(min_length=1)
+    future_pressure_refs: list[str] = Field(min_length=1)
+    handoff_pressure_kind: Literal[
+        "future_batch_execution_governance_review",
+        "future_family_only",
+        "future_hidden_evaluator_governance_review",
+        "future_local_case_expansion_review",
+        "future_model_comparison_governance_review",
+        "future_official_participation_governance_review",
+    ]
+    handoff_non_selection_posture: Literal["handoff_pressure_only_no_family_selection"]
+    handoff_authority_posture: Literal["no_authority_granted_by_pb_matrix_0c"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_matrix_0c"
+    ]
+    hidden_evaluator_posture: Literal[
+        "no_hidden_evaluator_access_or_inference_granted_by_pb_matrix_0c"
+    ]
+    model_ranking_posture: Literal["no_model_ranking_authority_granted_by_pb_matrix_0c"]
+    batch_execution_posture: Literal["no_batch_execution_authority_granted_by_pb_matrix_0c"]
+    future_family_selection_posture: Literal["no_future_family_selected_by_pb_matrix_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> "ProgrambenchPostCaseMatrixHandoff":
+        row_refs = [row.handoff_ref for row in self.handoff_rows]
+        _ensure_sorted_unique(row_refs, field_name="handoff_rows")
+        _ensure_sorted_unique(self.future_pressure_refs, field_name="future_pressure_refs")
+        row_pressure_refs = [row.handoff_pressure_ref for row in self.handoff_rows]
+        if sorted(row_pressure_refs) != self.future_pressure_refs:
+            raise ValueError("future_pressure_refs must match handoff row pressure refs")
+        observed_pressure_kinds = {row.handoff_pressure_kind for row in self.handoff_rows}
+        if self.handoff_pressure_kind not in observed_pressure_kinds:
+            raise ValueError("top-level handoff pressure kind must appear in handoff rows")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_family_closeout_ref: str
+    closed_family_ref: Literal["PB-MATRIX-0"]
+    case_matrix_ref: str
+    matrix_summary_ref: str
+    post_matrix_handoff_ref: str
+    closed_slice_refs: list[str] = Field(min_length=3)
+    shipped_record_shapes: list[str] = Field(min_length=1)
+    matrix_request_refs: list[str] = Field(min_length=1)
+    case_inclusion_manifest_refs: list[str] = Field(min_length=1)
+    case_lineage_eligibility_review_refs: list[str] = Field(min_length=1)
+    matrix_control_contract_refs: list[str] = Field(min_length=1)
+    matrix_guardrail_refs: list[str] = Field(min_length=1)
+    matrix_result_projection_refs: list[str] = Field(min_length=1)
+    matrix_observation_ledger_refs: list[str] = Field(min_length=1)
+    matrix_coverage_register_refs: list[str] = Field(min_length=1)
+    matrix_contamination_register_refs: list[str] = Field(min_length=1)
+    matrix_summary_refs: list[str] = Field(min_length=1)
+    post_matrix_handoff_refs: list[str] = Field(min_length=1)
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_matrix_0c"]
+    official_programbench_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_matrix_0c"
+    ]
+    future_family_authority_posture: Literal["no_future_family_authority_granted_by_pb_matrix_0c"]
+    aggregate_count_posture: Literal[
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_closeout(self) -> "ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment":
+        for field_name in (
+            "closed_slice_refs",
+            "shipped_record_shapes",
+            "matrix_request_refs",
+            "case_inclusion_manifest_refs",
+            "case_lineage_eligibility_review_refs",
+            "matrix_control_contract_refs",
+            "matrix_guardrail_refs",
+            "matrix_result_projection_refs",
+            "matrix_observation_ledger_refs",
+            "matrix_coverage_register_refs",
+            "matrix_contamination_register_refs",
+            "matrix_summary_refs",
+            "post_matrix_handoff_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        if self.closed_slice_refs != ["PB-MATRIX-0-A", "PB-MATRIX-0-B", "PB-MATRIX-0-C"]:
+            raise ValueError("PB-MATRIX-0 closeout requires A, B, and C slice refs")
+        expected_shapes = sorted(
+            PB_MATRIX_0A_ARTIFACT_KINDS | PB_MATRIX_0B_ARTIFACT_KINDS | PB_MATRIX_0C_ARTIFACT_KINDS
+        )
+        if self.shipped_record_shapes != expected_shapes:
+            raise ValueError("PB-MATRIX-0 closeout shipped shapes must cover A/B/C")
+        if self.matrix_summary_refs != [self.matrix_summary_ref]:
+            raise ValueError("matrix_summary_refs must reference the closed summary")
+        if self.post_matrix_handoff_refs != [self.post_matrix_handoff_ref]:
+            raise ValueError("post_matrix_handoff_refs must reference the closed handoff")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 def validate_pb_matrix_0a_case_matrix_bundle(
     *,
     trial_family_closeout: ProgrambenchLocalTrialFamilyCloseoutAlignment,
@@ -1380,8 +1665,6 @@ def validate_pb_matrix_0b_projection_bundle(
     contamination_case_refs = {row.case_ref for row in contamination_register.contamination_rows}
     if contamination_case_refs != included:
         raise ValueError("contamination register rows must cover all A-included cases")
-    if contamination_register.contamination_status != "clean":
-        raise ValueError("PB-MATRIX-0-B reference bundle requires clean contamination status")
 
     if matrix_control_contract.matrix_non_ranking_posture != (
         "no_model_ranking_claimed_by_pb_matrix_0a"
@@ -1391,3 +1674,151 @@ def validate_pb_matrix_0b_projection_bundle(
         "no_batch_execution_authority_granted_by_pb_matrix_0a"
     ):
         raise ValueError("B requires A batch-execution denial")
+
+
+def validate_pb_matrix_0c_closeout_bundle(
+    *,
+    matrix_request: ProgrambenchLocalCaseMatrixRequest,
+    inclusion_manifest: ProgrambenchLocalCaseInclusionManifest,
+    lineage_eligibility_review: ProgrambenchLocalCaseLineageEligibilityReview,
+    matrix_control_contract: ProgrambenchLocalCaseMatrixControlContract,
+    matrix_guardrail: ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
+    result_projection: ProgrambenchLocalCaseMatrixResultProjection,
+    observation_ledger: ProgrambenchLocalCaseMatrixObservationLedger,
+    coverage_register: ProgrambenchLocalCaseMatrixCoverageRegister,
+    contamination_register: ProgrambenchLocalCaseMatrixContaminationRegister,
+    matrix_summary: ProgrambenchLocalCaseMatrixSummary,
+    post_case_matrix_handoff: ProgrambenchPostCaseMatrixHandoff,
+    family_closeout: ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_matrix_0b_projection_bundle(
+        matrix_request=matrix_request,
+        inclusion_manifest=inclusion_manifest,
+        lineage_eligibility_review=lineage_eligibility_review,
+        matrix_control_contract=matrix_control_contract,
+        matrix_guardrail=matrix_guardrail,
+        result_projection=result_projection,
+        observation_ledger=observation_ledger,
+        coverage_register=coverage_register,
+        contamination_register=contamination_register,
+    )
+
+    if matrix_summary.case_matrix_ref != matrix_request.case_matrix_ref:
+        raise ValueError("matrix summary must reference released matrix request")
+    if matrix_summary.matrix_request_ref != matrix_request.matrix_request_ref:
+        raise ValueError("matrix summary must reference released A request")
+    if matrix_summary.case_inclusion_manifest_ref != (
+        inclusion_manifest.case_inclusion_manifest_ref
+    ):
+        raise ValueError("matrix summary must reference released A inclusion manifest")
+    if matrix_summary.case_lineage_eligibility_review_ref != (
+        lineage_eligibility_review.case_lineage_eligibility_review_ref
+    ):
+        raise ValueError("matrix summary must reference released A eligibility review")
+    if matrix_summary.matrix_control_contract_ref != (
+        matrix_control_contract.matrix_control_contract_ref
+    ):
+        raise ValueError("matrix summary must reference released A control contract")
+    if matrix_summary.matrix_guardrail_ref != matrix_guardrail.matrix_guardrail_ref:
+        raise ValueError("matrix summary must reference released A guardrail")
+    if matrix_summary.matrix_result_projection_ref != (
+        result_projection.matrix_result_projection_ref
+    ):
+        raise ValueError("matrix summary must reference released B result projection")
+    if matrix_summary.matrix_observation_ledger_ref != (
+        observation_ledger.matrix_observation_ledger_ref
+    ):
+        raise ValueError("matrix summary must reference released B observation ledger")
+    if matrix_summary.matrix_coverage_register_ref != (
+        coverage_register.matrix_coverage_register_ref
+    ):
+        raise ValueError("matrix summary must reference released B coverage register")
+    if matrix_summary.matrix_contamination_register_ref != (
+        contamination_register.matrix_contamination_register_ref
+    ):
+        raise ValueError("matrix summary must reference released B contamination register")
+
+    included = set(inclusion_manifest.included_case_refs)
+    if set(matrix_summary.included_case_refs) != included:
+        raise ValueError("matrix summary included cases must match released A manifest")
+    unresolved_from_projection = {
+        row.case_ref
+        for row in result_projection.projection_case_rows
+        if row.projection_currentness == "projection_gap_declared"
+    }
+    if set(matrix_summary.projected_case_refs) != (
+        set(result_projection.included_case_refs) - unresolved_from_projection
+    ):
+        raise ValueError("matrix summary projected_case_refs must match current projections")
+    if not unresolved_from_projection.issubset(set(matrix_summary.unresolved_case_refs)):
+        raise ValueError("projection gaps must remain unresolved in the matrix summary")
+    blocked_from_contamination = set(contamination_register.blocked_case_refs)
+    if not blocked_from_contamination.issubset(set(matrix_summary.blocked_case_refs)):
+        raise ValueError("contaminated matrix cases must remain blocked in the summary")
+    missing_coverage = set(coverage_register.missing_coverage_case_refs)
+    if not missing_coverage.issubset(
+        set(matrix_summary.unresolved_case_refs) | set(matrix_summary.blocked_case_refs)
+    ):
+        raise ValueError("missing coverage must remain unresolved or blocked in the summary")
+    if contamination_register.contamination_status != matrix_summary.contamination_status:
+        raise ValueError("matrix summary contamination status must match contamination register")
+    if coverage_register.missing_coverage_case_refs and (
+        matrix_summary.coverage_posture == "local_coverage_complete_for_declared_matrix_cases"
+    ):
+        raise ValueError("matrix summary cannot claim complete coverage with coverage gaps")
+    if result_projection.projection_gap_refs and (
+        matrix_summary.local_matrix_posture == "local_matrix_complete_relative_to_declared_cases"
+    ):
+        raise ValueError("matrix summary cannot be complete with projection gaps")
+
+    if post_case_matrix_handoff.case_matrix_ref != matrix_summary.case_matrix_ref:
+        raise ValueError("post-matrix handoff must reference matrix summary case matrix")
+    if post_case_matrix_handoff.matrix_summary_ref != matrix_summary.matrix_summary_ref:
+        raise ValueError("post-matrix handoff must reference matrix summary")
+
+    if family_closeout.case_matrix_ref != matrix_summary.case_matrix_ref:
+        raise ValueError("family closeout must reference matrix summary case matrix")
+    if family_closeout.matrix_summary_ref != matrix_summary.matrix_summary_ref:
+        raise ValueError("family closeout must reference matrix summary")
+    if family_closeout.post_matrix_handoff_ref != post_case_matrix_handoff.post_matrix_handoff_ref:
+        raise ValueError("family closeout must reference post-matrix handoff")
+    if family_closeout.matrix_request_refs != [matrix_request.matrix_request_ref]:
+        raise ValueError("family closeout must carry released A request ref")
+    if family_closeout.case_inclusion_manifest_refs != [
+        inclusion_manifest.case_inclusion_manifest_ref
+    ]:
+        raise ValueError("family closeout must carry released A inclusion manifest ref")
+    if family_closeout.case_lineage_eligibility_review_refs != [
+        lineage_eligibility_review.case_lineage_eligibility_review_ref
+    ]:
+        raise ValueError("family closeout must carry released A eligibility review ref")
+    if family_closeout.matrix_control_contract_refs != [
+        matrix_control_contract.matrix_control_contract_ref
+    ]:
+        raise ValueError("family closeout must carry released A control contract ref")
+    if family_closeout.matrix_guardrail_refs != [matrix_guardrail.matrix_guardrail_ref]:
+        raise ValueError("family closeout must carry released A guardrail ref")
+    if family_closeout.matrix_result_projection_refs != [
+        result_projection.matrix_result_projection_ref
+    ]:
+        raise ValueError("family closeout must carry released B projection ref")
+    if family_closeout.matrix_observation_ledger_refs != [
+        observation_ledger.matrix_observation_ledger_ref
+    ]:
+        raise ValueError("family closeout must carry released B observation ledger ref")
+    if family_closeout.matrix_coverage_register_refs != [
+        coverage_register.matrix_coverage_register_ref
+    ]:
+        raise ValueError("family closeout must carry released B coverage register ref")
+    if family_closeout.matrix_contamination_register_refs != [
+        contamination_register.matrix_contamination_register_ref
+    ]:
+        raise ValueError("family closeout must carry released B contamination register ref")
+    if family_closeout.aggregate_count_posture not in {
+        matrix_request.aggregate_count_posture,
+        matrix_control_contract.aggregate_count_posture,
+        matrix_summary.aggregate_count_posture,
+    }:
+        raise ValueError("family closeout aggregate posture must align with matrix controls")
+    if family_closeout.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("PB-MATRIX-0 closeout cannot claim benchmark truth")

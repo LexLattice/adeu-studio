@@ -1,0 +1,198 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_count_posture": {
+      "enum": [
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score"
+      ],
+      "title": "Aggregate Count Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_inclusion_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Inclusion Manifest Refs",
+      "type": "array"
+    },
+    "case_lineage_eligibility_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Lineage Eligibility Review Refs",
+      "type": "array"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "closed_family_ref": {
+      "const": "PB-MATRIX-0",
+      "title": "Closed Family Ref",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "future_family_authority_posture": {
+      "const": "no_future_family_authority_granted_by_pb_matrix_0c",
+      "title": "Future Family Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_contamination_register_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Contamination Register Refs",
+      "type": "array"
+    },
+    "matrix_control_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Control Contract Refs",
+      "type": "array"
+    },
+    "matrix_coverage_register_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Coverage Register Refs",
+      "type": "array"
+    },
+    "matrix_family_closeout_ref": {
+      "title": "Matrix Family Closeout Ref",
+      "type": "string"
+    },
+    "matrix_guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Guardrail Refs",
+      "type": "array"
+    },
+    "matrix_observation_ledger_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Observation Ledger Refs",
+      "type": "array"
+    },
+    "matrix_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Request Refs",
+      "type": "array"
+    },
+    "matrix_result_projection_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Result Projection Refs",
+      "type": "array"
+    },
+    "matrix_summary_ref": {
+      "title": "Matrix Summary Ref",
+      "type": "string"
+    },
+    "matrix_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Summary Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_matrix_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "post_matrix_handoff_ref": {
+      "title": "Post Matrix Handoff Ref",
+      "type": "string"
+    },
+    "post_matrix_handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Post Matrix Handoff Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_family_closeout_ref",
+    "closed_family_ref",
+    "case_matrix_ref",
+    "matrix_summary_ref",
+    "post_matrix_handoff_ref",
+    "closed_slice_refs",
+    "shipped_record_shapes",
+    "matrix_request_refs",
+    "case_inclusion_manifest_refs",
+    "case_lineage_eligibility_review_refs",
+    "matrix_control_contract_refs",
+    "matrix_guardrail_refs",
+    "matrix_result_projection_refs",
+    "matrix_observation_ledger_refs",
+    "matrix_coverage_register_refs",
+    "matrix_contamination_register_refs",
+    "matrix_summary_refs",
+    "post_matrix_handoff_refs",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_programbench_posture",
+    "future_family_authority_posture",
+    "aggregate_count_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment",
+  "type": "object"
+}

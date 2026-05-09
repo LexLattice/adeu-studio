@@ -1,0 +1,43 @@
+{
+  "aggregate_count_posture": "local_case_posture_count_only",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "blocked_case_refs": [],
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "case_inclusion_manifest_ref": "matrix-inclusion:pb-matrix-0a:reference",
+  "case_lineage_eligibility_review_ref": "matrix-eligibility:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "contamination_status": "clean",
+  "coverage_posture": "local_coverage_complete_for_declared_matrix_cases",
+  "included_case_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "inconclusive_case_refs": [],
+  "limitation_note": "Reference summary is local accounting only.",
+  "local_matrix_posture": "local_matrix_complete_relative_to_declared_cases",
+  "matrix_contamination_register_ref": "matrix-contamination-register:pb-matrix-0b:reference",
+  "matrix_control_contract_ref": "matrix-control:pb-matrix-0a:reference",
+  "matrix_coverage_register_ref": "matrix-coverage-register:pb-matrix-0b:reference",
+  "matrix_guardrail_ref": "matrix-guardrail:pb-matrix-0a:reference",
+  "matrix_observation_ledger_ref": "matrix-observation-ledger:pb-matrix-0b:reference",
+  "matrix_request_ref": "matrix-request:pb-matrix-0a:reference",
+  "matrix_result_projection_ref": "matrix-result-projection:pb-matrix-0b:reference",
+  "matrix_scope_statement": "This summary accounts only for declared local cases.",
+  "matrix_summary_ref": "matrix-summary:pb-matrix-0c:reject-unresolved",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0c",
+  "not_benchmark_score_statement": "local_matrix_accounting_only_not_benchmark_truth_or_score",
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0c",
+  "projected_case_refs": [
+    "matrix-case:pb-matrix-0a:retry"
+  ],
+  "remanded_case_refs": [],
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "resolved_case_refs": [
+    "matrix-case:pb-matrix-0a:retry"
+  ],
+  "schema": "programbench_local_case_matrix_summary@1",
+  "unresolved_case_refs": [
+    "matrix-case:pb-matrix-0a:trial"
+  ]
+}

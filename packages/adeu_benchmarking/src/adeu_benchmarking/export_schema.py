@@ -137,19 +137,25 @@ from .programbench_cleanroom_matrix import (
     PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTAMINATION_REGISTER_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTROL_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_COVERAGE_REGISTER_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_OBSERVATION_LEDGER_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_RESULT_PROJECTION_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_SUMMARY_SCHEMA,
+    PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA,
     ProgrambenchLocalCaseInclusionManifest,
     ProgrambenchLocalCaseLineageEligibilityReview,
     ProgrambenchLocalCaseMatrixContaminationRegister,
     ProgrambenchLocalCaseMatrixControlContract,
     ProgrambenchLocalCaseMatrixCoverageRegister,
+    ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
     ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
     ProgrambenchLocalCaseMatrixObservationLedger,
     ProgrambenchLocalCaseMatrixRequest,
     ProgrambenchLocalCaseMatrixResultProjection,
+    ProgrambenchLocalCaseMatrixSummary,
+    ProgrambenchPostCaseMatrixHandoff,
 )
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
@@ -1388,6 +1394,38 @@ def main() -> None:
             / "schema"
             / "programbench_local_case_matrix_contamination_register.v1.json",
             root / "spec" / "programbench_local_case_matrix_contamination_register.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixSummary,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_summary.v1.json",
+            root / "spec" / "programbench_local_case_matrix_summary.schema.json",
+        ),
+        (
+            ProgrambenchPostCaseMatrixHandoff,
+            PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_post_case_matrix_handoff.v1.json",
+            root / "spec" / "programbench_post_case_matrix_handoff.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_matrix_family_closeout_alignment.schema.json",
         ),
     ]
 
