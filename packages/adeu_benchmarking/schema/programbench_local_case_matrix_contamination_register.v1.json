@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixContaminationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "contamination_detail_posture": {
+          "const": "no_forbidden_names_paths_excerpts_or_summaries",
+          "title": "Contamination Detail Posture",
+          "type": "string"
+        },
+        "contamination_kind": {
+          "enum": [
+            "clean",
+            "excluded_derived_summary",
+            "forbidden_source_exposure",
+            "hidden_test_exposure",
+            "official_evaluator_exposure"
+          ],
+          "title": "Contamination Kind",
+          "type": "string"
+        },
+        "contamination_posture": {
+          "enum": [
+            "blocked",
+            "clean"
+          ],
+          "title": "Contamination Posture",
+          "type": "string"
+        },
+        "contamination_redaction_policy": {
+          "const": "redacted_category_count_reason_only",
+          "title": "Contamination Redaction Policy",
+          "type": "string"
+        },
+        "contamination_row_ref": {
+          "title": "Contamination Row Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "redacted_detail_note": {
+          "title": "Redacted Detail Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contamination_row_ref",
+        "case_ref",
+        "contamination_kind",
+        "contamination_posture",
+        "redacted_detail_note",
+        "contamination_redaction_policy",
+        "contamination_detail_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixContaminationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Refs",
+      "type": "array"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "clean_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Clean Case Refs",
+      "type": "array"
+    },
+    "contamination_detail_posture": {
+      "const": "no_forbidden_names_paths_excerpts_or_summaries",
+      "title": "Contamination Detail Posture",
+      "type": "string"
+    },
+    "contamination_redaction_policy": {
+      "const": "redacted_category_count_reason_only",
+      "title": "Contamination Redaction Policy",
+      "type": "string"
+    },
+    "contamination_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixContaminationRow"
+      },
+      "minItems": 1,
+      "title": "Contamination Rows",
+      "type": "array"
+    },
+    "contamination_status": {
+      "enum": [
+        "blocked",
+        "clean"
+      ],
+      "title": "Contamination Status",
+      "type": "string"
+    },
+    "excluded_derived_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Derived Summary Refs",
+      "type": "array"
+    },
+    "forbidden_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Exposure Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_contamination_register_ref": {
+      "title": "Matrix Contamination Register Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_contamination_register@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_contamination_register_ref",
+    "case_matrix_ref",
+    "contamination_rows",
+    "contamination_redaction_policy",
+    "contamination_detail_posture",
+    "contamination_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixContaminationRegister",
+  "type": "object"
+}

@@ -134,14 +134,22 @@ from .programbench_cleanroom_attempt import (
 from .programbench_cleanroom_matrix import (
     PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTAMINATION_REGISTER_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_COVERAGE_REGISTER_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_OBSERVATION_LEDGER_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_RESULT_PROJECTION_SCHEMA,
     ProgrambenchLocalCaseInclusionManifest,
     ProgrambenchLocalCaseLineageEligibilityReview,
+    ProgrambenchLocalCaseMatrixContaminationRegister,
     ProgrambenchLocalCaseMatrixControlContract,
+    ProgrambenchLocalCaseMatrixCoverageRegister,
     ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
+    ProgrambenchLocalCaseMatrixObservationLedger,
     ProgrambenchLocalCaseMatrixRequest,
+    ProgrambenchLocalCaseMatrixResultProjection,
 )
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
@@ -1089,9 +1097,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_trial_candidate_artifact_snapshot.v1.json",
-            root
-            / "spec"
-            / "programbench_local_trial_candidate_artifact_snapshot.schema.json",
+            root / "spec" / "programbench_local_trial_candidate_artifact_snapshot.schema.json",
         ),
         (
             ProgrambenchLocalTrialLifecycleProjection,
@@ -1141,9 +1147,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_trial_family_closeout_alignment.v1.json",
-            root
-            / "spec"
-            / "programbench_local_trial_family_closeout_alignment.schema.json",
+            root / "spec" / "programbench_local_trial_family_closeout_alignment.schema.json",
         ),
         (
             ProgrambenchLocalRetryRequest,
@@ -1233,9 +1237,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_retry_candidate_delta_snapshot.v1.json",
-            root
-            / "spec"
-            / "programbench_local_retry_candidate_delta_snapshot.schema.json",
+            root / "spec" / "programbench_local_retry_candidate_delta_snapshot.schema.json",
         ),
         (
             ProgrambenchLocalRetryLifecycleProjection,
@@ -1255,9 +1257,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_retry_sandbox_application_trace.v1.json",
-            root
-            / "spec"
-            / "programbench_local_retry_sandbox_application_trace.schema.json",
+            root / "spec" / "programbench_local_retry_sandbox_application_trace.schema.json",
         ),
         (
             ProgrambenchLocalRetryOutcomeAudit,
@@ -1277,9 +1277,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_retry_delta_observation_summary.v1.json",
-            root
-            / "spec"
-            / "programbench_local_retry_delta_observation_summary.schema.json",
+            root / "spec" / "programbench_local_retry_delta_observation_summary.schema.json",
         ),
         (
             ProgrambenchLocalRetryRemandSettlement,
@@ -1299,9 +1297,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_retry_family_closeout_alignment.v1.json",
-            root
-            / "spec"
-            / "programbench_local_retry_family_closeout_alignment.schema.json",
+            root / "spec" / "programbench_local_retry_family_closeout_alignment.schema.json",
         ),
         (
             ProgrambenchLocalCaseMatrixRequest,
@@ -1331,9 +1327,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_case_lineage_eligibility_review.v1.json",
-            root
-            / "spec"
-            / "programbench_local_case_lineage_eligibility_review.schema.json",
+            root / "spec" / "programbench_local_case_lineage_eligibility_review.schema.json",
         ),
         (
             ProgrambenchLocalCaseMatrixControlContract,
@@ -1343,9 +1337,7 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_case_matrix_control_contract.v1.json",
-            root
-            / "spec"
-            / "programbench_local_case_matrix_control_contract.schema.json",
+            root / "spec" / "programbench_local_case_matrix_control_contract.schema.json",
         ),
         (
             ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
@@ -1355,9 +1347,47 @@ def main() -> None:
             / "adeu_benchmarking"
             / "schema"
             / "programbench_local_case_matrix_non_authority_guardrail.v1.json",
+            root / "spec" / "programbench_local_case_matrix_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixResultProjection,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_RESULT_PROJECTION_SCHEMA,
             root
-            / "spec"
-            / "programbench_local_case_matrix_non_authority_guardrail.schema.json",
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_result_projection.v1.json",
+            root / "spec" / "programbench_local_case_matrix_result_projection.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixObservationLedger,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_OBSERVATION_LEDGER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_observation_ledger.v1.json",
+            root / "spec" / "programbench_local_case_matrix_observation_ledger.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixCoverageRegister,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_COVERAGE_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_coverage_register.v1.json",
+            root / "spec" / "programbench_local_case_matrix_coverage_register.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixContaminationRegister,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTAMINATION_REGISTER_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_contamination_register.v1.json",
+            root / "spec" / "programbench_local_case_matrix_contamination_register.schema.json",
         ),
     ]
 

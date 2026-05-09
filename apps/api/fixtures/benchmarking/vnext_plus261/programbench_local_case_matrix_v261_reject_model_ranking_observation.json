@@ -1,0 +1,25 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "blocked_observation_refs": [],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "limitation_note": "Reject fixture contains model ranking language.",
+  "local_observation_refs": [
+    "matrix-observation:pb-matrix-0b:bad"
+  ],
+  "matrix_observation_ledger_ref": "matrix-observation-ledger:pb-matrix-0b:bad-ranking",
+  "non_ranking_posture": "local_observations_only_no_model_ranking",
+  "observation_rows": [
+    {
+      "blocked_observation_reason": "not_applicable",
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "limitation_note": "Bad row.",
+      "observation_kind": "local_projection_observed",
+      "observation_ref": "matrix-observation:pb-matrix-0b:bad",
+      "observation_scope_posture": "local_matrix_observation_only_not_ranking",
+      "observation_text": "This model wins and beats baseline on this matrix.",
+      "source_projection_case_row_ref": "matrix-projection-row:pb-matrix-0b:trial"
+    }
+  ],
+  "schema": "programbench_local_case_matrix_observation_ledger@1",
+  "soft_scoring_language_posture": "soft_scoring_language_rejected"
+}

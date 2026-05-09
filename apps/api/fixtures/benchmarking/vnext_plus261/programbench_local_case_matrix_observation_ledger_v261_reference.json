@@ -1,0 +1,36 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "blocked_observation_refs": [],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "limitation_note": "Reference observation ledger records local posture observations only.",
+  "local_observation_refs": [
+    "matrix-observation:pb-matrix-0b:retry",
+    "matrix-observation:pb-matrix-0b:trial"
+  ],
+  "matrix_observation_ledger_ref": "matrix-observation-ledger:pb-matrix-0b:reference",
+  "non_ranking_posture": "local_observations_only_no_model_ranking",
+  "observation_rows": [
+    {
+      "blocked_observation_reason": "not_applicable",
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "limitation_note": "Observation is local-only.",
+      "observation_kind": "local_projection_observed",
+      "observation_ref": "matrix-observation:pb-matrix-0b:retry",
+      "observation_scope_posture": "local_matrix_observation_only_not_ranking",
+      "observation_text": "Retry case carries a released local settlement projection.",
+      "source_projection_case_row_ref": "matrix-projection-row:pb-matrix-0b:retry"
+    },
+    {
+      "blocked_observation_reason": "not_applicable",
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "limitation_note": "Observation is local-only.",
+      "observation_kind": "local_remand_observed",
+      "observation_ref": "matrix-observation:pb-matrix-0b:trial",
+      "observation_scope_posture": "local_matrix_observation_only_not_ranking",
+      "observation_text": "Trial case carries released local remand posture.",
+      "source_projection_case_row_ref": "matrix-projection-row:pb-matrix-0b:trial"
+    }
+  ],
+  "schema": "programbench_local_case_matrix_observation_ledger@1",
+  "soft_scoring_language_posture": "soft_scoring_language_rejected"
+}

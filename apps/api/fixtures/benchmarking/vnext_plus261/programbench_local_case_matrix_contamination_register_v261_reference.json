@@ -1,0 +1,38 @@
+{
+  "blocked_case_refs": [],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "clean_case_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "contamination_detail_posture": "no_forbidden_names_paths_excerpts_or_summaries",
+  "contamination_redaction_policy": "redacted_category_count_reason_only",
+  "contamination_rows": [
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "contamination_detail_posture": "no_forbidden_names_paths_excerpts_or_summaries",
+      "contamination_kind": "clean",
+      "contamination_posture": "clean",
+      "contamination_redaction_policy": "redacted_category_count_reason_only",
+      "contamination_row_ref": "matrix-contamination-row:pb-matrix-0b:retry",
+      "limitation_note": "Clean local matrix contamination row.",
+      "redacted_detail_note": "No excluded category exposure recorded."
+    },
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "contamination_detail_posture": "no_forbidden_names_paths_excerpts_or_summaries",
+      "contamination_kind": "clean",
+      "contamination_posture": "clean",
+      "contamination_redaction_policy": "redacted_category_count_reason_only",
+      "contamination_row_ref": "matrix-contamination-row:pb-matrix-0b:trial",
+      "limitation_note": "Clean local matrix contamination row.",
+      "redacted_detail_note": "No excluded category exposure recorded."
+    }
+  ],
+  "contamination_status": "clean",
+  "excluded_derived_summary_refs": [],
+  "forbidden_exposure_refs": [],
+  "limitation_note": "Reference contamination register is clean and redacted.",
+  "matrix_contamination_register_ref": "matrix-contamination-register:pb-matrix-0b:reference",
+  "schema": "programbench_local_case_matrix_contamination_register@1"
+}
