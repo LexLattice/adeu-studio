@@ -1,0 +1,158 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "baseline_comparison",
+            "batch_execution",
+            "benchmark_score",
+            "benchmark_truth",
+            "candidate_artifact_capture",
+            "command_execution",
+            "future_family_selection",
+            "hidden_test_inference",
+            "lifecycle_projection",
+            "local_outcome_audit",
+            "model_ranking",
+            "official_programbench_participation",
+            "official_submission",
+            "probe_execution",
+            "retry_authority",
+            "worker_dispatch"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_single_case_run_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_pb_single_case_run_0a",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_single_case_run_0a",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_single_case_run_0a",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "candidate_artifact_capture_deferred_posture": {
+      "const": "candidate_artifact_capture_deferred_to_pb_single_case_run_0b",
+      "title": "Candidate Artifact Capture Deferred Posture",
+      "type": "string"
+    },
+    "command_execution_deferred_posture": {
+      "const": "command_execution_deferred_to_pb_single_case_run_0b",
+      "title": "Command Execution Deferred Posture",
+      "type": "string"
+    },
+    "forbidden_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Authority Rows",
+      "type": "array"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_single_case_run_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_outcome_audit_deferred_posture": {
+      "const": "local_outcome_audit_deferred_to_pb_single_case_run_0c",
+      "title": "Local Outcome Audit Deferred Posture",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_single_case_run_0a",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_single_case_run_0a",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_run_guardrail_ref": {
+      "title": "Single Case Run Guardrail Ref",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "worker_dispatch_deferred_posture": {
+      "const": "worker_dispatch_deferred_to_pb_single_case_run_0b",
+      "title": "Worker Dispatch Deferred Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_guardrail_ref",
+    "single_case_run_request_ref",
+    "forbidden_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "worker_dispatch_deferred_posture",
+    "command_execution_deferred_posture",
+    "candidate_artifact_capture_deferred_posture",
+    "local_outcome_audit_deferred_posture",
+    "official_programbench_authority_posture",
+    "benchmark_score_authority_posture",
+    "baseline_comparison_authority_posture",
+    "model_ranking_authority_posture",
+    "batch_execution_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunNonAuthorityGuardrail",
+  "type": "object"
+}

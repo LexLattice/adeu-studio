@@ -1,0 +1,125 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_command_policy": {
+      "const": "argv_shaped_commands_only_no_shell_strings",
+      "title": "Allowed Command Policy",
+      "type": "string"
+    },
+    "artifact_capture_policy": {
+      "const": "deferred_to_pb_single_case_run_0b",
+      "title": "Artifact Capture Policy",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_single_case_run_0a",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "forbidden_content_screen_policy": {
+      "const": "required_before_candidate_artifact_capture",
+      "title": "Forbidden Content Screen Policy",
+      "type": "string"
+    },
+    "hidden_test_access_posture": {
+      "const": "no_hidden_test_access",
+      "title": "Hidden Test Access Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_only_probe_posture": {
+      "const": "declared_local_probes_only_not_hidden_tests",
+      "title": "Local Only Probe Posture",
+      "type": "string"
+    },
+    "local_probe_basis_hash": {
+      "title": "Local Probe Basis Hash",
+      "type": "string"
+    },
+    "official_evaluator_access_posture": {
+      "const": "no_official_evaluator_access",
+      "title": "Official Evaluator Access Posture",
+      "type": "string"
+    },
+    "resource_limit_policy": {
+      "const": "bounded_resources_required",
+      "title": "Resource Limit Policy",
+      "type": "string"
+    },
+    "run_budget_hash": {
+      "title": "Run Budget Hash",
+      "type": "string"
+    },
+    "runbook_hash": {
+      "title": "Runbook Hash",
+      "type": "string"
+    },
+    "sandbox_policy_hash": {
+      "title": "Sandbox Policy Hash",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_control_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_run_control_contract_ref": {
+      "title": "Single Case Run Control Contract Ref",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "single_dispatch_limit_posture": {
+      "const": "one_dispatch_specimen_only_if_pb_single_case_run_0b_authorized",
+      "title": "Single Dispatch Limit Posture",
+      "type": "string"
+    },
+    "timeout_policy": {
+      "const": "bounded_timeout_required",
+      "title": "Timeout Policy",
+      "type": "string"
+    },
+    "tool_manifest_hash": {
+      "title": "Tool Manifest Hash",
+      "type": "string"
+    },
+    "worker_visible_packet_hash": {
+      "title": "Worker Visible Packet Hash",
+      "type": "string"
+    },
+    "write_scope_hash": {
+      "title": "Write Scope Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_control_contract_ref",
+    "single_case_run_request_ref",
+    "worker_visible_packet_hash",
+    "runbook_hash",
+    "sandbox_policy_hash",
+    "run_budget_hash",
+    "tool_manifest_hash",
+    "write_scope_hash",
+    "local_probe_basis_hash",
+    "allowed_command_policy",
+    "timeout_policy",
+    "resource_limit_policy",
+    "artifact_capture_policy",
+    "forbidden_content_screen_policy",
+    "single_dispatch_limit_posture",
+    "local_only_probe_posture",
+    "official_evaluator_access_posture",
+    "hidden_test_access_posture",
+    "benchmark_score_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunControlContract",
+  "type": "object"
+}

@@ -1,0 +1,126 @@
+{
+  "baseline_comparison_authority_posture": "no_baseline_comparison_authority_granted_by_pb_single_case_run_0a",
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_pb_single_case_run_0a",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_pb_single_case_run_0a",
+  "candidate_artifact_capture_deferred_posture": "candidate_artifact_capture_deferred_to_pb_single_case_run_0b",
+  "command_execution_deferred_posture": "command_execution_deferred_to_pb_single_case_run_0b",
+  "forbidden_authority_rows": [
+    {
+      "authority_kind": "baseline_comparison",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:01",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "batch_execution",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:02",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "benchmark_score",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:03",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "benchmark_truth",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:04",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "candidate_artifact_capture",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:05",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "command_execution",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:06",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:07",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:08",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "lifecycle_projection",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:09",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "local_outcome_audit",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:10",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:11",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:12",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:13",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "probe_execution",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:14",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "retry_authority",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:15",
+      "limitation_note": "Authority is not granted by slice A."
+    },
+    {
+      "authority_kind": "worker_dispatch",
+      "forbiddance_posture": "forbidden_by_pb_single_case_run_0a",
+      "forbidden_authority_ref": "forbidden-authority:pb-single-case-run-0a:16",
+      "limitation_note": "Authority is not granted by slice A."
+    }
+  ],
+  "forbidden_future_artifact_kinds": [
+    "programbench_single_case_candidate_artifact_capture@1",
+    "programbench_single_case_execution_trace@1",
+    "programbench_single_case_lifecycle_projection@1",
+    "programbench_single_case_local_outcome_audit@1",
+    "programbench_single_case_probe_observation_bundle@1",
+    "programbench_single_case_remand_or_acceptance_decision@1",
+    "programbench_single_case_run_family_closeout_alignment@1",
+    "programbench_single_case_run_handoff@1",
+    "programbench_single_case_run_observation_summary@1",
+    "programbench_single_case_worker_dispatch_specimen@1"
+  ],
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_single_case_run_0a",
+  "limitation_note": "Guardrail keeps future execution and audit surfaces deferred.",
+  "local_outcome_audit_deferred_posture": "local_outcome_audit_deferred_to_pb_single_case_run_0c",
+  "model_ranking_authority_posture": "no_model_ranking_authority_granted_by_pb_single_case_run_0a",
+  "official_programbench_authority_posture": "no_official_programbench_authority_granted_by_pb_single_case_run_0a",
+  "schema": "programbench_single_case_run_non_authority_guardrail@1",
+  "single_case_run_guardrail_ref": "single-case-guardrail:pb-single-case-run-0a:reference",
+  "single_case_run_request_ref": "single-case-run-request:pb-single-case-run-0a:reference",
+  "worker_dispatch_deferred_posture": "worker_dispatch_deferred_to_pb_single_case_run_0b"
+}

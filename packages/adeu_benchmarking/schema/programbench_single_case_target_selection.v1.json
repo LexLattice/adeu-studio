@@ -1,0 +1,165 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "case_artifact_manifest_hash": {
+      "title": "Case Artifact Manifest Hash",
+      "type": "string"
+    },
+    "case_artifact_manifest_ref": {
+      "title": "Case Artifact Manifest Ref",
+      "type": "string"
+    },
+    "cleanroom_boundary_hash": {
+      "title": "Cleanroom Boundary Hash",
+      "type": "string"
+    },
+    "contamination_posture": {
+      "enum": [
+        "clean",
+        "contaminated"
+      ],
+      "title": "Contamination Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_basis_hash": {
+      "title": "Local Probe Basis Hash",
+      "type": "string"
+    },
+    "local_probe_basis_ref": {
+      "title": "Local Probe Basis Ref",
+      "type": "string"
+    },
+    "matrix_membership_row_ref": {
+      "title": "Matrix Membership Row Ref",
+      "type": "string"
+    },
+    "matrix_membership_status": {
+      "enum": [
+        "included",
+        "deferred",
+        "rejected",
+        "not_applicable_non_matrix_route"
+      ],
+      "title": "Matrix Membership Status",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_target_selection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_case_lineage_hash": {
+      "title": "Selected Case Lineage Hash",
+      "type": "string"
+    },
+    "selected_case_lineage_ref": {
+      "title": "Selected Case Lineage Ref",
+      "type": "string"
+    },
+    "selected_case_origin_posture": {
+      "enum": [
+        "released_matrix_member",
+        "released_ready_expanded_case_lineage",
+        "released_adapter_case_exception"
+      ],
+      "title": "Selected Case Origin Posture",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "single_case_target_selection_ref": {
+      "title": "Single Case Target Selection Ref",
+      "type": "string"
+    },
+    "source_matrix_ref": {
+      "title": "Source Matrix Ref",
+      "type": "string"
+    },
+    "source_matrix_revision_hash": {
+      "title": "Source Matrix Revision Hash",
+      "type": "string"
+    },
+    "source_matrix_revision_ref": {
+      "title": "Source Matrix Revision Ref",
+      "type": "string"
+    },
+    "source_visibility_boundary_hash": {
+      "title": "Source Visibility Boundary Hash",
+      "type": "string"
+    },
+    "target_origin_required_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Target Origin Required Refs",
+      "type": "array"
+    },
+    "target_origin_route": {
+      "enum": [
+        "matrix_member",
+        "ready_expanded_case_lineage",
+        "direct_adapter_case_exception"
+      ],
+      "title": "Target Origin Route",
+      "type": "string"
+    },
+    "target_selection_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Selection Blocker Refs",
+      "type": "array"
+    },
+    "target_selection_status": {
+      "enum": [
+        "selected_for_later_local_run_preflight",
+        "blocked"
+      ],
+      "title": "Target Selection Status",
+      "type": "string"
+    },
+    "worker_visible_packet_hash": {
+      "title": "Worker Visible Packet Hash",
+      "type": "string"
+    },
+    "worker_visible_packet_ref": {
+      "title": "Worker Visible Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_target_selection_ref",
+    "single_case_run_request_ref",
+    "selected_case_lineage_ref",
+    "selected_case_lineage_hash",
+    "selected_case_origin_posture",
+    "target_origin_route",
+    "target_origin_required_refs",
+    "source_matrix_ref",
+    "source_matrix_revision_ref",
+    "source_matrix_revision_hash",
+    "matrix_membership_row_ref",
+    "matrix_membership_status",
+    "source_visibility_boundary_hash",
+    "cleanroom_boundary_hash",
+    "case_artifact_manifest_ref",
+    "case_artifact_manifest_hash",
+    "worker_visible_packet_ref",
+    "worker_visible_packet_hash",
+    "local_probe_basis_ref",
+    "local_probe_basis_hash",
+    "contamination_posture",
+    "target_selection_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseTargetSelection",
+  "type": "object"
+}

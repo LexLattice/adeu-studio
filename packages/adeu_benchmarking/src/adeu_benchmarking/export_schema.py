@@ -305,6 +305,18 @@ from .programbench_cleanroom_trial import (
     ProgrambenchLocalTrialSandboxReadinessReview,
     ProgrambenchLocalTrialWorkerDispatchRecord,
 )
+from .programbench_single_case_run import (
+    PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA,
+    ProgrambenchSingleCaseExecutionPreflight,
+    ProgrambenchSingleCaseRunControlContract,
+    ProgrambenchSingleCaseRunNonAuthorityGuardrail,
+    ProgrambenchSingleCaseRunRequest,
+    ProgrambenchSingleCaseTargetSelection,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -1798,6 +1810,58 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_matrix_inclusion_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunRequest,
+            PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_request.v1.json",
+            root / "spec" / "programbench_single_case_run_request.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseTargetSelection,
+            PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_target_selection.v1.json",
+            root / "spec" / "programbench_single_case_target_selection.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseExecutionPreflight,
+            PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_execution_preflight.v1.json",
+            root / "spec" / "programbench_single_case_execution_preflight.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunControlContract,
+            PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_control_contract.v1.json",
+            root / "spec" / "programbench_single_case_run_control_contract.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunNonAuthorityGuardrail,
+            PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_run_non_authority_guardrail.schema.json",
         ),
     ]
 

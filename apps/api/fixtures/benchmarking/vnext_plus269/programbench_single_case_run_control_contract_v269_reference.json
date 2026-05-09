@@ -1,0 +1,23 @@
+{
+  "allowed_command_policy": "argv_shaped_commands_only_no_shell_strings",
+  "artifact_capture_policy": "deferred_to_pb_single_case_run_0b",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_pb_single_case_run_0a",
+  "forbidden_content_screen_policy": "required_before_candidate_artifact_capture",
+  "hidden_test_access_posture": "no_hidden_test_access",
+  "limitation_note": "Control contract defines later run bounds only.",
+  "local_only_probe_posture": "declared_local_probes_only_not_hidden_tests",
+  "local_probe_basis_hash": "sha256:4646464646464646464646464646464646464646464646464646464646464646",
+  "official_evaluator_access_posture": "no_official_evaluator_access",
+  "resource_limit_policy": "bounded_resources_required",
+  "run_budget_hash": "sha256:4949494949494949494949494949494949494949494949494949494949494949",
+  "runbook_hash": "sha256:4747474747474747474747474747474747474747474747474747474747474747",
+  "sandbox_policy_hash": "sha256:4848484848484848484848484848484848484848484848484848484848484848",
+  "schema": "programbench_single_case_run_control_contract@1",
+  "single_case_run_control_contract_ref": "single-case-control:pb-single-case-run-0a:reference",
+  "single_case_run_request_ref": "single-case-run-request:pb-single-case-run-0a:reference",
+  "single_dispatch_limit_posture": "one_dispatch_specimen_only_if_pb_single_case_run_0b_authorized",
+  "timeout_policy": "bounded_timeout_required",
+  "tool_manifest_hash": "sha256:5050505050505050505050505050505050505050505050505050505050505050",
+  "worker_visible_packet_hash": "sha256:4545454545454545454545454545454545454545454545454545454545454545",
+  "write_scope_hash": "sha256:5151515151515151515151515151515151515151515151515151515151515151"
+}
