@@ -311,3 +311,14 @@ plan, case delta manifest, comparability delta review, contamination delta
 review, and inclusion decision record. It must not register a revised matrix,
 project results, execute cases, summarize outcomes, score benchmarks, compare
 baselines, rank models, or select a future family.
+
+## Post-B Continuation Note
+
+After `PB-MATRIX-INCLUSION-0-B` is implemented, merged, and closed on main,
+select `PB-MATRIX-INCLUSION-0-C` as the next default candidate.
+
+`PB-MATRIX-INCLUSION-0-C` should instantiate only local matrix revision
+registration, revision readiness summary, pressure-only post-inclusion
+handoff, and family closeout alignment. It must not execute the revised
+matrix, project results, summarize post-execution outcomes, score benchmarks,
+compare baselines, rank models, submit officially, or select a future family.
