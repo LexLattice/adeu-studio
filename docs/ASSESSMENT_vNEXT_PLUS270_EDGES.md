@@ -1,8 +1,8 @@
 # Assessment vNext+270 Edges
 
-Status: pre-lock edge assessment for `PB-SINGLE-CASE-RUN-0-B`.
+Status: post-closeout edge assessment for `PB-SINGLE-CASE-RUN-0-B`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout / implementation evidence.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,91 +10,106 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS270_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edge Review
 
 ### Edge 1: A Preflight Could Be Treated As Dispatch Authority
 
-- Risk:
-  a ready A preflight packet could be treated as permission to run a worker.
-- Required containment:
-  B must require a `b_slice_dispatch_authority_ref` and
-  `dispatch_authority_kind = b_slice_lock_local_single_specimen_only`.
+- Closeout result:
+  contained.
+- Evidence:
+  B requires released A rows plus a B-slice dispatch authority ref and
+  dispatch authority kind. A-only preflight evidence does not validate as a
+  dispatch specimen.
 
 ### Edge 2: Multiple Dispatches Could Hide Behind One Case
 
-- Risk:
-  one selected case could be run repeatedly while still being described as a
-  single-case specimen.
-- Required containment:
-  B must require `dispatch_specimen_index = 1`,
+- Closeout result:
+  contained.
+- Evidence:
+  B requires `dispatch_specimen_index = 1` and
   `single_case_dispatch_cardinality_posture =
-  exactly_one_dispatch_specimen`, and reject duplicate dispatch rows for one A
-  request.
+  exactly_one_dispatch_specimen`; duplicate dispatch rows for one A request are
+  rejected.
 
 ### Edge 3: Command Capture Could Become Open Shell Authority
 
-- Risk:
-  execution trace rows could carry raw shell strings or unbounded command
-  authority.
-- Required containment:
-  B must require argv-shaped command rows and reject raw shell strings unless a
-  later explicit authority grants and justifies shell wrapping.
+- Closeout result:
+  contained, including review hardening.
+- Evidence:
+  execution traces require argv-shaped command rows and reject raw shell
+  strings. Review feedback expanded the rejection surface to shell executable
+  path basenames and shell control/redirection markers, so `/bin/sh`, `bash`,
+  `cmd.exe`, `&&`, `|`, and redirect-shaped command rows fail closed.
 
 ### Edge 4: Sandbox Witnesses Could Be Narrative Only
 
-- Risk:
-  execution could claim sandbox safety without binding concrete witness refs.
-- Required containment:
-  B must require sandbox instance, sandbox attestation, network mode, Docker
-  socket absence, secret absence, source lookup absence, decompilation absence,
-  and write-scope attestation refs.
+- Closeout result:
+  contained.
+- Evidence:
+  B requires concrete sandbox instance, attestation bundle, network mode,
+  Docker socket absence, secret absence, source lookup absence, decompilation
+  absence, and write-scope attestation refs.
 
 ### Edge 5: Worker Output Could Launder Forbidden Content Into Artifacts
 
-- Risk:
-  captured worker output could contain hidden, forbidden, postmortem-only, or
-  excluded-derived material and still be materialized as a candidate artifact.
-- Required containment:
-  candidate artifact capture must require
-  `forbidden_content_screen_verdict = passed`, generated artifacts inside
-  released write scope, and materialization hashes that bind captured output.
+- Closeout result:
+  contained, including review hardening.
+- Evidence:
+  candidate artifact capture requires
+  `forbidden_content_screen_verdict = passed`, generated artifacts inside the
+  released write scope, materialization input/output hashes, and generated
+  artifact rows that match declared artifact hash rows.
 
 ### Edge 6: Lifecycle Projection Could Become New Outcome Truth
 
-- Risk:
-  lifecycle projection could be read as benchmark truth or hidden-test
-  equivalence.
-- Required containment:
-  projection rows must state that they are not new truth, bind released
-  validator refs, and keep benchmark truth posture negative.
+- Closeout result:
+  contained.
+- Evidence:
+  lifecycle projection binds released lifecycle refs and validator refs while
+  retaining non-new-truth and non-hidden-test-equivalence posture. It does not
+  mint benchmark truth.
 
 ### Edge 7: B Could Collapse Into C Outcome Audit
 
-- Risk:
-  B could record acceptance/remand or local outcome posture instead of only
-  execution/capture/projection evidence.
-- Required containment:
-  local outcome audit, observation summary, remand/acceptance decision, and
-  handoff rows remain deferred to `PB-SINGLE-CASE-RUN-0-C`.
+- Closeout result:
+  contained.
+- Evidence:
+  B emits specimen capture/projection surfaces only. Local outcome audit,
+  observation summary, remand/acceptance decision, pressure-only handoff, and
+  family closeout remain deferred to `PB-SINGLE-CASE-RUN-0-C`.
+
+## Review Feedback Integrated
+
+- Codex review:
+  candidate artifact rows must match their declared generated artifact hashes;
+  stale or mismatched hash rows now fail validation.
+- Gemini review:
+  argv-shaped command validation now rejects shell executable path basenames
+  and broader shell marker strings, not only exact `sh` / `bash` tokens.
 
 ## Residual Edges
 
 - Local outcome audit remains deferred to `PB-SINGLE-CASE-RUN-0-C`.
+- Observation summary remains deferred to `PB-SINGLE-CASE-RUN-0-C`.
 - Remand or acceptance decision remains deferred to `PB-SINGLE-CASE-RUN-0-C`.
+- Pressure-only handoff and full family closeout remain deferred to
+  `PB-SINGLE-CASE-RUN-0-C`.
 - Official ProgramBench runner/evaluator integration remains unselected.
 - Hidden-test handling and hidden-test equivalence remain unselected.
 - Benchmark scoring, baseline comparison, and model ranking remain unselected.
 - Batch execution over a matrix remains unselected.
 - Retry authority remains unselected.
-- Future-family selection remains unselected by this starter.
+- Future-family selection remains unselected by this closeout.
 
 ## Current Judgment
 
-The `PB-SINGLE-CASE-RUN-0-B` starter is action-adjacent but bounded enough to
-proceed to implementation after `make arc-start-check ARC=270` passes.
+`PB-SINGLE-CASE-RUN-0-B` is closed on `main`. The implementation is
+action-adjacent but bounded: it captures one local specimen and lifecycle
+projection without audit, acceptance, retry, scoring, model ranking, official
+participation, or future-family authority.

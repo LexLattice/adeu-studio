@@ -299,3 +299,12 @@ capture under released A controls and does not authorize outcome audit,
 acceptance/remand, retry authority, batch execution, benchmark scoring,
 baseline comparison, model ranking, official participation, or future-family
 selection.
+
+Post-`PB-SINGLE-CASE-RUN-0-B` continuation posture: after
+`PB-SINGLE-CASE-RUN-0-B` closes on `main`, select `PB-SINGLE-CASE-RUN-0-C` as the next default candidate for the next canonical starter bundle.
+`PB-SINGLE-CASE-RUN-0-C` remains bounded to local outcome audit, local-only
+observation summary, remand/acceptance posture, pressure-only handoff, and
+family closeout; it does not authorize another execution specimen, retry
+authority, batch execution, benchmark scoring, baseline comparison, model
+ranking, official participation, hidden-test equivalence, or future-family
+selection.

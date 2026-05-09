@@ -1,0 +1,52 @@
+{
+  "a_preflight_dispatch_authority_granted": false,
+  "arc": "vNext+270",
+  "argv_shaped_command_rows_required": true,
+  "baseline_comparison_authority_granted": false,
+  "batch_execution_authority_granted": false,
+  "candidate_artifact_capture_requires_passed_screening": true,
+  "candidate_artifact_hash_consistency_enforced": true,
+  "candidate_artifact_write_scope_enforced": true,
+  "closed_slice": "PB-SINGLE-CASE-RUN-0-B",
+  "dispatch_authority_requires_b_lock": true,
+  "exactly_one_dispatch_specimen_enforced": true,
+  "family": "PB-SINGLE-CASE-RUN-0",
+  "future_family_selection_granted": false,
+  "implementation_commits": [
+    "4baa8e68e05a6b8a482ee771f077128d192a4b55",
+    "ab87bb82ca09712b410a934f808dd4c76f67fea1"
+  ],
+  "implementation_package": "packages/adeu_benchmarking",
+  "lifecycle_projection_not_new_truth": true,
+  "local_outcome_audit_granted": false,
+  "merge_commit": "a3bd1649ef47e4341d7e4dc95e5c31560462ee52",
+  "merged_at": "2026-05-09T23:47:20Z",
+  "merged_pr": "#498",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v270/evidence_inputs/metric_key_continuity_assertion_v270.json",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "official_submission_authority_granted": false,
+  "raw_shell_strings_rejected": true,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus270",
+  "remand_or_acceptance_decision_granted": false,
+  "retry_authority_granted": false,
+  "runtime_event_stream_path": "artifacts/agent_harness/v270/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v270/evidence_inputs/runtime_observability_comparison_v270.json",
+  "sandbox_witness_refs_required": true,
+  "schema": "pb_single_case_run_0b_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_single_case_worker_dispatch_specimen@1",
+    "programbench_single_case_execution_trace@1",
+    "programbench_single_case_probe_observation_bundle@1",
+    "programbench_single_case_candidate_artifact_capture@1",
+    "programbench_single_case_lifecycle_projection@1"
+  ],
+  "shell_path_basename_rejected": true,
+  "shell_redirection_markers_rejected": true,
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0b.py",
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0b.py -q",
+    "make check",
+    "make arc-closeout-check ARC=270"
+  ]
+}
