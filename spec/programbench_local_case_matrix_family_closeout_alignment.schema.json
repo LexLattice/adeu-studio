@@ -58,14 +58,6 @@
       "title": "Limitation Note",
       "type": "string"
     },
-    "local_matrix_summary_refs": {
-      "items": {
-        "type": "string"
-      },
-      "minItems": 1,
-      "title": "Local Matrix Summary Refs",
-      "type": "array"
-    },
     "matrix_contamination_register_refs": {
       "items": {
         "type": "string"
@@ -130,6 +122,14 @@
       "title": "Matrix Summary Ref",
       "type": "string"
     },
+    "matrix_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Summary Refs",
+      "type": "array"
+    },
     "model_ranking_posture": {
       "const": "no_model_ranking_claimed_by_pb_matrix_0c",
       "title": "Model Ranking Posture",
@@ -140,16 +140,16 @@
       "title": "Official Programbench Posture",
       "type": "string"
     },
-    "post_case_matrix_handoff_ref": {
-      "title": "Post Case Matrix Handoff Ref",
+    "post_matrix_handoff_ref": {
+      "title": "Post Matrix Handoff Ref",
       "type": "string"
     },
-    "post_case_matrix_handoff_refs": {
+    "post_matrix_handoff_refs": {
       "items": {
         "type": "string"
       },
       "minItems": 1,
-      "title": "Post Case Matrix Handoff Refs",
+      "title": "Post Matrix Handoff Refs",
       "type": "array"
     },
     "schema": {
@@ -172,7 +172,7 @@
     "closed_family_ref",
     "case_matrix_ref",
     "matrix_summary_ref",
-    "post_case_matrix_handoff_ref",
+    "post_matrix_handoff_ref",
     "closed_slice_refs",
     "shipped_record_shapes",
     "matrix_request_refs",
@@ -184,8 +184,8 @@
     "matrix_observation_ledger_refs",
     "matrix_coverage_register_refs",
     "matrix_contamination_register_refs",
-    "local_matrix_summary_refs",
-    "post_case_matrix_handoff_refs",
+    "matrix_summary_refs",
+    "post_matrix_handoff_refs",
     "benchmark_truth_posture",
     "model_ranking_posture",
     "official_programbench_posture",

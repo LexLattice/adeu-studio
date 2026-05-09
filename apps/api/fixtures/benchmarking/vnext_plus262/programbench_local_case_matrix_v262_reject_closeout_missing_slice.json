@@ -15,7 +15,7 @@
   ],
   "future_family_authority_posture": "no_future_family_authority_granted_by_pb_matrix_0c",
   "limitation_note": "PB-MATRIX-0 closeout is local matrix accounting only.",
-  "local_matrix_summary_refs": [
+  "matrix_summary_refs": [
     "matrix-summary:pb-matrix-0c:reference"
   ],
   "matrix_contamination_register_refs": [
@@ -43,8 +43,8 @@
   "matrix_summary_ref": "matrix-summary:pb-matrix-0c:reference",
   "model_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0c",
   "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0c",
-  "post_case_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reference",
-  "post_case_matrix_handoff_refs": [
+  "post_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reference",
+  "post_matrix_handoff_refs": [
     "matrix-handoff:pb-matrix-0c:reference"
   ],
   "schema": "programbench_local_case_matrix_family_closeout_alignment@1",

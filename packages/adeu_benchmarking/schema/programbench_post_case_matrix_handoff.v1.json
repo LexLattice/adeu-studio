@@ -121,8 +121,8 @@
       "title": "Official Programbench Posture",
       "type": "string"
     },
-    "post_case_matrix_handoff_ref": {
-      "title": "Post Case Matrix Handoff Ref",
+    "post_matrix_handoff_ref": {
+      "title": "Post Matrix Handoff Ref",
       "type": "string"
     },
     "schema": {
@@ -133,7 +133,7 @@
   },
   "required": [
     "schema",
-    "post_case_matrix_handoff_ref",
+    "post_matrix_handoff_ref",
     "case_matrix_ref",
     "matrix_summary_ref",
     "handoff_rows",

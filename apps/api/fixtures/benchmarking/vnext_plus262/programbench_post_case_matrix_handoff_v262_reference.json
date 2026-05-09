@@ -22,6 +22,6 @@
   "matrix_summary_ref": "matrix-summary:pb-matrix-0c:reference",
   "model_ranking_posture": "no_model_ranking_authority_granted_by_pb_matrix_0c",
   "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_matrix_0c",
-  "post_case_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reference",
+  "post_matrix_handoff_ref": "matrix-handoff:pb-matrix-0c:reference",
   "schema": "programbench_post_case_matrix_handoff@1"
 }

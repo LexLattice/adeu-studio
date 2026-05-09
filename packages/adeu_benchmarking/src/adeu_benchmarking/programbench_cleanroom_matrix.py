@@ -1308,21 +1308,20 @@ class ProgrambenchLocalCaseMatrixSummary(_MatrixBase):
                 "case posture refs must account for every included case; "
                 f"missing={missing}, extra={extra}"
             )
-        overlaps = sorted(
-            ref
-            for ref in included
-            if sum(
-                ref in refs
-                for refs in (
-                    self.remanded_case_refs,
-                    self.resolved_case_refs,
-                    self.inconclusive_case_refs,
-                    self.blocked_case_refs,
-                    self.unresolved_case_refs,
-                )
-            )
-            > 1
-        )
+        seen_posture_refs: set[str] = set()
+        overlapping_posture_refs: set[str] = set()
+        for refs in (
+            self.remanded_case_refs,
+            self.resolved_case_refs,
+            self.inconclusive_case_refs,
+            self.blocked_case_refs,
+            self.unresolved_case_refs,
+        ):
+            for ref in refs:
+                if ref in seen_posture_refs:
+                    overlapping_posture_refs.add(ref)
+                seen_posture_refs.add(ref)
+        overlaps = sorted(overlapping_posture_refs)
         if overlaps:
             raise ValueError(f"case posture refs must not overlap: {overlaps}")
         if set(self.projected_case_refs) - included:
@@ -1347,10 +1346,6 @@ class ProgrambenchLocalCaseMatrixSummary(_MatrixBase):
         if self.local_matrix_posture == "local_matrix_open_with_projection_gaps":
             if not self.unresolved_case_refs:
                 raise ValueError("projection-gap summaries require unresolved case refs")
-        if self.contamination_status == "blocked" and (
-            self.local_matrix_posture == "local_matrix_complete_relative_to_declared_cases"
-        ):
-            raise ValueError("blocked contamination cannot be summarized as complete")
         _ensure_no_soft_scoring_language(
             self.matrix_scope_statement,
             field_name="matrix_scope_statement",
@@ -1361,7 +1356,7 @@ class ProgrambenchLocalCaseMatrixSummary(_MatrixBase):
 
 class ProgrambenchPostCaseMatrixHandoff(_MatrixBase):
     schema_id: Literal[PROGRAMBENCH_POST_CASE_MATRIX_HANDOFF_SCHEMA] = Field(alias="schema")
-    post_case_matrix_handoff_ref: str
+    post_matrix_handoff_ref: str
     case_matrix_ref: str
     matrix_summary_ref: str
     handoff_rows: list[ProgrambenchPostCaseMatrixHandoffRow] = Field(min_length=1)
@@ -1410,7 +1405,7 @@ class ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment(_MatrixBase):
     closed_family_ref: Literal["PB-MATRIX-0"]
     case_matrix_ref: str
     matrix_summary_ref: str
-    post_case_matrix_handoff_ref: str
+    post_matrix_handoff_ref: str
     closed_slice_refs: list[str] = Field(min_length=3)
     shipped_record_shapes: list[str] = Field(min_length=1)
     matrix_request_refs: list[str] = Field(min_length=1)
@@ -1422,8 +1417,8 @@ class ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment(_MatrixBase):
     matrix_observation_ledger_refs: list[str] = Field(min_length=1)
     matrix_coverage_register_refs: list[str] = Field(min_length=1)
     matrix_contamination_register_refs: list[str] = Field(min_length=1)
-    local_matrix_summary_refs: list[str] = Field(min_length=1)
-    post_case_matrix_handoff_refs: list[str] = Field(min_length=1)
+    matrix_summary_refs: list[str] = Field(min_length=1)
+    post_matrix_handoff_refs: list[str] = Field(min_length=1)
     benchmark_truth_posture: Literal["not_benchmark_truth"]
     model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_matrix_0c"]
     official_programbench_posture: Literal[
@@ -1452,8 +1447,8 @@ class ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment(_MatrixBase):
             "matrix_observation_ledger_refs",
             "matrix_coverage_register_refs",
             "matrix_contamination_register_refs",
-            "local_matrix_summary_refs",
-            "post_case_matrix_handoff_refs",
+            "matrix_summary_refs",
+            "post_matrix_handoff_refs",
         ):
             _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
         if self.closed_slice_refs != ["PB-MATRIX-0-A", "PB-MATRIX-0-B", "PB-MATRIX-0-C"]:
@@ -1463,10 +1458,10 @@ class ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment(_MatrixBase):
         )
         if self.shipped_record_shapes != expected_shapes:
             raise ValueError("PB-MATRIX-0 closeout shipped shapes must cover A/B/C")
-        if self.local_matrix_summary_refs != [self.matrix_summary_ref]:
-            raise ValueError("local_matrix_summary_refs must reference the closed summary")
-        if self.post_case_matrix_handoff_refs != [self.post_case_matrix_handoff_ref]:
-            raise ValueError("post_case_matrix_handoff_refs must reference the closed handoff")
+        if self.matrix_summary_refs != [self.matrix_summary_ref]:
+            raise ValueError("matrix_summary_refs must reference the closed summary")
+        if self.post_matrix_handoff_refs != [self.post_matrix_handoff_ref]:
+            raise ValueError("post_matrix_handoff_refs must reference the closed handoff")
         _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
         return self
 
@@ -1746,17 +1741,15 @@ def validate_pb_matrix_0c_closeout_bundle(
     included = set(inclusion_manifest.included_case_refs)
     if set(matrix_summary.included_case_refs) != included:
         raise ValueError("matrix summary included cases must match released A manifest")
-    if set(matrix_summary.projected_case_refs) != set(result_projection.included_case_refs) - set(
-        row.case_ref
-        for row in result_projection.projection_case_rows
-        if row.projection_currentness == "projection_gap_declared"
-    ):
-        raise ValueError("matrix summary projected_case_refs must match current projections")
     unresolved_from_projection = {
         row.case_ref
         for row in result_projection.projection_case_rows
         if row.projection_currentness == "projection_gap_declared"
     }
+    if set(matrix_summary.projected_case_refs) != (
+        set(result_projection.included_case_refs) - unresolved_from_projection
+    ):
+        raise ValueError("matrix summary projected_case_refs must match current projections")
     if not unresolved_from_projection.issubset(set(matrix_summary.unresolved_case_refs)):
         raise ValueError("projection gaps must remain unresolved in the matrix summary")
     blocked_from_contamination = set(contamination_register.blocked_case_refs)
@@ -1787,9 +1780,7 @@ def validate_pb_matrix_0c_closeout_bundle(
         raise ValueError("family closeout must reference matrix summary case matrix")
     if family_closeout.matrix_summary_ref != matrix_summary.matrix_summary_ref:
         raise ValueError("family closeout must reference matrix summary")
-    if family_closeout.post_case_matrix_handoff_ref != (
-        post_case_matrix_handoff.post_case_matrix_handoff_ref
-    ):
+    if family_closeout.post_matrix_handoff_ref != post_case_matrix_handoff.post_matrix_handoff_ref:
         raise ValueError("family closeout must reference post-matrix handoff")
     if family_closeout.matrix_request_refs != [matrix_request.matrix_request_ref]:
         raise ValueError("family closeout must carry released A request ref")
