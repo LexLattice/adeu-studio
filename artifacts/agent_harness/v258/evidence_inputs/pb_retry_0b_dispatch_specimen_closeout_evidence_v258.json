@@ -1,0 +1,35 @@
+{
+  "arc": "vNext+258",
+  "benchmark_truth_authority_granted": false,
+  "candidate_delta_requires_passed_screening": true,
+  "closed_slice": "PB-RETRY-0-B",
+  "dispatch_authority_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS258.md",
+  "family": "PB-RETRY-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0b.py",
+  "future_family_selection_granted": false,
+  "hidden_test_access_rejected": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "merged_at": "2026-05-09T00:02:32Z",
+  "merged_pr": "#486",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus258",
+  "retry_dispatch_depth": 1,
+  "retry_dispatch_requires_b_lock_authority": true,
+  "retry_dispatch_requires_released_a_refs": true,
+  "retry_dispatch_requires_source_trial_hash_continuity": true,
+  "schema": "pb_retry_0b_dispatch_specimen_closeout_evidence@1",
+  "second_retry_authority_granted": false,
+  "selected_record_shapes": [
+    "programbench_local_retry_dispatch_record@1",
+    "programbench_local_retry_execution_capture@1",
+    "programbench_local_retry_candidate_delta_snapshot@1",
+    "programbench_local_retry_lifecycle_projection@1",
+    "programbench_local_retry_sandbox_application_trace@1"
+  ],
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0b.py",
+    "make lint",
+    "make check"
+  ]
+}

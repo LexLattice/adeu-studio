@@ -1,8 +1,8 @@
 # Draft Stop-Gate Decision vNext+258
 
-Status: pre-start scaffold decision for `PB-RETRY-0-B`.
+Status: post-closeout decision for `PB-RETRY-0-B`.
 
-Authority layer: planning / pre-start scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -10,86 +10,112 @@ Authority layer: planning / pre-start scaffold.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS258.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true
 }
 ```
 
 ## Decision Guardrail
 
-- This pre-start decision is scoped to `vNext+258` / `PB-RETRY-0-B` only.
+- This closeout decision is scoped to `vNext+258` / `PB-RETRY-0-B` only.
 - It does not redefine semantics, locks, or scope from
   `docs/LOCKED_CONTINUATION_vNEXT_PLUS258.md`.
-- It does not authorize retry outcome audit, retry delta observation summary,
-  remand settlement, second retry authority, multi-attempt comparison,
-  official ProgramBench participation, official task execution, official
-  runner integration, official evaluator integration, hidden-test handling,
-  hidden-test inference, hidden-test equivalence, original source lookup,
-  decompilation, internet lookup inside ProgramBench tasks, external
-  repository lookup, benchmark submission, benchmark scoring, benchmark truth,
-  model ranking, generated official submissions, official submission
-  authority, unbounded command execution, target mutation outside released
-  local sandbox/write scope, runtime transition outside the local retry
-  specimen, product authorization, graph-memory authority, recursive policy
-  amendment, or future-family selection.
+- It does not authorize retry outcome audit, same-lineage delta summary,
+  remand settlement, second retry authority, official ProgramBench
+  participation, hidden-test handling, hidden-test inference, benchmark
+  scoring, benchmark truth, model ranking, official submission authority,
+  future-family selection, product authorization, graph-memory authority, or
+  recursive policy amendment.
 
-## Pre-Start Evidence Source
+## Evidence Source
 
-- family selector:
-  - `docs/DRAFT_NEXT_ARC_OPTIONS_v81.md`
-- architecture:
-  - `docs/ARCHITECTURE_ADEU_PROGRAMBENCH_LOCAL_CLEANROOM_RETRY_GOVERNANCE_FAMILY_v0.md`
-- implementation mapping:
-  - `docs/DRAFT_ADEU_PROGRAMBENCH_LOCAL_CLEANROOM_RETRY_GOVERNANCE_PB_RETRY_0_IMPLEMENTATION_MAPPING_v0.md`
-  - `docs/DRAFT_ADEU_PROGRAMBENCH_LOCAL_CLEANROOM_RETRY_GOVERNANCE_PB_RETRY_0A_IMPLEMENTATION_MAPPING_v0.md`
-  - `docs/DRAFT_ADEU_PROGRAMBENCH_LOCAL_CLEANROOM_RETRY_GOVERNANCE_PB_RETRY_0B_IMPLEMENTATION_MAPPING_v0.md`
-  - `docs/DRAFT_ADEU_PROGRAMBENCH_LOCAL_CLEANROOM_RETRY_GOVERNANCE_PB_RETRY_0C_IMPLEMENTATION_MAPPING_v0.md`
-- prerequisite slice closeout:
-  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS257.md`
-  - `docs/ASSESSMENT_vNEXT_PLUS257_EDGES.md`
+- merged implementation PR:
+  - `#486` (`Implement PB-RETRY-0-B retry dispatch specimen`)
+- arc-completion merge commit:
+  - `15cc6a6dc13e323842854bbe4d619c5f339a5f4f`
+- merged-at timestamp:
+  - `2026-05-09T00:02:32Z`
+- implementation commits integrated by the merge:
+  - `02694c7` (`Implement PB-RETRY-0-B retry dispatch specimen`)
+  - `efaa8ef` (`Harden PB-RETRY-0-B dispatch bindings`)
+- implementation verification recorded before merge:
+  - focused `PB-RETRY-0-B` pytest
+  - `make lint`
+  - `make check`
+- docs/artifacts-only closeout verification for this closeout bundle:
+  - `make arc-closeout-check ARC=258`
+  - `make arc-start-check ARC=259`
+- deterministic closeout artifacts:
+  - quality dashboard JSON: `artifacts/quality_dashboard_v258_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v258_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v258_closeout.md`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v258/evidence_inputs/metric_key_continuity_assertion_v258.json`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v258/evidence_inputs/runtime_observability_comparison_v258.json`
+  - `PB-RETRY-0-B` dispatch-specimen closeout evidence input:
+    `artifacts/agent_harness/v258/evidence_inputs/pb_retry_0b_dispatch_specimen_closeout_evidence_v258.json`
+  - committed runtime event-stream witness:
+    `artifacts/agent_harness/v258/runtime/evidence/local/urm_events.ndjson`
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS258_EDGES.md`
 
-## Entry-Criteria Check
+## Exit-Criteria Check
 
-| Criterion | Required State | Current Pre-Start State |
-|---|---|---|
-| Family selector exists | `PB-RETRY-0` selected as current family | draft selector created |
-| Slice A closed | `PB-RETRY-0-A` complete on `main` | closeout drafted |
-| Slice B selected | `PB-RETRY-0-B` selected as next slice candidate | selector continuation posture recorded |
-| Starter lock exists | `LOCKED_CONTINUATION_vNEXT_PLUS258.md` | created |
-| Edge assessment exists | `ASSESSMENT_vNEXT_PLUS258_EDGES.md` | created |
-| Dispatch authority is explicit | B lock authority required; A eligibility is insufficient | locked |
-| Retry cardinality is bounded | exactly one retry dispatch specimen per retry request | locked |
-| Cleanroom continuity is preserved | A scope hashes and sandbox boundary remain binding | locked |
-| Candidate delta snapshot is screened | snapshot blocked unless forbidden-content screen passes | locked |
-| Future slice deferred | C outcome/settlement artifacts absent from B | locked |
+| Criterion | Threshold | Current State | Evidence |
+|---|---|---|---|
+| `PB-RETRY-0-B` merged on `main` | required | `pass` | PR `#486`, merge commit `15cc6a6dc13e323842854bbe4d619c5f339a5f4f` |
+| Implementation stayed in the local cleanroom retry lane | required | `pass` | merged implementation package is `adeu_benchmarking` |
+| Selected `PB-RETRY-0-B` surfaces shipped | required | `pass` | dispatch, execution capture, candidate delta, lifecycle projection, and sandbox trace shapes shipped |
+| Released A retry substrate is required | required | `pass` | bundle validation consumes request, lineage registry, remand source index, eligibility review, scope contract, and guardrail refs |
+| A eligibility is bound to the same request | required | `pass` | review hardening rejects stale eligibility, registry, scope, or guardrail refs |
+| Dispatch authority is B-lock-bound | required | `pass` | validation rejects missing/stale dispatch authority refs |
+| Retry cardinality is bounded | required | `pass` | dispatch rows require one retry specimen and `retry_depth = 1` |
+| Retry dispatch preserves source trial boundary | required | `pass` | review hardening rejects worker input/context/tool/materialization hash drift from source trial dispatch |
+| Retry dispatch preserves A cleanroom scope | required | `pass` | validation binds retry scope delta and sandbox policy hashes to released A scope |
+| Execution capture is local and screened | required | `pass` | stdout/stderr/transcript hashes, bounded excerpts, timeout, tool-call manifest, screening basis refs, and screened output hashes are required |
+| Candidate delta snapshot is screened before materialization | required | `pass` | validation blocks snapshots unless forbidden-content screening passes and materialization input matches screened output hash |
+| Candidate delta remains inside released write scope | required | `pass` | validation binds retry delta write scope to source trial snapshot write scope |
+| Lifecycle projection does not define new evidence law | required | `pass` | validation rejects `new_evidence_law_posture` drift |
+| Sandbox trace is witnessed and clean | required | `pass` | trace requires network, Docker socket, host secret, source lookup, decompilation, write scope, resource, and tool-manifest witness refs and rejects violation refs |
+| B does not emit C artifacts | required | `pass` | no outcome audit, delta summary, remand settlement, or family closeout shape shipped |
+| Official ProgramBench and benchmark truth stay absent | required | `pass` | no official runner/evaluator integration, hidden-test handling, benchmark score, model ranking, official submission, or second retry authority shipped |
+| Stop-gate schema-family continuity retained | required | `pass` | `artifacts/stop_gate/metrics_v258_closeout.json` has `schema = stop_gate_metrics@1`, `valid = true`, `all_passed = true` |
+| Stop-gate metric-key continuity retained | required | `pass` | `artifacts/agent_harness/v258/evidence_inputs/metric_key_continuity_assertion_v258.json` records exact keyset equality versus `v257` |
+| Runtime observability captured | informational | `pass` | `artifacts/agent_harness/v258/evidence_inputs/runtime_observability_comparison_v258.json` records `103 ms` baseline, `104 ms` current, `1 ms` delta |
 
-## Required Start Gate
+## Stop-Gate Summary
 
-Before implementation starts, the docs-only starter bundle should pass:
-
-```text
-make arc-start-check ARC=258
+```json
+{
+  "schema": "v258_closeout_stop_gate_summary@1",
+  "arc": "vNext+258",
+  "target_path": "PB-RETRY-0-B",
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v257": true,
+  "all_passed": true,
+  "runtime_observability_elapsed_ms": 104,
+  "runtime_observability_delta_ms": 1
+}
 ```
 
-During implementation, the future PR should run focused `PB-RETRY-0-B` tests
-and `make check` before opening a ready-for-review PR.
+## Metric-Key Continuity Assertion
 
-## Recommendation
+```json
+{"baseline_metrics_path":"artifacts/stop_gate/metrics_v257_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v258_closeout.json","expected_relation":"exact_keyset_equality","schema":"metric_key_continuity_assertion@1"}
+```
 
-- gate decision:
-  - `PB_RETRY_0B_STARTER_READY_FOR_REVIEW`
-- rationale:
-  - `PB-RETRY-0-B` is the next bounded execution-adjacent slice;
-  - it records one retry dispatch specimen, retry execution capture,
-    candidate delta snapshot, lifecycle projection, and sandbox application
-    trace under released A retry-intake law;
-  - it closes the key pre-start hardening before implementation:
-    - dispatch requires B-lock authority;
-    - one retry request produces at most one dispatch specimen;
-    - retry execution remains local cleanroom evidence only;
-    - candidate delta snapshotting requires passed forbidden-content screening;
-    - sandbox traces must carry witness refs;
-    - slice B emits no retry outcome audit, remand settlement, second retry
-      authority, benchmark truth, model ranking, or future-family selection.
+## Runtime Observability Comparison
+
+```json
+{"baseline_arc":"vNext+257","baseline_elapsed_ms":103,"baseline_source":"artifacts/stop_gate/report_v257_closeout.md","current_arc":"vNext+258","current_elapsed_ms":104,"current_source":"artifacts/stop_gate/report_v258_closeout.md","delta_ms":1,"schema":"runtime_observability_comparison@1"}
+```
+
+## Decision
+
+`PB-RETRY-0-B` is closed on `main`. Continue to `PB-RETRY-0-C` for retry
+outcome audit, same-lineage delta observation summary, remand settlement, and
+family closeout alignment.
