@@ -1295,8 +1295,9 @@ class ProgrambenchLocalCaseOracleBehaviorBoundaryRow(_CaseExpansionBase):
         elif self.behavior_boundary_kind == "unknown_behavior":
             if self.boundary_posture != "local_blueprint_unknown_behavior":
                 raise ValueError("unknown behavior rows require unknown behavior posture")
-        elif self.boundary_posture != "local_blueprint_out_of_scope_behavior":
-            raise ValueError("out-of-scope behavior rows require out-of-scope posture")
+        elif self.behavior_boundary_kind == "out_of_scope_behavior":
+            if self.boundary_posture != "local_blueprint_out_of_scope_behavior":
+                raise ValueError("out-of-scope behavior rows require out-of-scope posture")
         _ensure_no_forbidden_refs(
             self.oracle_basis_refs,
             field_name="oracle_behavior_boundary.oracle_basis_refs",
@@ -1434,12 +1435,19 @@ class ProgrambenchLocalCaseCleanroomEvidencePack(_CaseExpansionBase):
         if set(basis_obligations) != set(obligation_refs):
             raise ValueError("every behavior obligation requires exactly one basis row")
         witness_ref_set = set(witness_refs)
+        witness_by_ref = {row.source_witness_ref: row for row in self.source_witness_rows}
         for row in self.behavior_obligation_basis_rows:
             _ensure_refs_resolve(
                 row.source_witness_refs,
                 witness_ref_set,
                 field_name="behavior_obligation_basis.source_witness_refs",
             )
+            for source_witness_ref in row.source_witness_refs:
+                witness = witness_by_ref[source_witness_ref]
+                if row.obligation_ref not in witness.witnessed_obligation_refs:
+                    raise ValueError(
+                        "behavior obligation basis witnesses must witness the supported obligation"
+                    )
         for row in self.source_witness_rows:
             _ensure_refs_resolve(
                 row.witnessed_obligation_refs,
@@ -1893,6 +1901,9 @@ def validate_pb_case_expansion_0b_blueprint_bundle(
     }
     if set(cleanroom_evidence_pack.source_identity_hashes) != set(source_hash_by_ref.values()):
         raise ValueError("evidence pack source hashes must match A source identity hashes")
+    source_witness_refs = {
+        row.source_witness_ref for row in cleanroom_evidence_pack.source_witness_rows
+    }
 
     obligation_refs = {
         row.obligation_ref for row in cleanroom_evidence_pack.behavior_obligation_rows
@@ -1912,6 +1923,12 @@ def validate_pb_case_expansion_0b_blueprint_bundle(
         raise ValueError("oracle expected behavior must be declared in evidence pack")
     if not oracle_expected:
         raise ValueError("oracle boundary requires expected behavior rows")
+    for row in oracle_boundary.local_oracle_basis_rows:
+        _ensure_refs_resolve(
+            row.source_witness_refs,
+            source_witness_refs,
+            field_name="local_oracle_basis_rows.source_witness_refs",
+        )
 
     if contamination_screen.screen_verdict != "passed_cleanroom_screen":
         raise ValueError("B lineage candidates require clean contamination screen")

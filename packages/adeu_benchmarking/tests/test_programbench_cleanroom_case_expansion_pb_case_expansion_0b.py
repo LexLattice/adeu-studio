@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -294,6 +295,19 @@ def test_pb_case_expansion_0b_evidence_requires_obligation_basis_rows() -> None:
         ProgrambenchLocalCaseCleanroomEvidencePack.model_validate(payload)
 
 
+def test_pb_case_expansion_0b_evidence_basis_witness_must_match_obligation() -> None:
+    payload = _load_b_fixture(
+        "programbench_local_case_cleanroom_evidence_pack_v264_reference.json"
+    )
+    payload = deepcopy(payload)
+    payload["behavior_obligation_basis_rows"][2]["source_witness_refs"] = [
+        "source-witness:diagnostic-probe"
+    ]
+
+    with pytest.raises(ValidationError, match="witness the supported obligation"):
+        ProgrambenchLocalCaseCleanroomEvidencePack.model_validate(payload)
+
+
 def test_pb_case_expansion_0b_probe_rejects_command_authority() -> None:
     payload = _load_b_fixture(
         "programbench_local_case_expansion_v264_reject_probe_command_authority.json"
@@ -317,6 +331,37 @@ def test_pb_case_expansion_0b_oracle_rejects_hidden_test_equivalence() -> None:
 
     with pytest.raises(ValidationError, match="hidden_test_equivalence_claimed"):
         ProgrambenchLocalCaseOracleBoundary.model_validate(payload)
+
+
+def test_pb_case_expansion_0b_oracle_basis_witnesses_resolve_to_evidence_pack() -> None:
+    request, manifest, eligibility, control, guardrail = _load_a_rows()
+    blueprint, evidence_pack, probe_contract, oracle_boundary, contamination_screen = (
+        _load_b_rows()
+    )
+    oracle_boundary_payload = _load_b_fixture(
+        "programbench_local_case_oracle_boundary_v264_reference.json"
+    )
+    oracle_boundary_payload = deepcopy(oracle_boundary_payload)
+    oracle_boundary_payload["local_oracle_basis_rows"][0]["source_witness_refs"] = [
+        "source-witness:foreign"
+    ]
+    oracle_boundary = ProgrambenchLocalCaseOracleBoundary.model_validate(
+        oracle_boundary_payload
+    )
+
+    with pytest.raises(ValueError, match="local_oracle_basis_rows.source_witness_refs"):
+        validate_pb_case_expansion_0b_blueprint_bundle(
+            expansion_request=request,
+            source_pool_manifest=manifest,
+            eligibility_review=eligibility,
+            control_contract=control,
+            non_authority_guardrail=guardrail,
+            case_blueprint=blueprint,
+            cleanroom_evidence_pack=evidence_pack,
+            probe_contract=probe_contract,
+            oracle_boundary=oracle_boundary,
+            contamination_screen=contamination_screen,
+        )
 
 
 def test_pb_case_expansion_0b_contamination_screen_fails_closed() -> None:
