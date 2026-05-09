@@ -188,13 +188,23 @@ from .programbench_cleanroom_matrix import (
     ProgrambenchPostCaseMatrixHandoff,
 )
 from .programbench_cleanroom_matrix_inclusion import (
+    PROGRAMBENCH_LOCAL_MATRIX_AMENDMENT_PLAN_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_CANDIDATE_INTAKE_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_CASE_DELTA_MANIFEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_COMPARABILITY_DELTA_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_CONTAMINATION_DELTA_REVIEW_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_DECISION_RECORD_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_ELIGIBILITY_REVIEW_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_REQUEST_SCHEMA,
+    ProgrambenchLocalMatrixAmendmentPlan,
     ProgrambenchLocalMatrixCandidateIntake,
+    ProgrambenchLocalMatrixCaseDeltaManifest,
+    ProgrambenchLocalMatrixComparabilityDeltaReview,
+    ProgrambenchLocalMatrixContaminationDeltaReview,
     ProgrambenchLocalMatrixInclusionControlContract,
+    ProgrambenchLocalMatrixInclusionDecisionRecord,
     ProgrambenchLocalMatrixInclusionEligibilityReview,
     ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
     ProgrambenchLocalMatrixInclusionRequest,
@@ -1676,6 +1686,62 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_matrix_inclusion_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixAmendmentPlan,
+            PROGRAMBENCH_LOCAL_MATRIX_AMENDMENT_PLAN_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_amendment_plan.v1.json",
+            root / "spec" / "programbench_local_matrix_amendment_plan.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixCaseDeltaManifest,
+            PROGRAMBENCH_LOCAL_MATRIX_CASE_DELTA_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_case_delta_manifest.v1.json",
+            root / "spec" / "programbench_local_matrix_case_delta_manifest.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixComparabilityDeltaReview,
+            PROGRAMBENCH_LOCAL_MATRIX_COMPARABILITY_DELTA_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_comparability_delta_review.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_comparability_delta_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixContaminationDeltaReview,
+            PROGRAMBENCH_LOCAL_MATRIX_CONTAMINATION_DELTA_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_contamination_delta_review.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_contamination_delta_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalMatrixInclusionDecisionRecord,
+            PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_DECISION_RECORD_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_matrix_inclusion_decision_record.v1.json",
+            root
+            / "spec"
+            / "programbench_local_matrix_inclusion_decision_record.schema.json",
         ),
     ]
 

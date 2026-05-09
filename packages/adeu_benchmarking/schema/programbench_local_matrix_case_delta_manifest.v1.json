@@ -1,0 +1,141 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixCaseDeltaRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_delta_kind": {
+          "enum": [
+            "added_to_revision_candidate",
+            "deferred_from_revision_candidate",
+            "rejected_from_revision_candidate"
+          ],
+          "title": "Case Delta Kind",
+          "type": "string"
+        },
+        "case_delta_ref": {
+          "title": "Case Delta Ref",
+          "type": "string"
+        },
+        "case_lineage_hash": {
+          "title": "Case Lineage Hash",
+          "type": "string"
+        },
+        "case_lineage_ref": {
+          "title": "Case Lineage Ref",
+          "type": "string"
+        },
+        "decision_basis_posture": {
+          "const": "governance_accounting_reason_only_not_performance_selection",
+          "title": "Decision Basis Posture",
+          "type": "string"
+        },
+        "dedupe_status": {
+          "enum": [
+            "no_duplicate_detected",
+            "duplicate_allowed_for_regression_or_smoke",
+            "duplicate_blocked_existing_member",
+            "replacement_or_update_explicit"
+          ],
+          "title": "Dedupe Status",
+          "type": "string"
+        },
+        "delta_reason": {
+          "enum": [
+            "lineage_eligible",
+            "dedupe_blocked",
+            "contamination_blocked",
+            "comparability_blocked",
+            "matrix_capacity_deferred",
+            "horizon_mismatch_deferred",
+            "missing_readiness_refs_blocked"
+          ],
+          "title": "Delta Reason",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "new_matrix_membership_candidate_status": {
+          "enum": [
+            "planned_added",
+            "planned_deferred",
+            "planned_rejected"
+          ],
+          "title": "New Matrix Membership Candidate Status",
+          "type": "string"
+        },
+        "prior_matrix_membership_status": {
+          "enum": [
+            "absent_from_base_matrix",
+            "present_in_base_matrix"
+          ],
+          "title": "Prior Matrix Membership Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_delta_ref",
+        "case_delta_kind",
+        "case_lineage_ref",
+        "case_lineage_hash",
+        "prior_matrix_membership_status",
+        "new_matrix_membership_candidate_status",
+        "dedupe_status",
+        "delta_reason",
+        "decision_basis_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixCaseDeltaRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_delta_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixCaseDeltaRow"
+      },
+      "minItems": 1,
+      "title": "Case Delta Rows",
+      "type": "array"
+    },
+    "delta_manifest_hash": {
+      "title": "Delta Manifest Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_accounting_scope_posture": {
+      "const": "local_matrix_membership_accounting_only",
+      "title": "Local Accounting Scope Posture",
+      "type": "string"
+    },
+    "matrix_amendment_plan_ref": {
+      "title": "Matrix Amendment Plan Ref",
+      "type": "string"
+    },
+    "matrix_case_delta_manifest_ref": {
+      "title": "Matrix Case Delta Manifest Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_case_delta_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_case_delta_manifest_ref",
+    "matrix_amendment_plan_ref",
+    "case_delta_rows",
+    "delta_manifest_hash",
+    "local_accounting_scope_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixCaseDeltaManifest",
+  "type": "object"
+}

@@ -1,0 +1,96 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "amendment_scope_posture": {
+      "const": "local_matrix_membership_accounting_only_not_revision_registration",
+      "title": "Amendment Scope Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0b",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_matrix_inclusion_0b",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0b",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_amendment_plan_ref": {
+      "title": "Matrix Amendment Plan Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_control_contract_ref": {
+      "title": "Matrix Inclusion Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "planned_added_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Planned Added Case Lineage Refs",
+      "type": "array"
+    },
+    "planned_deferred_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Planned Deferred Case Lineage Refs",
+      "type": "array"
+    },
+    "planned_rejected_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Planned Rejected Case Lineage Refs",
+      "type": "array"
+    },
+    "result_projection_authority_posture": {
+      "const": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0b",
+      "title": "Result Projection Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_amendment_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_matrix_ref": {
+      "title": "Target Matrix Ref",
+      "type": "string"
+    },
+    "target_matrix_revision_candidate_ref": {
+      "title": "Target Matrix Revision Candidate Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_amendment_plan_ref",
+    "matrix_inclusion_request_ref",
+    "matrix_inclusion_control_contract_ref",
+    "target_matrix_ref",
+    "target_matrix_revision_candidate_ref",
+    "amendment_scope_posture",
+    "execution_authority_posture",
+    "result_projection_authority_posture",
+    "benchmark_score_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixAmendmentPlan",
+  "type": "object"
+}

@@ -1,0 +1,22 @@
+{
+  "cleanroom_boundary_status": "clean",
+  "contamination_delta_rows": [
+    {
+      "case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "contamination_delta_ref": "matrix-contamination-delta:pb-matrix-inclusion-0b:diagnostic",
+      "contamination_delta_status": "clean",
+      "contamination_source_kind": "clean_candidate",
+      "limitation_note": "No contamination transfer is recorded for this candidate.",
+      "redaction_posture": "category_count_reason_only_no_content_detail"
+    }
+  ],
+  "contamination_detail_posture": "no_content_bearing_hidden_or_forbidden_detail",
+  "contamination_redaction_policy": "category_count_reason_only",
+  "contamination_transfer_status": "clean",
+  "hidden_or_forbidden_exposure_refs": [],
+  "limitation_note": "Review transfers no hidden or forbidden source detail.",
+  "matrix_amendment_plan_ref": "matrix-amendment-plan:pb-matrix-inclusion-0b:reference",
+  "matrix_case_delta_manifest_ref": "matrix-case-delta-manifest:pb-matrix-inclusion-0b:reference",
+  "matrix_contamination_delta_review_ref": "matrix-contamination-delta-review:pb-matrix-inclusion-0b:reference",
+  "schema": "programbench_local_matrix_contamination_delta_review@1"
+}

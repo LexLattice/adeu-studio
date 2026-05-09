@@ -1,0 +1,19 @@
+{
+  "amendment_scope_posture": "local_matrix_membership_accounting_only_not_revision_registration",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0b",
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_matrix_inclusion_0b",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0b",
+  "limitation_note": "Plan records local membership accounting only.",
+  "matrix_amendment_plan_ref": "matrix-amendment-plan:pb-matrix-inclusion-0b:reference",
+  "matrix_inclusion_control_contract_ref": "matrix-inclusion-control:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "planned_added_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "planned_deferred_case_lineage_refs": [],
+  "planned_rejected_case_lineage_refs": [],
+  "result_projection_authority_posture": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0b",
+  "schema": "programbench_local_matrix_amendment_plan@1",
+  "target_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "target_matrix_revision_candidate_ref": "matrix-revision-candidate:pb-matrix-inclusion-0a:reference"
+}

@@ -1,0 +1,33 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "decision_basis_posture": "governance_accounting_only_not_result_or_quality_selection",
+  "decision_basis_rows": [
+    {
+      "case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "decision_basis_kind": "lineage_eligible",
+      "decision_basis_posture": "governance_accounting_reason_only_not_performance_selection",
+      "decision_basis_ref": "matrix-inclusion-decision-basis:pb-matrix-inclusion-0b:diagnostic",
+      "limitation_note": "Basis is lineage eligibility for local accounting only."
+    }
+  ],
+  "decision_is_not_benchmark_selection_posture": "decision_is_not_benchmark_selection",
+  "decision_is_not_quality_score_posture": "decision_is_not_quality_score",
+  "decision_is_not_result_posture": "decision_is_not_result_projection",
+  "deferred_case_lineage_refs": [],
+  "execution_authority_posture": "no_execution_authority_granted_by_pb_matrix_inclusion_0b",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0b",
+  "included_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "inclusion_decision_status": "local_accounting_membership_decision_recorded",
+  "limitation_note": "Decision records local membership accounting only.",
+  "local_accounting_scope_posture": "local_matrix_membership_accounting_only",
+  "matrix_amendment_plan_ref": "matrix-amendment-plan:pb-matrix-inclusion-0b:reference",
+  "matrix_case_delta_manifest_ref": "matrix-case-delta-manifest:pb-matrix-inclusion-0b:reference",
+  "matrix_comparability_delta_review_ref": "matrix-comparability-delta:pb-matrix-inclusion-0b:reference",
+  "matrix_contamination_delta_review_ref": "matrix-contamination-delta-review:pb-matrix-inclusion-0b:reference",
+  "matrix_inclusion_decision_ref": "matrix-inclusion-decision:pb-matrix-inclusion-0b:reference",
+  "rejected_case_lineage_refs": [],
+  "result_projection_authority_posture": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0b",
+  "schema": "programbench_local_matrix_inclusion_decision_record@1"
+}
