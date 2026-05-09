@@ -268,6 +268,78 @@ def test_pb_matrix_0a_bundle_rejects_case_count_drift() -> None:
         )
 
 
+def test_pb_matrix_0a_bundle_requires_eligibility_row_for_each_manifest_candidate() -> None:
+    request, manifest, eligibility, control, guardrail = _load_matrix_rows()
+    blocked_candidate = manifest.case_candidate_rows[0].model_copy(
+        update={
+            "case_ref": "matrix-case:pb-matrix-0a:blocked",
+            "case_contamination_posture": "contaminated",
+            "inclusion_decision": "blocked",
+            "inclusion_reason": "Local contamination blocker keeps this case out.",
+        }
+    )
+    request = request.model_copy(
+        update={
+            "matrix_case_candidate_refs": [
+                "matrix-case:pb-matrix-0a:blocked",
+                "matrix-case:pb-matrix-0a:retry",
+                "matrix-case:pb-matrix-0a:trial",
+            ]
+        }
+    )
+    manifest = manifest.model_copy(
+        update={
+            "case_candidate_rows": [blocked_candidate, *manifest.case_candidate_rows],
+            "blocked_case_refs": ["matrix-case:pb-matrix-0a:blocked"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="cover every matrix case candidate"):
+        validate_pb_matrix_0a_case_matrix_bundle(
+            trial_family_closeout=_load_trial_closeout(),
+            retry_family_closeout=_load_retry_closeout(),
+            matrix_request=request,
+            inclusion_manifest=manifest,
+            lineage_eligibility_review=eligibility,
+            matrix_control_contract=control,
+            matrix_guardrail=guardrail,
+        )
+
+
+def test_pb_matrix_0a_control_rejects_multi_profile_single_comparability_posture() -> None:
+    payload = _load_matrix_fixture(
+        "programbench_local_case_matrix_control_contract_v260_reference.json"
+    )
+    payload["model_profile_refs"] = [
+        "model-profile:pb-trial-0:reference",
+        "model-profile:pb-trial-0:second",
+    ]
+    payload["multi_profile_matrix_posture"] = "comparability_accounting_only_no_ranking"
+
+    with pytest.raises(ValidationError, match="comparability-only posture"):
+        ProgrambenchLocalCaseMatrixControlContract.model_validate(payload)
+
+
+def test_pb_matrix_0a_control_rejects_duplicate_forbidden_action_kinds() -> None:
+    payload = _load_matrix_fixture(
+        "programbench_local_case_matrix_control_contract_v260_reference.json"
+    )
+    payload["forbidden_matrix_action_rows"][1]["action_kind"] = "batch_command_execution"
+
+    with pytest.raises(ValidationError, match="duplicate action kinds"):
+        ProgrambenchLocalCaseMatrixControlContract.model_validate(payload)
+
+
+def test_pb_matrix_0a_guardrail_rejects_duplicate_forbidden_authority_kinds() -> None:
+    payload = _load_matrix_fixture(
+        "programbench_local_case_matrix_non_authority_guardrail_v260_reference.json"
+    )
+    payload["non_authority_rows"][1]["authority_kind"] = "batch_execution"
+
+    with pytest.raises(ValidationError, match="duplicate authority kinds"):
+        ProgrambenchLocalCaseMatrixNonAuthorityGuardrail.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [

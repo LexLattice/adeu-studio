@@ -637,7 +637,11 @@ class ProgrambenchLocalCaseMatrixControlContract(_MatrixBase):
                 raise ValueError("single-profile matrices require single_profile_matrix posture")
             if self.matrix_comparability_posture != "single_profile_controls":
                 raise ValueError("single-profile matrices require single_profile_controls posture")
-        elif self.multi_profile_matrix_posture != "comparability_accounting_only_no_ranking":
+        elif (
+            self.multi_profile_matrix_posture != "comparability_accounting_only_no_ranking"
+            or self.matrix_comparability_posture
+            != "comparability_accounting_only_no_ranking"
+        ):
             raise ValueError(
                 "multi-profile or multi-control matrices require comparability-only posture"
             )
@@ -664,6 +668,8 @@ class ProgrambenchLocalCaseMatrixControlContract(_MatrixBase):
             "widen_write_scope",
         }
         observed = {row.action_kind for row in self.forbidden_matrix_action_rows}
+        if len(observed) != len(self.forbidden_matrix_action_rows):
+            raise ValueError("forbidden_matrix_action_rows must not contain duplicate action kinds")
         missing = sorted(required_forbidden_actions - observed)
         if missing:
             raise ValueError(f"matrix control missing forbidden action kinds: {missing}")
@@ -719,6 +725,8 @@ class ProgrambenchLocalCaseMatrixNonAuthorityGuardrail(_MatrixBase):
             "second_retry",
         }
         observed = {row.authority_kind for row in self.non_authority_rows}
+        if len(observed) != len(self.non_authority_rows):
+            raise ValueError("non_authority_rows must not contain duplicate authority kinds")
         missing = sorted(required_authorities - observed)
         if missing:
             raise ValueError(f"matrix guardrail missing forbidden authorities: {missing}")
@@ -778,11 +786,11 @@ def validate_pb_matrix_0a_case_matrix_bundle(
     if matrix_request.case_matrix_ref not in matrix_guardrail.case_matrix_refs:
         raise ValueError("matrix guardrail must reference matrix request")
 
-    if sorted(matrix_request.matrix_case_candidate_refs) != [
+    if matrix_request.matrix_case_candidate_refs != [
         row.case_ref for row in inclusion_manifest.case_candidate_rows
     ]:
         raise ValueError("matrix request candidate refs must match inclusion manifest rows")
-    if sorted(matrix_request.matrix_selection_rationale_refs) != [
+    if matrix_request.matrix_selection_rationale_refs != [
         row.selection_rationale_ref for row in inclusion_manifest.matrix_selection_rationale_rows
     ]:
         raise ValueError("matrix request rationale refs must match manifest rationale rows")
@@ -801,6 +809,17 @@ def validate_pb_matrix_0a_case_matrix_bundle(
     eligible = set(lineage_eligibility_review.eligible_case_refs)
     if included != eligible:
         raise ValueError("included cases must match eligible case refs")
+    candidate_refs = {row.case_ref for row in inclusion_manifest.case_candidate_rows}
+    eligibility_case_refs = {
+        row.case_ref for row in lineage_eligibility_review.case_eligibility_rows
+    }
+    if candidate_refs != eligibility_case_refs:
+        missing = sorted(candidate_refs - eligibility_case_refs)
+        extra = sorted(eligibility_case_refs - candidate_refs)
+        raise ValueError(
+            "lineage eligibility rows must cover every matrix case candidate; "
+            f"missing={missing}, extra={extra}"
+        )
 
     trial_closeout_refs = set(trial_family_closeout.trial_docket_refs)
     retry_settlement_refs = (
