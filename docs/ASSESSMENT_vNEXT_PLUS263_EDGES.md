@@ -1,8 +1,8 @@
 # Assessment vNext+263 Edges
 
-Status: pre-lock edge assessment for `PB-CASE-EXPANSION-0-A`.
+Status: post-closeout edge assessment for `PB-CASE-EXPANSION-0-A`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS263_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,89 +20,107 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: Case Expansion Could Become Benchmark Construction
 
-- Risk:
-  curated local cases could be read as representative ProgramBench coverage.
-- Required containment:
-  request rows must carry selection horizon, rationale, bias posture,
-  diversity posture, dedupe policy, and
+- Closeout state:
+  contained.
+- Evidence:
+  request rows require selection horizon, rationale rows, bias posture,
+  diversity posture, dedupe policy, max case count, and
   `representativeness_posture = not_representative_benchmark_sample`.
 
 ### Edge 2: Duplicate Cases Could Launder As New Supply
 
-- Risk:
-  an existing released local case lineage could be relabeled as a new case.
-- Required containment:
-  candidate case ideas must carry candidate hashes, source subset hashes,
-  existing-lineage overlap refs, nearest existing case refs, and novelty or
-  duplication posture. Duplicates require explicit smoke/regression rationale.
+- Closeout state:
+  contained.
+- Evidence:
+  candidate case idea rows carry candidate hashes, source subset hashes,
+  existing lineage overlap refs, nearest existing case refs, and novelty or
+  duplication posture. Duplicate existing lineages require explicit
+  smoke/regression rationale.
 
 ### Edge 3: Source Pool Rows Could Expose Hidden Or Forbidden Material
 
-- Risk:
-  hidden tests, official evaluator output, original source facts, source
-  lookup facts, decompilation facts, internet/external repo facts, or
-  postmortem-only material could enter visible source pools.
-- Required containment:
-  source pool rows must carry source identity hashes, origin posture,
-  visibility posture, store presence posture, derived summary policy, and
-  allowed/exclusion posture. Forbidden sources cannot be allowed for
-  expansion.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  source row validation checks both `source_kind` and
+  `source_origin_posture` before allowing expansion evidence. Forbidden rows
+  cannot permit derived summaries and cannot carry visible postures.
 
 ### Edge 4: Derived Summaries Could Launder Forbidden Evidence
 
-- Risk:
-  forbidden or auditor-only evidence could be transformed into visible labels,
-  case ideas, behavior obligations, probe expectations, or oracle claims.
-- Required containment:
-  validators must enforce the named no-derived-summary-laundering law and
-  reject hidden/forbidden names, paths, excerpts, test names, semantic
-  summaries, hidden artifact identifiers, original-source clues, and derived
-  facts in visible or blueprint-visible rows.
+- Closeout state:
+  contained.
+- Evidence:
+  no-derived-summary laundering validators reject hidden/forbidden names,
+  paths, excerpts, test names, semantic summaries, hidden artifact
+  identifiers, original-source clues, and derived facts in visible or
+  blueprint-visible rows.
 
 ### Edge 5: Support-Only Context Could Become Eligibility
 
-- Risk:
-  support doctrine or advisory context could make a candidate case eligible
-  without a cleanroom-visible source witness.
-- Required containment:
-  eligible candidate case ideas require at least one cleanroom-visible source
-  witness. Support-only rows may remain context but cannot create eligibility
-  alone.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  support context source rows require support-only visibility and
+  `support_only_not_sufficient` exclusion reason. Eligible candidate case
+  ideas require at least one cleanroom-visible source witness.
 
-### Edge 6: A Controls Could Grant Blueprint Or Execution Authority
+### Edge 6: Manifest Summary Rows Could Drift From Source Row State
 
-- Risk:
-  expansion controls could authorize blueprint creation, local execution,
-  batch execution, scoring, baseline comparison, or model ranking.
-- Required containment:
-  A controls must keep blueprinting deferred to B and reject local execution,
-  batch execution, scoring, baseline comparison, model ranking, official
-  evaluator access, source lookup, decompilation, internet lookup, Docker
-  socket, host secrets, wider write scope, hidden-test access, and
-  future-family selection.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  forbidden, blocked, auditor-only, and support-only manifest summary refs
+  must exactly match row classifications rather than merely containing a
+  subset.
 
-### Edge 7: A Could Prematurely Emit B/C Artifacts
+### Edge 7: Eligibility Warnings Could Become Orphan Top-Level Claims
 
-- Risk:
-  A could ship case blueprints, evidence packs, probe contracts, oracle
-  boundaries, contamination screens, lineage registration, readiness summary,
-  handoff, or closeout rows.
-- Required containment:
-  A fixtures and validators must reject `PB-CASE-EXPANSION-0-B/C` artifact
-  kinds.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  carried blockers and carried warnings must resolve to candidate eligibility
+  row blocker or warning refs.
+
+### Edge 8: A Controls Could Grant Blueprint Or Execution Authority
+
+- Closeout state:
+  contained.
+- Evidence:
+  control and guardrail rows reject blueprint authority beyond later B
+  review, local execution, batch execution, scoring, baseline comparison,
+  model ranking, official evaluator access, source lookup, decompilation,
+  internet lookup, Docker socket, host secrets, wider write scope,
+  hidden-test access, trial execution, and future-family selection.
+
+### Edge 9: A Could Prematurely Emit B/C Artifacts
+
+- Closeout state:
+  contained.
+- Evidence:
+  A emits only expansion request, source pool manifest, eligibility review,
+  control contract, and non-authority guardrail shapes. Blueprints, evidence
+  packs, probe contracts, oracle boundaries, contamination screens, lineage
+  registrations, readiness summaries, handoffs, and family closeout remain
+  deferred.
 
 ## Residual Edges
 
-- The implementation PR must add focused reference and reject fixtures under
-  `apps/api/fixtures/benchmarking/vnext_plus263/`.
-- The implementation PR must run the focused `PB-CASE-EXPANSION-0-A` tests
-  and `make check` before opening the PR.
-- Later `PB-CASE-EXPANSION-0-B` must bind behavior obligations to source
-  witnesses and keep probe contracts plan-only.
-- Later `PB-CASE-EXPANSION-0-C` must keep ready counts inventory-only and
-  handoffs pressure-only.
+- `PB-CASE-EXPANSION-0-B` must consume released A rows before producing a
+  blueprint, evidence pack, probe contract, oracle boundary, or contamination
+  screen.
+- `PB-CASE-EXPANSION-0-B` must bind behavior obligations to source witnesses
+  and keep source witness support strength visible instead of treating
+  witness presence as task truth.
+- `PB-CASE-EXPANSION-0-B` must keep local oracle boundaries local-only and
+  must not claim hidden-test equivalence, official evaluator equivalence, or
+  benchmark truth.
+- `PB-CASE-EXPANSION-0-B` must keep probe contracts plan-only, argv-shaped,
+  and non-executing.
+- `PB-CASE-EXPANSION-0-C` must keep ready counts inventory-only and handoffs
+  pressure-only.
 
 ## Current Judgment
 
-The `PB-CASE-EXPANSION-0-A` starter is bounded enough to proceed to
-implementation after `make arc-start-check ARC=263` passes.
+`PB-CASE-EXPANSION-0-A` is closed. The next bounded slice is
+`PB-CASE-EXPANSION-0-B`.
