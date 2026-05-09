@@ -1,0 +1,215 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseCommandArgvRow": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Argv",
+          "type": "array"
+        },
+        "command_argv_ref": {
+          "title": "Command Argv Ref",
+          "type": "string"
+        },
+        "command_role": {
+          "enum": [
+            "worker_dispatch",
+            "candidate_local_probe",
+            "candidate_artifact_build",
+            "harness_capture"
+          ],
+          "title": "Command Role",
+          "type": "string"
+        },
+        "command_shape_posture": {
+          "const": "argv_shaped_no_raw_shell_string",
+          "title": "Command Shape Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_argv_ref",
+        "argv",
+        "command_role",
+        "command_shape_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseCommandArgvRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "command_allowlist_match_ref": {
+      "title": "Command Allowlist Match Ref",
+      "type": "string"
+    },
+    "command_argv_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseCommandArgvRow"
+      },
+      "minItems": 1,
+      "title": "Command Argv Rows",
+      "type": "array"
+    },
+    "command_rows_must_be_argv_shaped": {
+      "const": true,
+      "title": "Command Rows Must Be Argv Shaped",
+      "type": "boolean"
+    },
+    "duration_ms": {
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "integer"
+    },
+    "environment_policy_hash": {
+      "title": "Environment Policy Hash",
+      "type": "string"
+    },
+    "execution_trace_kind": {
+      "enum": [
+        "worker_dispatch_trace",
+        "candidate_local_probe_trace",
+        "candidate_artifact_build_trace",
+        "harness_capture_trace"
+      ],
+      "title": "Execution Trace Kind",
+      "type": "string"
+    },
+    "exit_code": {
+      "title": "Exit Code",
+      "type": "integer"
+    },
+    "forbidden_content_screen_verdict": {
+      "enum": [
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed"
+      ],
+      "title": "Forbidden Content Screen Verdict",
+      "type": "string"
+    },
+    "fs_diff_ref": {
+      "title": "Fs Diff Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "post_fs_manifest_ref": {
+      "title": "Post Fs Manifest Ref",
+      "type": "string"
+    },
+    "pre_fs_manifest_ref": {
+      "title": "Pre Fs Manifest Ref",
+      "type": "string"
+    },
+    "raw_shell_string_posture": {
+      "const": "raw_shell_strings_forbidden_unless_later_explicit_authority",
+      "title": "Raw Shell String Posture",
+      "type": "string"
+    },
+    "resource_limit_status": {
+      "enum": [
+        "within_limits",
+        "limit_exceeded_with_capture"
+      ],
+      "title": "Resource Limit Status",
+      "type": "string"
+    },
+    "sandbox_violation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Violation Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_single_case_execution_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_execution_trace_ref": {
+      "title": "Single Case Execution Trace Ref",
+      "type": "string"
+    },
+    "single_case_worker_dispatch_specimen_ref": {
+      "title": "Single Case Worker Dispatch Specimen Ref",
+      "type": "string"
+    },
+    "stderr_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stderr Excerpt Bounded",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "title": "Stderr Hash",
+      "type": "string"
+    },
+    "stdout_excerpt_bounded": {
+      "maxLength": 512,
+      "title": "Stdout Excerpt Bounded",
+      "type": "string"
+    },
+    "stdout_hash": {
+      "title": "Stdout Hash",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "completed_without_timeout",
+        "timed_out_with_capture"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    },
+    "worker_tool_call_manifest_ref": {
+      "title": "Worker Tool Call Manifest Ref",
+      "type": "string"
+    },
+    "working_directory_ref": {
+      "title": "Working Directory Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_execution_trace_ref",
+    "single_case_worker_dispatch_specimen_ref",
+    "command_argv_rows",
+    "execution_trace_kind",
+    "command_rows_must_be_argv_shaped",
+    "raw_shell_string_posture",
+    "command_allowlist_match_ref",
+    "working_directory_ref",
+    "environment_policy_hash",
+    "stdout_hash",
+    "stdout_excerpt_bounded",
+    "stderr_hash",
+    "stderr_excerpt_bounded",
+    "exit_code",
+    "duration_ms",
+    "timeout_status",
+    "resource_limit_status",
+    "worker_tool_call_manifest_ref",
+    "pre_fs_manifest_ref",
+    "post_fs_manifest_ref",
+    "fs_diff_ref",
+    "forbidden_content_screen_verdict",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseExecutionTrace",
+  "type": "object"
+}

@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseProbeObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_only_posture": {
+          "const": "declared_local_probe_only_not_hidden_test",
+          "title": "Local Only Posture",
+          "type": "string"
+        },
+        "local_probe_ref": {
+          "title": "Local Probe Ref",
+          "type": "string"
+        },
+        "probe_kind": {
+          "enum": [
+            "positive",
+            "negative"
+          ],
+          "title": "Probe Kind",
+          "type": "string"
+        },
+        "probe_observation_ref": {
+          "title": "Probe Observation Ref",
+          "type": "string"
+        },
+        "probe_result_status": {
+          "enum": [
+            "passed",
+            "failed",
+            "missing",
+            "inconclusive",
+            "not_applicable"
+          ],
+          "title": "Probe Result Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_observation_ref",
+        "local_probe_ref",
+        "probe_kind",
+        "probe_result_status",
+        "local_only_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseProbeObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "inconclusive_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Inconclusive Probe Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_basis_hash": {
+      "title": "Local Probe Basis Hash",
+      "type": "string"
+    },
+    "local_probe_basis_ref": {
+      "title": "Local Probe Basis Ref",
+      "type": "string"
+    },
+    "missing_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Probe Refs",
+      "type": "array"
+    },
+    "negative_probe_result_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Negative Probe Result Refs",
+      "type": "array"
+    },
+    "official_evaluator_posture": {
+      "const": "no_official_evaluator_access",
+      "title": "Official Evaluator Posture",
+      "type": "string"
+    },
+    "positive_probe_result_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Positive Probe Result Refs",
+      "type": "array"
+    },
+    "probe_observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseProbeObservationRow"
+      },
+      "minItems": 1,
+      "title": "Probe Observation Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_single_case_probe_observation_bundle@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_execution_trace_ref": {
+      "title": "Single Case Execution Trace Ref",
+      "type": "string"
+    },
+    "single_case_probe_observation_bundle_ref": {
+      "title": "Single Case Probe Observation Bundle Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_probe_observation_bundle_ref",
+    "single_case_execution_trace_ref",
+    "local_probe_basis_ref",
+    "local_probe_basis_hash",
+    "probe_observation_rows",
+    "hidden_test_equivalence_posture",
+    "official_evaluator_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseProbeObservationBundle",
+  "type": "object"
+}

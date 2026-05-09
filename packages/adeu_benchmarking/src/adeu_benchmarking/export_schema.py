@@ -306,16 +306,26 @@ from .programbench_cleanroom_trial import (
     ProgrambenchLocalTrialWorkerDispatchRecord,
 )
 from .programbench_single_case_run import (
+    PROGRAMBENCH_SINGLE_CASE_CANDIDATE_ARTIFACT_CAPTURE_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA,
+    ProgrambenchSingleCaseCandidateArtifactCapture,
     ProgrambenchSingleCaseExecutionPreflight,
+    ProgrambenchSingleCaseExecutionTrace,
+    ProgrambenchSingleCaseLifecycleProjection,
+    ProgrambenchSingleCaseProbeObservationBundle,
     ProgrambenchSingleCaseRunControlContract,
     ProgrambenchSingleCaseRunNonAuthorityGuardrail,
     ProgrambenchSingleCaseRunRequest,
     ProgrambenchSingleCaseTargetSelection,
+    ProgrambenchSingleCaseWorkerDispatchSpecimen,
 )
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
@@ -1862,6 +1872,64 @@ def main() -> None:
             root
             / "spec"
             / "programbench_single_case_run_non_authority_guardrail.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseWorkerDispatchSpecimen,
+            PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_worker_dispatch_specimen.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_worker_dispatch_specimen.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseExecutionTrace,
+            PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_execution_trace.v1.json",
+            root / "spec" / "programbench_single_case_execution_trace.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseProbeObservationBundle,
+            PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_probe_observation_bundle.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_probe_observation_bundle.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseCandidateArtifactCapture,
+            PROGRAMBENCH_SINGLE_CASE_CANDIDATE_ARTIFACT_CAPTURE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_candidate_artifact_capture.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_candidate_artifact_capture.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseLifecycleProjection,
+            PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_lifecycle_projection.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_lifecycle_projection.schema.json",
         ),
     ]
 

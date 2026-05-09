@@ -1,0 +1,36 @@
+{
+  "hidden_test_equivalence_posture": "not_hidden_test_equivalence",
+  "inconclusive_probe_refs": [],
+  "limitation_note": "Probe observations are local-only and do not cite hidden tests.",
+  "local_probe_basis_hash": "sha256:4646464646464646464646464646464646464646464646464646464646464646",
+  "local_probe_basis_ref": "local-probe-basis:pb-single-case-run-0a:diagnostic",
+  "missing_probe_refs": [],
+  "negative_probe_result_refs": [
+    "local-probe:pb-single-case-run-0b:negative"
+  ],
+  "official_evaluator_posture": "no_official_evaluator_access",
+  "positive_probe_result_refs": [
+    "local-probe:pb-single-case-run-0b:positive"
+  ],
+  "probe_observation_rows": [
+    {
+      "limitation_note": "Positive local probe passed under declared probe basis.",
+      "local_only_posture": "declared_local_probe_only_not_hidden_test",
+      "local_probe_ref": "local-probe:pb-single-case-run-0b:negative",
+      "probe_kind": "negative",
+      "probe_observation_ref": "probe-observation:pb-single-case-run-0b:001",
+      "probe_result_status": "passed"
+    },
+    {
+      "limitation_note": "Negative local probe passed under declared probe basis.",
+      "local_only_posture": "declared_local_probe_only_not_hidden_test",
+      "local_probe_ref": "local-probe:pb-single-case-run-0b:positive",
+      "probe_kind": "positive",
+      "probe_observation_ref": "probe-observation:pb-single-case-run-0b:002",
+      "probe_result_status": "passed"
+    }
+  ],
+  "schema": "programbench_single_case_probe_observation_bundle@1",
+  "single_case_execution_trace_ref": "single-case-execution-trace:pb-single-case-run-0b:reference",
+  "single_case_probe_observation_bundle_ref": "single-case-probe-bundle:pb-single-case-run-0b:reference"
+}
