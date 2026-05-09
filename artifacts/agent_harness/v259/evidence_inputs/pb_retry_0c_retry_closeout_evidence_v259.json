@@ -1,0 +1,33 @@
+{
+  "arc": "vNext+259",
+  "benchmark_truth_authority_granted": false,
+  "closed_slice": "PB-RETRY-0-C",
+  "family": "PB-RETRY-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0c.py",
+  "future_family_selection_granted": false,
+  "hidden_test_access_rejected": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "merged_at": "2026-05-09T00:38:32Z",
+  "merged_pr": "#487",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus259",
+  "remand_settlement_accounts_for_all_local_remands": true,
+  "remand_settlement_grants_second_retry_authority": false,
+  "same_lineage_delta_summary_local_only": true,
+  "schema": "pb_retry_0c_retry_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_local_retry_outcome_audit@1",
+    "programbench_local_retry_delta_observation_summary@1",
+    "programbench_local_retry_remand_settlement@1",
+    "programbench_local_retry_family_closeout_alignment@1"
+  ],
+  "settlement_resolved_posture_requires_settled_remand": true,
+  "source_trial_lineage_preserved": true,
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_retry_pb_retry_0c.py",
+    "make lint",
+    "make check",
+    "make arc-closeout-check ARC=259"
+  ]
+}
