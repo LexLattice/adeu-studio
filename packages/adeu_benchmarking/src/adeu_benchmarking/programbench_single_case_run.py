@@ -139,6 +139,28 @@ _REQUIRED_PREFLIGHT_CHECK_KINDS = (
     "tool_manifest_closed",
     "write_scope_bounded",
 )
+_PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS270.md"
+)
+_PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT = "passed"
+_RAW_SHELL_MARKERS = ("&&", "||", ";", "|", "$(", "`", ">", "<", "&", "\n", "\r")
+_RAW_SHELL_EXECUTABLES = {
+    "ash",
+    "bash",
+    "csh",
+    "cmd",
+    "cmd.exe",
+    "dash",
+    "fish",
+    "ksh",
+    "powershell",
+    "powershell.exe",
+    "pwsh",
+    "pwsh.exe",
+    "sh",
+    "tcsh",
+    "zsh",
+}
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -188,6 +210,26 @@ def _ensure_no_result_language(value: str, *, field_name: str) -> None:
         raise ValueError(
             f"{field_name} contains benchmark-like result or comparison language: {leaked}"
         )
+
+
+def _argv_executable_name(value: str) -> str:
+    return re.split(r"[\\/]+", value)[-1].lower()
+
+
+def _ensure_argv_shaped(argv: list[str], *, field_name: str) -> None:
+    if not argv:
+        raise ValueError(f"{field_name} must contain at least one argv token")
+    _ensure_non_empty_trimmed(argv, field_name=field_name)
+    executable = _argv_executable_name(argv[0])
+    if executable in _RAW_SHELL_EXECUTABLES:
+        raise ValueError(f"{field_name} must not invoke a shell executable")
+    shell_like = [
+        token
+        for token in argv
+        if any(marker in token for marker in _RAW_SHELL_MARKERS)
+    ]
+    if shell_like:
+        raise ValueError(f"{field_name} must not contain raw shell markers")
 
 
 class _SingleCaseRunBase(BaseModel):
@@ -730,6 +772,430 @@ class ProgrambenchSingleCaseRunNonAuthorityGuardrail(_SingleCaseRunBase):
         return self
 
 
+class ProgrambenchSingleCaseCommandArgvRow(_SingleCaseRunBase):
+    command_argv_ref: str
+    argv: list[str] = Field(min_length=1)
+    command_role: Literal[
+        "worker_dispatch",
+        "candidate_local_probe",
+        "candidate_artifact_build",
+        "harness_capture",
+    ]
+    command_shape_posture: Literal["argv_shaped_no_raw_shell_string"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseCommandArgvRow":
+        _ensure_no_forbidden_refs(
+            [self.command_argv_ref], field_name="command_argv_refs"
+        )
+        _ensure_argv_shaped(self.argv, field_name="argv")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseProbeObservationRow(_SingleCaseRunBase):
+    probe_observation_ref: str
+    local_probe_ref: str
+    probe_kind: Literal["positive", "negative"]
+    probe_result_status: Literal[
+        "passed",
+        "failed",
+        "missing",
+        "inconclusive",
+        "not_applicable",
+    ]
+    local_only_posture: Literal["declared_local_probe_only_not_hidden_test"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseProbeObservationRow":
+        _ensure_no_forbidden_refs(
+            [self.probe_observation_ref, self.local_probe_ref],
+            field_name="probe_observation_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseGeneratedArtifactRow(_SingleCaseRunBase):
+    generated_artifact_ref: str
+    artifact_path_ref: str
+    artifact_hash: str
+    inside_write_scope_posture: Literal["inside_released_write_scope"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseGeneratedArtifactRow":
+        _ensure_hash(self.artifact_hash, field_name="artifact_hash")
+        _ensure_no_forbidden_refs(
+            [self.generated_artifact_ref, self.artifact_path_ref],
+            field_name="generated_artifact_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseArtifactHashRow(_SingleCaseRunBase):
+    artifact_hash_ref: str
+    artifact_ref: str
+    artifact_hash: str
+    hash_role: Literal["generated_artifact_hash", "manifest_member_hash"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseArtifactHashRow":
+        _ensure_hash(self.artifact_hash, field_name="artifact_hash")
+        _ensure_no_forbidden_refs(
+            [self.artifact_hash_ref, self.artifact_ref],
+            field_name="artifact_hash_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseWorkerDispatchSpecimen(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA] = (
+        Field(alias="schema")
+    )
+    single_case_worker_dispatch_specimen_ref: str
+    single_case_run_request_ref: str
+    single_case_target_selection_ref: str
+    single_case_execution_preflight_ref: str
+    single_case_run_control_contract_ref: str
+    b_slice_dispatch_authority_ref: str
+    dispatch_authority_kind: Literal["b_slice_lock_local_single_specimen_only"]
+    dispatch_specimen_index: Literal[1]
+    single_case_dispatch_cardinality_posture: Literal[
+        "exactly_one_dispatch_specimen"
+    ]
+    worker_profile_ref: str
+    input_packet_materialization_hash: str
+    worker_visible_context_materialization_hash: str
+    tool_manifest_materialization_hash: str
+    sandbox_policy_materialization_hash: str
+    run_control_contract_hash: str
+    worker_visible_packet_hash: str
+    runbook_hash: str
+    sandbox_policy_hash: str
+    tool_manifest_hash: str
+    write_scope_hash: str
+    local_probe_basis_hash: str
+    sandbox_instance_ref: str
+    sandbox_attestation_bundle_ref: str
+    network_mode_witness_ref: str
+    docker_socket_absence_witness_ref: str
+    secret_absence_witness_ref: str
+    source_lookup_absence_witness_ref: str
+    decompilation_absence_witness_ref: str
+    write_scope_attestation_ref: str
+    dispatch_status: Literal["local_single_case_dispatch_specimen_recorded"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_dispatch_specimen(
+        self,
+    ) -> "ProgrambenchSingleCaseWorkerDispatchSpecimen":
+        if self.b_slice_dispatch_authority_ref != _PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF:
+            raise ValueError(
+                "single-case dispatch requires released PB-SINGLE-CASE-RUN-0-B lock authority"
+            )
+        for field_name in (
+            "input_packet_materialization_hash",
+            "worker_visible_context_materialization_hash",
+            "tool_manifest_materialization_hash",
+            "sandbox_policy_materialization_hash",
+            "run_control_contract_hash",
+            "worker_visible_packet_hash",
+            "runbook_hash",
+            "sandbox_policy_hash",
+            "tool_manifest_hash",
+            "write_scope_hash",
+            "local_probe_basis_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_worker_dispatch_specimen_ref,
+                self.single_case_run_request_ref,
+                self.single_case_target_selection_ref,
+                self.single_case_execution_preflight_ref,
+                self.single_case_run_control_contract_ref,
+                self.b_slice_dispatch_authority_ref,
+                self.worker_profile_ref,
+                self.sandbox_instance_ref,
+                self.sandbox_attestation_bundle_ref,
+                self.network_mode_witness_ref,
+                self.docker_socket_absence_witness_ref,
+                self.secret_absence_witness_ref,
+                self.source_lookup_absence_witness_ref,
+                self.decompilation_absence_witness_ref,
+                self.write_scope_attestation_ref,
+            ],
+            field_name="single_case_worker_dispatch_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseExecutionTrace(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA] = Field(
+        alias="schema"
+    )
+    single_case_execution_trace_ref: str
+    single_case_worker_dispatch_specimen_ref: str
+    command_argv_rows: list[ProgrambenchSingleCaseCommandArgvRow] = Field(
+        min_length=1
+    )
+    execution_trace_kind: Literal[
+        "worker_dispatch_trace",
+        "candidate_local_probe_trace",
+        "candidate_artifact_build_trace",
+        "harness_capture_trace",
+    ]
+    command_rows_must_be_argv_shaped: Literal[True]
+    raw_shell_string_posture: Literal[
+        "raw_shell_strings_forbidden_unless_later_explicit_authority"
+    ]
+    command_allowlist_match_ref: str
+    working_directory_ref: str
+    environment_policy_hash: str
+    stdout_hash: str
+    stdout_excerpt_bounded: str = Field(max_length=512)
+    stderr_hash: str
+    stderr_excerpt_bounded: str = Field(max_length=512)
+    exit_code: int
+    duration_ms: int = Field(ge=0)
+    timeout_status: Literal["completed_without_timeout", "timed_out_with_capture"]
+    resource_limit_status: Literal["within_limits", "limit_exceeded_with_capture"]
+    worker_tool_call_manifest_ref: str
+    pre_fs_manifest_ref: str
+    post_fs_manifest_ref: str
+    fs_diff_ref: str
+    sandbox_violation_refs: list[str] = Field(default_factory=list)
+    forbidden_content_screen_verdict: Literal[
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_execution_trace(self) -> "ProgrambenchSingleCaseExecutionTrace":
+        for field_name in ("environment_policy_hash", "stdout_hash", "stderr_hash"):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        command_refs = [row.command_argv_ref for row in self.command_argv_rows]
+        _ensure_sorted_unique(command_refs, field_name="command_argv_rows")
+        row_roles = {row.command_role for row in self.command_argv_rows}
+        expected_role = {
+            "worker_dispatch_trace": "worker_dispatch",
+            "candidate_local_probe_trace": "candidate_local_probe",
+            "candidate_artifact_build_trace": "candidate_artifact_build",
+            "harness_capture_trace": "harness_capture",
+        }[self.execution_trace_kind]
+        if row_roles != {expected_role}:
+            raise ValueError("command argv row roles must match execution trace kind")
+        _ensure_sorted_unique_allow_empty(
+            self.sandbox_violation_refs,
+            field_name="sandbox_violation_refs",
+        )
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_execution_trace_ref,
+                self.single_case_worker_dispatch_specimen_ref,
+                self.command_allowlist_match_ref,
+                self.working_directory_ref,
+                self.worker_tool_call_manifest_ref,
+                self.pre_fs_manifest_ref,
+                self.post_fs_manifest_ref,
+                self.fs_diff_ref,
+                *self.sandbox_violation_refs,
+            ],
+            field_name="single_case_execution_trace_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseProbeObservationBundle(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA] = (
+        Field(alias="schema")
+    )
+    single_case_probe_observation_bundle_ref: str
+    single_case_execution_trace_ref: str
+    local_probe_basis_ref: str
+    local_probe_basis_hash: str
+    probe_observation_rows: list[ProgrambenchSingleCaseProbeObservationRow] = Field(
+        min_length=1
+    )
+    positive_probe_result_refs: list[str] = Field(default_factory=list)
+    negative_probe_result_refs: list[str] = Field(default_factory=list)
+    missing_probe_refs: list[str] = Field(default_factory=list)
+    inconclusive_probe_refs: list[str] = Field(default_factory=list)
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    official_evaluator_posture: Literal["no_official_evaluator_access"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_bundle(self) -> "ProgrambenchSingleCaseProbeObservationBundle":
+        _ensure_hash(self.local_probe_basis_hash, field_name="local_probe_basis_hash")
+        row_refs = [row.probe_observation_ref for row in self.probe_observation_rows]
+        _ensure_sorted_unique(row_refs, field_name="probe_observation_rows")
+        for field_name in (
+            "positive_probe_result_refs",
+            "negative_probe_result_refs",
+            "missing_probe_refs",
+            "inconclusive_probe_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        row_result_refs = {row.local_probe_ref for row in self.probe_observation_rows}
+        reported_refs = set(
+            self.positive_probe_result_refs
+            + self.negative_probe_result_refs
+            + self.missing_probe_refs
+            + self.inconclusive_probe_refs
+        )
+        if not reported_refs <= row_result_refs:
+            raise ValueError("probe result refs must be present in observation rows")
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_probe_observation_bundle_ref,
+                self.single_case_execution_trace_ref,
+                self.local_probe_basis_ref,
+            ],
+            field_name="single_case_probe_observation_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_CANDIDATE_ARTIFACT_CAPTURE_SCHEMA] = (
+        Field(alias="schema")
+    )
+    single_case_candidate_artifact_capture_ref: str
+    single_case_execution_trace_ref: str
+    artifact_capture_policy_ref: str
+    write_scope_ref: str
+    write_scope_hash: str
+    materialization_input_hash: str
+    materialization_output_manifest_hash: str
+    generated_artifact_rows: list[ProgrambenchSingleCaseGeneratedArtifactRow] = Field(
+        min_length=1
+    )
+    artifact_hash_rows: list[ProgrambenchSingleCaseArtifactHashRow] = Field(
+        min_length=1
+    )
+    inside_write_scope_posture: Literal["inside_released_write_scope"]
+    forbidden_content_screen_verdict: Literal["passed"]
+    official_submission_posture: Literal["not_official_submission"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_artifact_capture(
+        self,
+    ) -> "ProgrambenchSingleCaseCandidateArtifactCapture":
+        for field_name in (
+            "write_scope_hash",
+            "materialization_input_hash",
+            "materialization_output_manifest_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        generated_refs = [
+            row.generated_artifact_ref for row in self.generated_artifact_rows
+        ]
+        _ensure_sorted_unique(generated_refs, field_name="generated_artifact_rows")
+        artifact_hash_refs = [row.artifact_hash_ref for row in self.artifact_hash_rows]
+        _ensure_sorted_unique(artifact_hash_refs, field_name="artifact_hash_rows")
+        generated_hashes_by_ref = {
+            row.generated_artifact_ref: row.artifact_hash
+            for row in self.generated_artifact_rows
+        }
+        hash_rows_by_artifact_ref = {
+            row.artifact_ref: row.artifact_hash for row in self.artifact_hash_rows
+        }
+        if len(hash_rows_by_artifact_ref) != len(self.artifact_hash_rows):
+            raise ValueError("artifact hash rows must not duplicate artifact refs")
+        if not set(generated_refs) <= set(hash_rows_by_artifact_ref):
+            raise ValueError("generated artifacts must have artifact hash rows")
+        mismatched_artifacts = sorted(
+            artifact_ref
+            for artifact_ref, artifact_hash in generated_hashes_by_ref.items()
+            if hash_rows_by_artifact_ref[artifact_ref] != artifact_hash
+        )
+        if mismatched_artifacts:
+            raise ValueError(
+                "generated artifact hashes must match artifact hash rows: "
+                f"{mismatched_artifacts}"
+            )
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_candidate_artifact_capture_ref,
+                self.single_case_execution_trace_ref,
+                self.artifact_capture_policy_ref,
+                self.write_scope_ref,
+            ],
+            field_name="single_case_artifact_capture_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseLifecycleProjection(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA] = Field(
+        alias="schema"
+    )
+    single_case_lifecycle_projection_ref: str
+    single_case_worker_dispatch_specimen_ref: str
+    single_case_execution_trace_ref: str
+    single_case_probe_observation_bundle_ref: str
+    single_case_candidate_artifact_capture_ref: str
+    projected_attempt_lifecycle_refs: list[str] = Field(min_length=1)
+    projected_trial_lifecycle_refs: list[str] = Field(min_length=1)
+    projected_workbench_evidence_refs: list[str] = Field(min_length=1)
+    projection_validator_binding_refs: list[str] = Field(min_length=1)
+    projection_gap_refs: list[str] = Field(default_factory=list)
+    projection_is_not_new_truth_posture: Literal["projection_is_not_new_truth"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_lifecycle_projection(
+        self,
+    ) -> "ProgrambenchSingleCaseLifecycleProjection":
+        for field_name in (
+            "projected_attempt_lifecycle_refs",
+            "projected_trial_lifecycle_refs",
+            "projected_workbench_evidence_refs",
+            "projection_validator_binding_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_sorted_unique_allow_empty(
+            self.projection_gap_refs,
+            field_name="projection_gap_refs",
+        )
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_lifecycle_projection_ref,
+                self.single_case_worker_dispatch_specimen_ref,
+                self.single_case_execution_trace_ref,
+                self.single_case_probe_observation_bundle_ref,
+                self.single_case_candidate_artifact_capture_ref,
+                *self.projection_gap_refs,
+            ],
+            field_name="single_case_lifecycle_projection_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 def validate_pb_single_case_run_0a_bundle(
     *,
     matrix_inclusion_family_closeout: ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
@@ -831,3 +1297,164 @@ def validate_pb_single_case_run_0a_bundle(
         raise ValueError("reference bundle requires ready execution preflight")
     if target_selection.contamination_posture != "clean":
         raise ValueError("reference bundle target selection must be clean")
+
+
+def validate_pb_single_case_run_0b_bundle(
+    *,
+    matrix_inclusion_family_closeout: ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
+    matrix_revision_registration: ProgrambenchLocalMatrixRevisionRegistration,
+    matrix_revision_readiness_summary: ProgrambenchLocalMatrixRevisionReadinessSummary,
+    run_request: ProgrambenchSingleCaseRunRequest,
+    target_selection: ProgrambenchSingleCaseTargetSelection,
+    execution_preflight: ProgrambenchSingleCaseExecutionPreflight,
+    run_control_contract: ProgrambenchSingleCaseRunControlContract,
+    non_authority_guardrail: ProgrambenchSingleCaseRunNonAuthorityGuardrail,
+    worker_dispatch_specimen: ProgrambenchSingleCaseWorkerDispatchSpecimen,
+    execution_trace: ProgrambenchSingleCaseExecutionTrace,
+    probe_observation_bundle: ProgrambenchSingleCaseProbeObservationBundle,
+    candidate_artifact_capture: ProgrambenchSingleCaseCandidateArtifactCapture,
+    lifecycle_projection: ProgrambenchSingleCaseLifecycleProjection,
+) -> None:
+    validate_pb_single_case_run_0a_bundle(
+        matrix_inclusion_family_closeout=matrix_inclusion_family_closeout,
+        matrix_revision_registration=matrix_revision_registration,
+        matrix_revision_readiness_summary=matrix_revision_readiness_summary,
+        run_request=run_request,
+        target_selection=target_selection,
+        execution_preflight=execution_preflight,
+        run_control_contract=run_control_contract,
+        non_authority_guardrail=non_authority_guardrail,
+    )
+
+    if (
+        worker_dispatch_specimen.single_case_run_request_ref
+        != run_request.single_case_run_request_ref
+    ):
+        raise ValueError("worker dispatch specimen must reference run request")
+    if (
+        worker_dispatch_specimen.single_case_target_selection_ref
+        != target_selection.single_case_target_selection_ref
+    ):
+        raise ValueError("worker dispatch specimen must reference target selection")
+    if (
+        worker_dispatch_specimen.single_case_execution_preflight_ref
+        != execution_preflight.single_case_execution_preflight_ref
+    ):
+        raise ValueError("worker dispatch specimen must reference execution preflight")
+    if (
+        worker_dispatch_specimen.single_case_run_control_contract_ref
+        != run_control_contract.single_case_run_control_contract_ref
+    ):
+        raise ValueError("worker dispatch specimen must reference run control contract")
+    if (
+        worker_dispatch_specimen.b_slice_dispatch_authority_ref
+        != _PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF
+    ):
+        raise ValueError("PB-SINGLE-CASE-RUN-0-B dispatch authority is required")
+    if worker_dispatch_specimen.dispatch_specimen_index != 1:
+        raise ValueError("PB-SINGLE-CASE-RUN-0-B allows exactly one dispatch specimen")
+    if execution_preflight.dispatch_authority_posture != (
+        "no_worker_dispatch_authority_granted_by_pb_single_case_run_0a"
+    ):
+        raise ValueError("A preflight cannot grant dispatch authority")
+
+    expected_hashes = {
+        "worker_visible_packet_hash": target_selection.worker_visible_packet_hash,
+        "runbook_hash": execution_preflight.runbook_hash,
+        "sandbox_policy_hash": execution_preflight.sandbox_policy_hash,
+        "tool_manifest_hash": execution_preflight.tool_manifest_hash,
+        "write_scope_hash": execution_preflight.write_scope_hash,
+        "local_probe_basis_hash": target_selection.local_probe_basis_hash,
+    }
+    for field_name, expected_value in expected_hashes.items():
+        if getattr(worker_dispatch_specimen, field_name) != expected_value:
+            raise ValueError(f"worker dispatch {field_name} must match released A basis")
+    if (
+        worker_dispatch_specimen.sandbox_policy_materialization_hash
+        == worker_dispatch_specimen.sandbox_policy_hash
+    ):
+        raise ValueError("sandbox policy materialization hash must be separately recorded")
+    if (
+        worker_dispatch_specimen.tool_manifest_materialization_hash
+        == worker_dispatch_specimen.tool_manifest_hash
+    ):
+        raise ValueError("tool manifest materialization hash must be separately recorded")
+
+    if (
+        execution_trace.single_case_worker_dispatch_specimen_ref
+        != worker_dispatch_specimen.single_case_worker_dispatch_specimen_ref
+    ):
+        raise ValueError("execution trace must reference worker dispatch specimen")
+    if execution_trace.execution_trace_kind != "worker_dispatch_trace":
+        raise ValueError("reference B bundle records the worker dispatch trace")
+    if execution_trace.forbidden_content_screen_verdict != (
+        _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
+    ):
+        raise ValueError("execution trace requires passed forbidden-content screening")
+    if execution_trace.sandbox_violation_refs:
+        raise ValueError("execution trace cannot carry sandbox violations")
+
+    if (
+        probe_observation_bundle.single_case_execution_trace_ref
+        != execution_trace.single_case_execution_trace_ref
+    ):
+        raise ValueError("probe observation bundle must reference execution trace")
+    if probe_observation_bundle.local_probe_basis_ref != target_selection.local_probe_basis_ref:
+        raise ValueError("probe observation bundle must use selected local probe basis")
+    if (
+        probe_observation_bundle.local_probe_basis_hash
+        != target_selection.local_probe_basis_hash
+    ):
+        raise ValueError("probe observation bundle hash must match selected probe basis")
+    if probe_observation_bundle.missing_probe_refs:
+        raise ValueError("reference B probe bundle cannot carry missing probes")
+    if probe_observation_bundle.inconclusive_probe_refs:
+        raise ValueError("reference B probe bundle cannot carry inconclusive probes")
+
+    if (
+        candidate_artifact_capture.single_case_execution_trace_ref
+        != execution_trace.single_case_execution_trace_ref
+    ):
+        raise ValueError("candidate artifact capture must reference execution trace")
+    if candidate_artifact_capture.forbidden_content_screen_verdict != (
+        execution_trace.forbidden_content_screen_verdict
+    ):
+        raise ValueError("candidate artifact capture must preserve screening verdict")
+    if candidate_artifact_capture.write_scope_ref != execution_preflight.write_scope_ref:
+        raise ValueError("candidate artifact capture must use released write scope")
+    if candidate_artifact_capture.write_scope_hash != execution_preflight.write_scope_hash:
+        raise ValueError("candidate artifact capture write scope hash must match preflight")
+    if candidate_artifact_capture.materialization_input_hash not in {
+        execution_trace.stdout_hash,
+        execution_trace.stderr_hash,
+    }:
+        raise ValueError("candidate artifact input hash must bind captured output")
+
+    if (
+        lifecycle_projection.single_case_worker_dispatch_specimen_ref
+        != worker_dispatch_specimen.single_case_worker_dispatch_specimen_ref
+    ):
+        raise ValueError("lifecycle projection must reference worker dispatch specimen")
+    if (
+        lifecycle_projection.single_case_execution_trace_ref
+        != execution_trace.single_case_execution_trace_ref
+    ):
+        raise ValueError("lifecycle projection must reference execution trace")
+    if (
+        lifecycle_projection.single_case_probe_observation_bundle_ref
+        != probe_observation_bundle.single_case_probe_observation_bundle_ref
+    ):
+        raise ValueError("lifecycle projection must reference probe bundle")
+    if (
+        lifecycle_projection.single_case_candidate_artifact_capture_ref
+        != candidate_artifact_capture.single_case_candidate_artifact_capture_ref
+    ):
+        raise ValueError("lifecycle projection must reference candidate artifact capture")
+    if lifecycle_projection.projection_gap_refs:
+        raise ValueError("reference B lifecycle projection cannot carry projection gaps")
+    if lifecycle_projection.projection_is_not_new_truth_posture != (
+        "projection_is_not_new_truth"
+    ):
+        raise ValueError("lifecycle projection cannot create new truth")
+    if lifecycle_projection.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("lifecycle projection cannot claim benchmark truth")

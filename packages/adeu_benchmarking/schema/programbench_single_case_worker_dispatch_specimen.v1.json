@@ -1,0 +1,174 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "b_slice_dispatch_authority_ref": {
+      "title": "B Slice Dispatch Authority Ref",
+      "type": "string"
+    },
+    "decompilation_absence_witness_ref": {
+      "title": "Decompilation Absence Witness Ref",
+      "type": "string"
+    },
+    "dispatch_authority_kind": {
+      "const": "b_slice_lock_local_single_specimen_only",
+      "title": "Dispatch Authority Kind",
+      "type": "string"
+    },
+    "dispatch_specimen_index": {
+      "const": 1,
+      "title": "Dispatch Specimen Index",
+      "type": "integer"
+    },
+    "dispatch_status": {
+      "const": "local_single_case_dispatch_specimen_recorded",
+      "title": "Dispatch Status",
+      "type": "string"
+    },
+    "docker_socket_absence_witness_ref": {
+      "title": "Docker Socket Absence Witness Ref",
+      "type": "string"
+    },
+    "input_packet_materialization_hash": {
+      "title": "Input Packet Materialization Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_basis_hash": {
+      "title": "Local Probe Basis Hash",
+      "type": "string"
+    },
+    "network_mode_witness_ref": {
+      "title": "Network Mode Witness Ref",
+      "type": "string"
+    },
+    "run_control_contract_hash": {
+      "title": "Run Control Contract Hash",
+      "type": "string"
+    },
+    "runbook_hash": {
+      "title": "Runbook Hash",
+      "type": "string"
+    },
+    "sandbox_attestation_bundle_ref": {
+      "title": "Sandbox Attestation Bundle Ref",
+      "type": "string"
+    },
+    "sandbox_instance_ref": {
+      "title": "Sandbox Instance Ref",
+      "type": "string"
+    },
+    "sandbox_policy_hash": {
+      "title": "Sandbox Policy Hash",
+      "type": "string"
+    },
+    "sandbox_policy_materialization_hash": {
+      "title": "Sandbox Policy Materialization Hash",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_worker_dispatch_specimen@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "secret_absence_witness_ref": {
+      "title": "Secret Absence Witness Ref",
+      "type": "string"
+    },
+    "single_case_dispatch_cardinality_posture": {
+      "const": "exactly_one_dispatch_specimen",
+      "title": "Single Case Dispatch Cardinality Posture",
+      "type": "string"
+    },
+    "single_case_execution_preflight_ref": {
+      "title": "Single Case Execution Preflight Ref",
+      "type": "string"
+    },
+    "single_case_run_control_contract_ref": {
+      "title": "Single Case Run Control Contract Ref",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "single_case_target_selection_ref": {
+      "title": "Single Case Target Selection Ref",
+      "type": "string"
+    },
+    "single_case_worker_dispatch_specimen_ref": {
+      "title": "Single Case Worker Dispatch Specimen Ref",
+      "type": "string"
+    },
+    "source_lookup_absence_witness_ref": {
+      "title": "Source Lookup Absence Witness Ref",
+      "type": "string"
+    },
+    "tool_manifest_hash": {
+      "title": "Tool Manifest Hash",
+      "type": "string"
+    },
+    "tool_manifest_materialization_hash": {
+      "title": "Tool Manifest Materialization Hash",
+      "type": "string"
+    },
+    "worker_profile_ref": {
+      "title": "Worker Profile Ref",
+      "type": "string"
+    },
+    "worker_visible_context_materialization_hash": {
+      "title": "Worker Visible Context Materialization Hash",
+      "type": "string"
+    },
+    "worker_visible_packet_hash": {
+      "title": "Worker Visible Packet Hash",
+      "type": "string"
+    },
+    "write_scope_attestation_ref": {
+      "title": "Write Scope Attestation Ref",
+      "type": "string"
+    },
+    "write_scope_hash": {
+      "title": "Write Scope Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_worker_dispatch_specimen_ref",
+    "single_case_run_request_ref",
+    "single_case_target_selection_ref",
+    "single_case_execution_preflight_ref",
+    "single_case_run_control_contract_ref",
+    "b_slice_dispatch_authority_ref",
+    "dispatch_authority_kind",
+    "dispatch_specimen_index",
+    "single_case_dispatch_cardinality_posture",
+    "worker_profile_ref",
+    "input_packet_materialization_hash",
+    "worker_visible_context_materialization_hash",
+    "tool_manifest_materialization_hash",
+    "sandbox_policy_materialization_hash",
+    "run_control_contract_hash",
+    "worker_visible_packet_hash",
+    "runbook_hash",
+    "sandbox_policy_hash",
+    "tool_manifest_hash",
+    "write_scope_hash",
+    "local_probe_basis_hash",
+    "sandbox_instance_ref",
+    "sandbox_attestation_bundle_ref",
+    "network_mode_witness_ref",
+    "docker_socket_absence_witness_ref",
+    "secret_absence_witness_ref",
+    "source_lookup_absence_witness_ref",
+    "decompilation_absence_witness_ref",
+    "write_scope_attestation_ref",
+    "dispatch_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseWorkerDispatchSpecimen",
+  "type": "object"
+}

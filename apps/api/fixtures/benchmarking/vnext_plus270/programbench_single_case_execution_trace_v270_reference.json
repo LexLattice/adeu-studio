@@ -1,0 +1,39 @@
+{
+  "command_allowlist_match_ref": "command-allowlist:pb-single-case-run-0b:matched",
+  "command_argv_rows": [
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "local_case_worker"
+      ],
+      "command_argv_ref": "command-argv:pb-single-case-run-0b:001",
+      "command_role": "worker_dispatch",
+      "command_shape_posture": "argv_shaped_no_raw_shell_string",
+      "limitation_note": "Command row is argv-shaped and local-only."
+    }
+  ],
+  "command_rows_must_be_argv_shaped": true,
+  "duration_ms": 127,
+  "environment_policy_hash": "sha256:5252525252525252525252525252525252525252525252525252525252525252",
+  "execution_trace_kind": "worker_dispatch_trace",
+  "exit_code": 0,
+  "forbidden_content_screen_verdict": "passed",
+  "fs_diff_ref": "fs-diff:pb-single-case-run-0b:reference",
+  "limitation_note": "Execution trace records one local worker dispatch specimen only.",
+  "post_fs_manifest_ref": "fs-manifest:pb-single-case-run-0b:post",
+  "pre_fs_manifest_ref": "fs-manifest:pb-single-case-run-0b:pre",
+  "raw_shell_string_posture": "raw_shell_strings_forbidden_unless_later_explicit_authority",
+  "resource_limit_status": "within_limits",
+  "sandbox_violation_refs": [],
+  "schema": "programbench_single_case_execution_trace@1",
+  "single_case_execution_trace_ref": "single-case-execution-trace:pb-single-case-run-0b:reference",
+  "single_case_worker_dispatch_specimen_ref": "single-case-dispatch:pb-single-case-run-0b:reference",
+  "stderr_excerpt_bounded": "",
+  "stderr_hash": "sha256:5959595959595959595959595959595959595959595959595959595959595959",
+  "stdout_excerpt_bounded": "local candidate materialized inside write scope",
+  "stdout_hash": "sha256:5858585858585858585858585858585858585858585858585858585858585858",
+  "timeout_status": "completed_without_timeout",
+  "worker_tool_call_manifest_ref": "tool-call-manifest:pb-single-case-run-0b:reference",
+  "working_directory_ref": "working-directory:pb-single-case-run-0b:sandbox"
+}

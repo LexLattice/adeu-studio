@@ -1,0 +1,166 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseArtifactHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_hash_ref": {
+          "title": "Artifact Hash Ref",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "hash_role": {
+          "enum": [
+            "generated_artifact_hash",
+            "manifest_member_hash"
+          ],
+          "title": "Hash Role",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_hash_ref",
+        "artifact_ref",
+        "artifact_hash",
+        "hash_role",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseArtifactHashRow",
+      "type": "object"
+    },
+    "ProgrambenchSingleCaseGeneratedArtifactRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_path_ref": {
+          "title": "Artifact Path Ref",
+          "type": "string"
+        },
+        "generated_artifact_ref": {
+          "title": "Generated Artifact Ref",
+          "type": "string"
+        },
+        "inside_write_scope_posture": {
+          "const": "inside_released_write_scope",
+          "title": "Inside Write Scope Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generated_artifact_ref",
+        "artifact_path_ref",
+        "artifact_hash",
+        "inside_write_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseGeneratedArtifactRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_capture_policy_ref": {
+      "title": "Artifact Capture Policy Ref",
+      "type": "string"
+    },
+    "artifact_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseArtifactHashRow"
+      },
+      "minItems": 1,
+      "title": "Artifact Hash Rows",
+      "type": "array"
+    },
+    "forbidden_content_screen_verdict": {
+      "const": "passed",
+      "title": "Forbidden Content Screen Verdict",
+      "type": "string"
+    },
+    "generated_artifact_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseGeneratedArtifactRow"
+      },
+      "minItems": 1,
+      "title": "Generated Artifact Rows",
+      "type": "array"
+    },
+    "inside_write_scope_posture": {
+      "const": "inside_released_write_scope",
+      "title": "Inside Write Scope Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "materialization_input_hash": {
+      "title": "Materialization Input Hash",
+      "type": "string"
+    },
+    "materialization_output_manifest_hash": {
+      "title": "Materialization Output Manifest Hash",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "not_official_submission",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_candidate_artifact_capture@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_candidate_artifact_capture_ref": {
+      "title": "Single Case Candidate Artifact Capture Ref",
+      "type": "string"
+    },
+    "single_case_execution_trace_ref": {
+      "title": "Single Case Execution Trace Ref",
+      "type": "string"
+    },
+    "write_scope_hash": {
+      "title": "Write Scope Hash",
+      "type": "string"
+    },
+    "write_scope_ref": {
+      "title": "Write Scope Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_candidate_artifact_capture_ref",
+    "single_case_execution_trace_ref",
+    "artifact_capture_policy_ref",
+    "write_scope_ref",
+    "write_scope_hash",
+    "materialization_input_hash",
+    "materialization_output_manifest_hash",
+    "generated_artifact_rows",
+    "artifact_hash_rows",
+    "inside_write_scope_posture",
+    "forbidden_content_screen_verdict",
+    "official_submission_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseCandidateArtifactCapture",
+  "type": "object"
+}

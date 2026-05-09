@@ -1,0 +1,32 @@
+{
+  "artifact_capture_policy_ref": "artifact-capture-policy:pb-single-case-run-0b:screened",
+  "artifact_hash_rows": [
+    {
+      "artifact_hash": "sha256:6262626262626262626262626262626262626262626262626262626262626262",
+      "artifact_hash_ref": "artifact-hash:pb-single-case-run-0b:001",
+      "artifact_ref": "generated-artifact:pb-single-case-run-0b:solution",
+      "hash_role": "generated_artifact_hash",
+      "limitation_note": "Hash records local generated artifact content."
+    }
+  ],
+  "forbidden_content_screen_verdict": "passed",
+  "generated_artifact_rows": [
+    {
+      "artifact_hash": "sha256:6262626262626262626262626262626262626262626262626262626262626262",
+      "artifact_path_ref": "artifact-path:pb-single-case-run-0b:solution",
+      "generated_artifact_ref": "generated-artifact:pb-single-case-run-0b:solution",
+      "inside_write_scope_posture": "inside_released_write_scope",
+      "limitation_note": "Artifact is materialized within the released local write scope."
+    }
+  ],
+  "inside_write_scope_posture": "inside_released_write_scope",
+  "limitation_note": "Candidate artifact capture is screened and local-only.",
+  "materialization_input_hash": "sha256:5858585858585858585858585858585858585858585858585858585858585858",
+  "materialization_output_manifest_hash": "sha256:6161616161616161616161616161616161616161616161616161616161616161",
+  "official_submission_posture": "not_official_submission",
+  "schema": "programbench_single_case_candidate_artifact_capture@1",
+  "single_case_candidate_artifact_capture_ref": "single-case-artifact-capture:pb-single-case-run-0b:reference",
+  "single_case_execution_trace_ref": "single-case-execution-trace:pb-single-case-run-0b:reference",
+  "write_scope_hash": "sha256:5151515151515151515151515151515151515151515151515151515151515151",
+  "write_scope_ref": "write-scope:pb-single-case-run-0a:reference"
+}
