@@ -69,6 +69,10 @@
       "title": "Contamination Rows",
       "type": "array"
     },
+    "contamination_screen_hash": {
+      "title": "Contamination Screen Hash",
+      "type": "string"
+    },
     "contamination_screen_ref": {
       "title": "Contamination Screen Ref",
       "type": "string"
@@ -152,6 +156,7 @@
     "contamination_rows",
     "redaction_policy",
     "screen_verdict",
+    "contamination_screen_hash",
     "limitation_note"
   ],
   "title": "ProgrambenchLocalCaseContaminationScreen",

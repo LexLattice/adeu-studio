@@ -20,6 +20,7 @@
     }
   ],
   "contamination_screen_ref": "case-contamination-screen:pb-case-expansion-0b:diagnostic",
+  "contamination_screen_hash": "sha256:1515151515151515151515151515151515151515151515151515151515151515",
   "contamination_status": "clean",
   "decompilation_or_source_lookup_exposure_refs": [],
   "forbidden_source_exposure_refs": [],

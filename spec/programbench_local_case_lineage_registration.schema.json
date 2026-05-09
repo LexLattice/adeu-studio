@@ -1,0 +1,134 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_score_posture": {
+      "const": "no_benchmark_score_authority_granted_by_0c",
+      "title": "Benchmark Score Posture",
+      "type": "string"
+    },
+    "blueprint_hash": {
+      "title": "Blueprint Hash",
+      "type": "string"
+    },
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_lineage_registration_ref": {
+      "title": "Case Lineage Registration Ref",
+      "type": "string"
+    },
+    "cleanroom_evidence_pack_ref": {
+      "title": "Cleanroom Evidence Pack Ref",
+      "type": "string"
+    },
+    "contamination_screen_hash": {
+      "title": "Contamination Screen Hash",
+      "type": "string"
+    },
+    "contamination_screen_ref": {
+      "title": "Contamination Screen Ref",
+      "type": "string"
+    },
+    "evidence_pack_hash": {
+      "title": "Evidence Pack Hash",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_0c",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "lineage_registration_status": {
+      "enum": [
+        "blocked_by_contamination",
+        "blocked_by_incomplete_blueprint",
+        "registered_for_later_matrix_review"
+      ],
+      "title": "Lineage Registration Status",
+      "type": "string"
+    },
+    "local_case_scope_posture": {
+      "const": "local_cleanroom_case_lineage_only",
+      "title": "Local Case Scope Posture",
+      "type": "string"
+    },
+    "matrix_inclusion_authority_posture": {
+      "const": "no_matrix_inclusion_authority_granted_by_0c",
+      "title": "Matrix Inclusion Authority Posture",
+      "type": "string"
+    },
+    "oracle_boundary_hash": {
+      "title": "Oracle Boundary Hash",
+      "type": "string"
+    },
+    "oracle_boundary_ref": {
+      "title": "Oracle Boundary Ref",
+      "type": "string"
+    },
+    "probe_contract_hash": {
+      "title": "Probe Contract Hash",
+      "type": "string"
+    },
+    "probe_contract_ref": {
+      "title": "Probe Contract Ref",
+      "type": "string"
+    },
+    "registered_case_lineage_hash": {
+      "title": "Registered Case Lineage Hash",
+      "type": "string"
+    },
+    "registered_case_lineage_origin_hash": {
+      "title": "Registered Case Lineage Origin Hash",
+      "type": "string"
+    },
+    "registered_case_lineage_ref": {
+      "title": "Registered Case Lineage Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_lineage_registration@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_pool_subset_hash": {
+      "title": "Source Pool Subset Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_lineage_registration_ref",
+    "case_expansion_ref",
+    "case_blueprint_ref",
+    "cleanroom_evidence_pack_ref",
+    "probe_contract_ref",
+    "oracle_boundary_ref",
+    "contamination_screen_ref",
+    "registered_case_lineage_ref",
+    "registered_case_lineage_hash",
+    "registered_case_lineage_origin_hash",
+    "source_pool_subset_hash",
+    "blueprint_hash",
+    "evidence_pack_hash",
+    "probe_contract_hash",
+    "oracle_boundary_hash",
+    "contamination_screen_hash",
+    "lineage_registration_status",
+    "local_case_scope_posture",
+    "matrix_inclusion_authority_posture",
+    "execution_authority_posture",
+    "benchmark_score_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseLineageRegistration",
+  "type": "object"
+}

@@ -1516,6 +1516,7 @@ class ProgrambenchLocalCaseProbeContract(_CaseExpansionBase):
     filesystem_side_effect_expectation_rows: list[
         ProgrambenchLocalCaseFilesystemSideEffectExpectationRow
     ] = Field(default_factory=list)
+    probe_contract_hash: str
     command_execution_posture: Literal["no_command_execution_authority_granted_by_0b"]
     probe_execution_deferred_posture: Literal["probe_execution_deferred_to_later_trial"]
     limitation_note: str
@@ -1574,6 +1575,7 @@ class ProgrambenchLocalCaseProbeContract(_CaseExpansionBase):
             self.filesystem_side_effect_expectation_rows
         ):
             raise ValueError("probe contract requires stream or filesystem expectations")
+        _ensure_hash(self.probe_contract_hash, field_name="probe_contract_hash")
         _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
         return self
 
@@ -1674,6 +1676,7 @@ class ProgrambenchLocalCaseContaminationScreen(_CaseExpansionBase):
         "inconclusive_requires_review",
         "passed_cleanroom_screen",
     ]
+    contamination_screen_hash: str
     limitation_note: str
 
     @model_validator(mode="after")
@@ -1714,6 +1717,394 @@ class ProgrambenchLocalCaseContaminationScreen(_CaseExpansionBase):
                 raise ValueError("passed contamination screens require clean rows and status")
         elif self.contamination_status == "clean":
             raise ValueError("clean contamination status requires passed screen verdict")
+        _ensure_hash(self.contamination_screen_hash, field_name="contamination_screen_hash")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseExpansionCoverageSummaryRow(_CaseExpansionBase):
+    coverage_summary_ref: str
+    registered_case_lineage_ref: str
+    case_blueprint_ref: str
+    coverage_kind: Literal[
+        "blueprint_complete",
+        "cleanroom_evidence_complete",
+        "contamination_screen_complete",
+        "oracle_boundary_complete",
+        "probe_contract_complete",
+        "source_identity_complete",
+    ]
+    coverage_status: Literal["blocked", "complete", "deferred"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_coverage_summary_row(
+        self,
+    ) -> "ProgrambenchLocalCaseExpansionCoverageSummaryRow":
+        _ensure_no_forbidden_refs(
+            [
+                self.coverage_summary_ref,
+                self.registered_case_lineage_ref,
+                self.case_blueprint_ref,
+            ],
+            field_name="coverage summary refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseExpansionContaminationSummaryRow(_CaseExpansionBase):
+    contamination_summary_ref: str
+    registered_case_lineage_ref: str
+    contamination_screen_ref: str
+    contamination_status: Literal[
+        "blocked_by_contamination",
+        "clean",
+        "inconclusive_requires_review",
+    ]
+    screen_verdict: Literal[
+        "blocked_contamination_detected",
+        "inconclusive_requires_review",
+        "passed_cleanroom_screen",
+    ]
+    contamination_detail_posture: Literal["redacted_category_count_reason_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_summary_row(
+        self,
+    ) -> "ProgrambenchLocalCaseExpansionContaminationSummaryRow":
+        _ensure_no_forbidden_refs(
+            [
+                self.contamination_summary_ref,
+                self.registered_case_lineage_ref,
+                self.contamination_screen_ref,
+            ],
+            field_name="contamination summary refs",
+        )
+        if self.contamination_status == "clean" and self.screen_verdict != (
+            "passed_cleanroom_screen"
+        ):
+            raise ValueError("clean contamination summaries require passed screen verdict")
+        if self.screen_verdict == "passed_cleanroom_screen" and self.contamination_status != (
+            "clean"
+        ):
+            raise ValueError("passed contamination summaries require clean status")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixHandoffPressureRow(_CaseExpansionBase):
+    handoff_pressure_ref: str
+    registered_case_lineage_refs: list[str] = Field(min_length=1)
+    handoff_pressure_kind: Literal[
+        "future_local_matrix_inclusion_review",
+        "future_family_only",
+    ]
+    handoff_pressure_posture: Literal["pressure_only_not_selection"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff_pressure_row(
+        self,
+    ) -> "ProgrambenchLocalCaseMatrixHandoffPressureRow":
+        _ensure_sorted_unique(
+            self.registered_case_lineage_refs,
+            field_name="registered_case_lineage_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.registered_case_lineage_refs,
+            field_name="registered_case_lineage_refs",
+        )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseLineageRegistration(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_LINEAGE_REGISTRATION_SCHEMA] = Field(
+        alias="schema"
+    )
+    case_lineage_registration_ref: str
+    case_expansion_ref: str
+    case_blueprint_ref: str
+    cleanroom_evidence_pack_ref: str
+    probe_contract_ref: str
+    oracle_boundary_ref: str
+    contamination_screen_ref: str
+    registered_case_lineage_ref: str
+    registered_case_lineage_hash: str
+    registered_case_lineage_origin_hash: str
+    source_pool_subset_hash: str
+    blueprint_hash: str
+    evidence_pack_hash: str
+    probe_contract_hash: str
+    oracle_boundary_hash: str
+    contamination_screen_hash: str
+    lineage_registration_status: Literal[
+        "blocked_by_contamination",
+        "blocked_by_incomplete_blueprint",
+        "registered_for_later_matrix_review",
+    ]
+    local_case_scope_posture: Literal["local_cleanroom_case_lineage_only"]
+    matrix_inclusion_authority_posture: Literal[
+        "no_matrix_inclusion_authority_granted_by_0c"
+    ]
+    execution_authority_posture: Literal["no_execution_authority_granted_by_0c"]
+    benchmark_score_posture: Literal["no_benchmark_score_authority_granted_by_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_lineage_registration(
+        self,
+    ) -> "ProgrambenchLocalCaseLineageRegistration":
+        for field_name in (
+            "registered_case_lineage_hash",
+            "registered_case_lineage_origin_hash",
+            "source_pool_subset_hash",
+            "blueprint_hash",
+            "evidence_pack_hash",
+            "probe_contract_hash",
+            "oracle_boundary_hash",
+            "contamination_screen_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [
+                self.case_lineage_registration_ref,
+                self.case_blueprint_ref,
+                self.cleanroom_evidence_pack_ref,
+                self.probe_contract_ref,
+                self.oracle_boundary_ref,
+                self.contamination_screen_ref,
+                self.registered_case_lineage_ref,
+            ],
+            field_name="lineage registration refs",
+        )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseExpansionReadinessSummary(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_EXPANSION_READINESS_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    case_expansion_readiness_summary_ref: str
+    case_expansion_ref: str
+    ready_case_lineage_refs: list[str] = Field(default_factory=list)
+    blocked_case_lineage_refs: list[str] = Field(default_factory=list)
+    deferred_case_lineage_refs: list[str] = Field(default_factory=list)
+    ready_blueprint_refs: list[str] = Field(default_factory=list)
+    blocked_blueprint_refs: list[str] = Field(default_factory=list)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    coverage_summary_rows: list[ProgrambenchLocalCaseExpansionCoverageSummaryRow] = Field(
+        min_length=1
+    )
+    contamination_summary_rows: list[
+        ProgrambenchLocalCaseExpansionContaminationSummaryRow
+    ] = Field(min_length=1)
+    readiness_posture: Literal[
+        "blocked_by_contamination",
+        "open_with_deferred_cases",
+        "ready_for_later_matrix_candidate_handoff",
+    ]
+    ready_count_posture: Literal["inventory_count_only_not_success_rate"]
+    readiness_denominator_posture: Literal[
+        "expansion_request_denominator_only_not_benchmark_denominator"
+    ]
+    representativeness_posture: Literal["not_representative_benchmark_sample"]
+    local_case_count_posture: Literal["local_inventory_accounting_only"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_readiness_summary(
+        self,
+    ) -> "ProgrambenchLocalCaseExpansionReadinessSummary":
+        for field_name in (
+            "ready_case_lineage_refs",
+            "blocked_case_lineage_refs",
+            "deferred_case_lineage_refs",
+            "ready_blueprint_refs",
+            "blocked_blueprint_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+            _ensure_no_forbidden_refs(getattr(self, field_name), field_name=field_name)
+        lineage_sets = [
+            set(self.ready_case_lineage_refs),
+            set(self.blocked_case_lineage_refs),
+            set(self.deferred_case_lineage_refs),
+        ]
+        if sum(len(values) for values in lineage_sets) != len(set().union(*lineage_sets)):
+            raise ValueError("ready, blocked, and deferred lineage refs must be disjoint")
+        blueprint_sets = [
+            set(self.ready_blueprint_refs),
+            set(self.blocked_blueprint_refs),
+        ]
+        if sum(len(values) for values in blueprint_sets) != len(set().union(*blueprint_sets)):
+            raise ValueError("ready and blocked blueprint refs must be disjoint")
+        if self.readiness_posture == "ready_for_later_matrix_candidate_handoff":
+            if not self.ready_case_lineage_refs:
+                raise ValueError("ready readiness posture requires ready case lineage refs")
+            if self.carried_blocker_refs:
+                raise ValueError("ready readiness posture cannot carry blockers")
+        if self.readiness_posture == "blocked_by_contamination" and not (
+            self.blocked_case_lineage_refs
+        ):
+            raise ValueError("blocked readiness posture requires blocked lineages")
+        coverage_refs = [row.coverage_summary_ref for row in self.coverage_summary_rows]
+        _ensure_sorted_unique(coverage_refs, field_name="coverage_summary_rows")
+        coverage_keys = [
+            (row.registered_case_lineage_ref, row.case_blueprint_ref, row.coverage_kind)
+            for row in self.coverage_summary_rows
+        ]
+        if len(coverage_keys) != len(set(coverage_keys)):
+            raise ValueError("coverage summary rows must not duplicate logical coverage keys")
+        contamination_refs = [
+            row.contamination_summary_ref for row in self.contamination_summary_rows
+        ]
+        _ensure_sorted_unique(contamination_refs, field_name="contamination_summary_rows")
+        contamination_keys = [
+            (row.registered_case_lineage_ref, row.contamination_screen_ref)
+            for row in self.contamination_summary_rows
+        ]
+        if len(contamination_keys) != len(set(contamination_keys)):
+            raise ValueError(
+                "contamination summary rows must not duplicate logical contamination keys"
+            )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixCandidateHandoff(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_CANDIDATE_HANDOFF_SCHEMA] = Field(
+        alias="schema"
+    )
+    case_matrix_candidate_handoff_ref: str
+    case_expansion_ref: str
+    case_expansion_readiness_summary_ref: str
+    ready_case_lineage_refs: list[str] = Field(default_factory=list)
+    handoff_pressure_rows: list[ProgrambenchLocalCaseMatrixHandoffPressureRow] = Field(
+        min_length=1
+    )
+    handoff_pressure_kind: Literal[
+        "future_local_matrix_inclusion_review",
+        "future_family_only",
+    ]
+    handoff_non_selection_posture: Literal["pressure_only_no_matrix_inclusion_selected"]
+    matrix_inclusion_authority_posture: Literal[
+        "no_direct_matrix_inclusion_authority_granted_by_0c"
+    ]
+    batch_execution_authority_posture: Literal["no_batch_execution_authority_granted_by_0c"]
+    benchmark_score_authority_posture: Literal[
+        "no_benchmark_score_authority_granted_by_0c"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_matrix_candidate_handoff(
+        self,
+    ) -> "ProgrambenchLocalCaseMatrixCandidateHandoff":
+        _ensure_sorted_unique_allow_empty(
+            self.ready_case_lineage_refs,
+            field_name="ready_case_lineage_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.ready_case_lineage_refs,
+            field_name="ready_case_lineage_refs",
+        )
+        pressure_refs = [row.handoff_pressure_ref for row in self.handoff_pressure_rows]
+        _ensure_sorted_unique(pressure_refs, field_name="handoff_pressure_rows")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment(_CaseExpansionBase):
+    schema_id: Literal[
+        PROGRAMBENCH_LOCAL_CASE_EXPANSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
+    ] = Field(alias="schema")
+    case_expansion_family_closeout_ref: str
+    closed_family_ref: Literal["PB-CASE-EXPANSION-0"]
+    closed_slice_refs: list[str] = Field(min_length=3)
+    shipped_record_shapes: list[str] = Field(min_length=14)
+    case_expansion_ref: str
+    case_expansion_request_refs: list[str] = Field(min_length=1)
+    source_pool_manifest_refs: list[str] = Field(min_length=1)
+    eligibility_review_refs: list[str] = Field(min_length=1)
+    control_contract_refs: list[str] = Field(min_length=1)
+    guardrail_refs: list[str] = Field(min_length=1)
+    case_blueprint_refs: list[str] = Field(min_length=1)
+    cleanroom_evidence_pack_refs: list[str] = Field(min_length=1)
+    probe_contract_refs: list[str] = Field(min_length=1)
+    oracle_boundary_refs: list[str] = Field(min_length=1)
+    contamination_screen_refs: list[str] = Field(min_length=1)
+    lineage_registration_refs: list[str] = Field(min_length=1)
+    registered_case_lineage_refs: list[str] = Field(default_factory=list)
+    readiness_summary_refs: list[str] = Field(min_length=1)
+    matrix_candidate_handoff_refs: list[str] = Field(min_length=1)
+    released_a_refs: list[str] = Field(min_length=5)
+    released_b_refs: list[str] = Field(min_length=5)
+    released_c_refs: list[str] = Field(min_length=4)
+    official_programbench_posture: Literal[
+        "no_official_programbench_authority_granted_by_0c"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_authority_granted_by_0c"]
+    future_family_authority_posture: Literal[
+        "no_future_family_selection_authority_granted_by_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout_alignment(
+        self,
+    ) -> "ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment":
+        for field_name in (
+            "closed_slice_refs",
+            "shipped_record_shapes",
+            "case_expansion_request_refs",
+            "source_pool_manifest_refs",
+            "eligibility_review_refs",
+            "control_contract_refs",
+            "guardrail_refs",
+            "case_blueprint_refs",
+            "cleanroom_evidence_pack_refs",
+            "probe_contract_refs",
+            "oracle_boundary_refs",
+            "contamination_screen_refs",
+            "lineage_registration_refs",
+            "registered_case_lineage_refs",
+            "readiness_summary_refs",
+            "matrix_candidate_handoff_refs",
+            "released_a_refs",
+            "released_b_refs",
+            "released_c_refs",
+        ):
+            _ensure_sorted_unique(getattr(self, field_name), field_name=field_name)
+        required_slices = {
+            "PB-CASE-EXPANSION-0-A",
+            "PB-CASE-EXPANSION-0-B",
+            "PB-CASE-EXPANSION-0-C",
+        }
+        if set(self.closed_slice_refs) != required_slices:
+            raise ValueError("case expansion closeout must close exactly slices A, B, and C")
+        required_shapes = (
+            PB_CASE_EXPANSION_0A_ARTIFACT_KINDS
+            | PB_CASE_EXPANSION_0B_ARTIFACT_KINDS
+            | PB_CASE_EXPANSION_0C_ARTIFACT_KINDS
+        )
+        if not required_shapes.issubset(set(self.shipped_record_shapes)):
+            raise ValueError("case expansion closeout must list every shipped record shape")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
         _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
         return self
 
@@ -1947,3 +2338,229 @@ def validate_pb_case_expansion_0b_blueprint_bundle(
         raise ValueError("probe contract cannot grant command execution authority")
     if oracle_boundary.benchmark_truth_posture != "not_benchmark_truth":
         raise ValueError("oracle boundary must deny benchmark truth")
+
+
+def validate_pb_case_expansion_0c_closeout_bundle(
+    *,
+    expansion_request: ProgrambenchLocalCaseExpansionRequest,
+    source_pool_manifest: ProgrambenchLocalCaseSourcePoolManifest,
+    eligibility_review: ProgrambenchLocalCaseExpansionEligibilityReview,
+    control_contract: ProgrambenchLocalCaseExpansionControlContract,
+    non_authority_guardrail: ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
+    case_blueprint: ProgrambenchLocalCaseBlueprint,
+    cleanroom_evidence_pack: ProgrambenchLocalCaseCleanroomEvidencePack,
+    probe_contract: ProgrambenchLocalCaseProbeContract,
+    oracle_boundary: ProgrambenchLocalCaseOracleBoundary,
+    contamination_screen: ProgrambenchLocalCaseContaminationScreen,
+    lineage_registration: ProgrambenchLocalCaseLineageRegistration,
+    readiness_summary: ProgrambenchLocalCaseExpansionReadinessSummary,
+    matrix_candidate_handoff: ProgrambenchLocalCaseMatrixCandidateHandoff,
+    family_closeout_alignment: ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_case_expansion_0b_blueprint_bundle(
+        expansion_request=expansion_request,
+        source_pool_manifest=source_pool_manifest,
+        eligibility_review=eligibility_review,
+        control_contract=control_contract,
+        non_authority_guardrail=non_authority_guardrail,
+        case_blueprint=case_blueprint,
+        cleanroom_evidence_pack=cleanroom_evidence_pack,
+        probe_contract=probe_contract,
+        oracle_boundary=oracle_boundary,
+        contamination_screen=contamination_screen,
+    )
+
+    if lineage_registration.case_expansion_ref != expansion_request.case_expansion_ref:
+        raise ValueError("lineage registration must reference case expansion request")
+    if lineage_registration.case_blueprint_ref != case_blueprint.case_blueprint_ref:
+        raise ValueError("lineage registration must reference case blueprint")
+    if lineage_registration.cleanroom_evidence_pack_ref != (
+        cleanroom_evidence_pack.cleanroom_evidence_pack_ref
+    ):
+        raise ValueError("lineage registration must reference evidence pack")
+    if lineage_registration.probe_contract_ref != probe_contract.probe_contract_ref:
+        raise ValueError("lineage registration must reference probe contract")
+    if lineage_registration.oracle_boundary_ref != oracle_boundary.oracle_boundary_ref:
+        raise ValueError("lineage registration must reference oracle boundary")
+    if lineage_registration.contamination_screen_ref != (
+        contamination_screen.contamination_screen_ref
+    ):
+        raise ValueError("lineage registration must reference contamination screen")
+
+    if lineage_registration.source_pool_subset_hash != case_blueprint.source_pool_subset_hash:
+        raise ValueError("lineage registration source subset hash must match blueprint")
+    if lineage_registration.blueprint_hash != case_blueprint.blueprint_hash:
+        raise ValueError("lineage registration blueprint hash must match blueprint")
+    if lineage_registration.evidence_pack_hash != cleanroom_evidence_pack.evidence_pack_hash:
+        raise ValueError("lineage registration evidence pack hash must match evidence pack")
+    if lineage_registration.probe_contract_hash != probe_contract.probe_contract_hash:
+        raise ValueError("lineage registration probe contract hash must match probe contract")
+    if lineage_registration.oracle_boundary_hash != oracle_boundary.oracle_boundary_scope_hash:
+        raise ValueError("lineage registration oracle boundary hash must match oracle boundary")
+    if lineage_registration.contamination_screen_hash != (
+        contamination_screen.contamination_screen_hash
+    ):
+        raise ValueError("lineage registration contamination screen hash must match screen")
+
+    if contamination_screen.screen_verdict != "passed_cleanroom_screen":
+        raise ValueError("lineage registration requires passed contamination screen")
+    if contamination_screen.contamination_status != "clean":
+        raise ValueError("lineage registration requires clean contamination status")
+    if lineage_registration.lineage_registration_status != (
+        "registered_for_later_matrix_review"
+    ):
+        raise ValueError("C reference bundle requires registered lineage status")
+
+    if readiness_summary.case_expansion_ref != expansion_request.case_expansion_ref:
+        raise ValueError("readiness summary must reference case expansion request")
+    lineage_ref = lineage_registration.registered_case_lineage_ref
+    if lineage_ref not in readiness_summary.ready_case_lineage_refs:
+        raise ValueError("readiness summary must carry registered lineage as ready")
+    if case_blueprint.case_blueprint_ref not in readiness_summary.ready_blueprint_refs:
+        raise ValueError("readiness summary must carry blueprint as ready")
+    coverage_by_kind: dict[str, ProgrambenchLocalCaseExpansionCoverageSummaryRow] = {}
+    for row in readiness_summary.coverage_summary_rows:
+        if row.registered_case_lineage_ref != lineage_ref:
+            continue
+        if row.coverage_kind in coverage_by_kind:
+            raise ValueError(f"duplicate coverage kind {row.coverage_kind} for lineage")
+        coverage_by_kind[row.coverage_kind] = row
+    required_coverage_kinds = {
+        "blueprint_complete",
+        "cleanroom_evidence_complete",
+        "contamination_screen_complete",
+        "oracle_boundary_complete",
+        "probe_contract_complete",
+        "source_identity_complete",
+    }
+    if set(coverage_by_kind) != required_coverage_kinds:
+        raise ValueError("readiness summary must cover all required C readiness kinds")
+    for row in coverage_by_kind.values():
+        if row.case_blueprint_ref != case_blueprint.case_blueprint_ref:
+            raise ValueError("coverage summary rows must reference blueprint")
+        if row.coverage_status != "complete":
+            raise ValueError("ready lineage coverage rows must be complete")
+    contamination_rows = [
+        row
+        for row in readiness_summary.contamination_summary_rows
+        if row.registered_case_lineage_ref == lineage_ref
+    ]
+    if len(contamination_rows) != 1:
+        raise ValueError("readiness summary requires one contamination summary per lineage")
+    contamination_summary = contamination_rows[0]
+    if contamination_summary.contamination_screen_ref != (
+        contamination_screen.contamination_screen_ref
+    ):
+        raise ValueError("contamination summary must reference contamination screen")
+    if contamination_summary.contamination_status != "clean" or (
+        contamination_summary.screen_verdict != "passed_cleanroom_screen"
+    ):
+        raise ValueError("ready lineage requires clean contamination summary")
+    if readiness_summary.readiness_posture != "ready_for_later_matrix_candidate_handoff":
+        raise ValueError("readiness summary must be ready for matrix handoff review")
+    if readiness_summary.ready_count_posture != "inventory_count_only_not_success_rate":
+        raise ValueError("ready counts must remain inventory-only")
+    if readiness_summary.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("readiness summary must deny benchmark truth")
+
+    if matrix_candidate_handoff.case_expansion_ref != expansion_request.case_expansion_ref:
+        raise ValueError("matrix candidate handoff must reference case expansion request")
+    if matrix_candidate_handoff.case_expansion_readiness_summary_ref != (
+        readiness_summary.case_expansion_readiness_summary_ref
+    ):
+        raise ValueError("handoff must reference readiness summary")
+    if matrix_candidate_handoff.ready_case_lineage_refs != (
+        readiness_summary.ready_case_lineage_refs
+    ):
+        raise ValueError("handoff ready lineages must match readiness summary")
+    ready_lineages = set(readiness_summary.ready_case_lineage_refs)
+    for row in matrix_candidate_handoff.handoff_pressure_rows:
+        if not set(row.registered_case_lineage_refs).issubset(ready_lineages):
+            raise ValueError("handoff pressure rows may reference only ready lineages")
+    if matrix_candidate_handoff.handoff_non_selection_posture != (
+        "pressure_only_no_matrix_inclusion_selected"
+    ):
+        raise ValueError("matrix handoff must remain pressure-only")
+    if matrix_candidate_handoff.matrix_inclusion_authority_posture != (
+        "no_direct_matrix_inclusion_authority_granted_by_0c"
+    ):
+        raise ValueError("matrix handoff cannot grant matrix inclusion authority")
+
+    if family_closeout_alignment.case_expansion_ref != expansion_request.case_expansion_ref:
+        raise ValueError("family closeout must reference case expansion request")
+    if lineage_ref not in family_closeout_alignment.registered_case_lineage_refs:
+        raise ValueError("family closeout must reference registered lineage")
+    if readiness_summary.case_expansion_readiness_summary_ref not in (
+        family_closeout_alignment.readiness_summary_refs
+    ):
+        raise ValueError("family closeout must reference readiness summary")
+    if matrix_candidate_handoff.case_matrix_candidate_handoff_ref not in (
+        family_closeout_alignment.matrix_candidate_handoff_refs
+    ):
+        raise ValueError("family closeout must reference matrix handoff")
+    expected_a_refs = {
+        expansion_request.case_expansion_ref,
+        source_pool_manifest.source_pool_manifest_ref,
+        eligibility_review.expansion_eligibility_review_ref,
+        control_contract.expansion_control_contract_ref,
+        non_authority_guardrail.expansion_guardrail_ref,
+    }
+    if not expected_a_refs.issubset(set(family_closeout_alignment.released_a_refs)):
+        raise ValueError("family closeout must release all A refs")
+    if family_closeout_alignment.case_expansion_request_refs != [
+        expansion_request.case_expansion_ref
+    ]:
+        raise ValueError("family closeout must list case expansion request refs")
+    if family_closeout_alignment.source_pool_manifest_refs != [
+        source_pool_manifest.source_pool_manifest_ref
+    ]:
+        raise ValueError("family closeout must list source pool manifest refs")
+    if family_closeout_alignment.eligibility_review_refs != [
+        eligibility_review.expansion_eligibility_review_ref
+    ]:
+        raise ValueError("family closeout must list eligibility review refs")
+    if family_closeout_alignment.control_contract_refs != [
+        control_contract.expansion_control_contract_ref
+    ]:
+        raise ValueError("family closeout must list control contract refs")
+    if family_closeout_alignment.guardrail_refs != [
+        non_authority_guardrail.expansion_guardrail_ref
+    ]:
+        raise ValueError("family closeout must list guardrail refs")
+    expected_b_refs = {
+        case_blueprint.case_blueprint_ref,
+        cleanroom_evidence_pack.cleanroom_evidence_pack_ref,
+        probe_contract.probe_contract_ref,
+        oracle_boundary.oracle_boundary_ref,
+        contamination_screen.contamination_screen_ref,
+    }
+    if not expected_b_refs.issubset(set(family_closeout_alignment.released_b_refs)):
+        raise ValueError("family closeout must release all B refs")
+    if family_closeout_alignment.case_blueprint_refs != [case_blueprint.case_blueprint_ref]:
+        raise ValueError("family closeout must list case blueprint refs")
+    if family_closeout_alignment.cleanroom_evidence_pack_refs != [
+        cleanroom_evidence_pack.cleanroom_evidence_pack_ref
+    ]:
+        raise ValueError("family closeout must list cleanroom evidence pack refs")
+    if family_closeout_alignment.probe_contract_refs != [probe_contract.probe_contract_ref]:
+        raise ValueError("family closeout must list probe contract refs")
+    if family_closeout_alignment.oracle_boundary_refs != [oracle_boundary.oracle_boundary_ref]:
+        raise ValueError("family closeout must list oracle boundary refs")
+    if family_closeout_alignment.contamination_screen_refs != [
+        contamination_screen.contamination_screen_ref
+    ]:
+        raise ValueError("family closeout must list contamination screen refs")
+    expected_c_refs = {
+        lineage_registration.case_lineage_registration_ref,
+        readiness_summary.case_expansion_readiness_summary_ref,
+        matrix_candidate_handoff.case_matrix_candidate_handoff_ref,
+        family_closeout_alignment.case_expansion_family_closeout_ref,
+    }
+    if not expected_c_refs.issubset(set(family_closeout_alignment.released_c_refs)):
+        raise ValueError("family closeout must release all C refs")
+    if family_closeout_alignment.lineage_registration_refs != [
+        lineage_registration.case_lineage_registration_ref
+    ]:
+        raise ValueError("family closeout must list lineage registration refs")
+    if family_closeout_alignment.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("family closeout must deny benchmark truth")

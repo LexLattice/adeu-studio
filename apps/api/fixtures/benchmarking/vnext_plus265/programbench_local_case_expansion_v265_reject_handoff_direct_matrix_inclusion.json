@@ -1,0 +1,27 @@
+{
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_0c",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_0c",
+  "case_expansion_readiness_summary_ref": "case-expansion-readiness:pb-case-expansion-0c:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "case_matrix_candidate_handoff_ref": "case-matrix-candidate-handoff:pb-case-expansion-0c:direct",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_0c",
+  "handoff_non_selection_posture": "matrix_inclusion_selected",
+  "handoff_pressure_kind": "future_local_matrix_inclusion_review",
+  "handoff_pressure_rows": [
+    {
+      "handoff_pressure_kind": "future_local_matrix_inclusion_review",
+      "handoff_pressure_posture": "pressure_only_not_selection",
+      "handoff_pressure_ref": "handoff-pressure:pb-case-expansion-0c:matrix-review",
+      "limitation_note": "Pressure only for later matrix candidate review.",
+      "registered_case_lineage_refs": [
+        "case-lineage:pb-case-expansion-0c:diagnostic"
+      ]
+    }
+  ],
+  "limitation_note": "Direct matrix inclusion is not selected in this slice.",
+  "matrix_inclusion_authority_posture": "no_direct_matrix_inclusion_authority_granted_by_0c",
+  "ready_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "schema": "programbench_local_case_matrix_candidate_handoff@1"
+}

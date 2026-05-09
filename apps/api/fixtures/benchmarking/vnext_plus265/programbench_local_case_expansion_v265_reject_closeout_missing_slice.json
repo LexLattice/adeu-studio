@@ -1,0 +1,93 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_expansion_family_closeout_ref": "case-expansion-closeout:pb-case-expansion-0c:missing-slice",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "closed_family_ref": "PB-CASE-EXPANSION-0",
+  "closed_slice_refs": [
+    "PB-CASE-EXPANSION-0-A",
+    "PB-CASE-EXPANSION-0-B"
+  ],
+  "case_blueprint_refs": [
+    "case-blueprint:pb-case-expansion-0b:diagnostic"
+  ],
+  "case_expansion_request_refs": [
+    "case-expansion:pb-case-expansion-0a:reference"
+  ],
+  "cleanroom_evidence_pack_refs": [
+    "case-evidence-pack:pb-case-expansion-0b:diagnostic"
+  ],
+  "contamination_screen_refs": [
+    "case-contamination-screen:pb-case-expansion-0b:diagnostic"
+  ],
+  "control_contract_refs": [
+    "case-expansion-control:pb-case-expansion-0a:reference"
+  ],
+  "eligibility_review_refs": [
+    "case-expansion-eligibility:pb-case-expansion-0a:reference"
+  ],
+  "future_family_authority_posture": "no_future_family_selection_authority_granted_by_0c",
+  "guardrail_refs": [
+    "case-expansion-guardrail:pb-case-expansion-0a:reference"
+  ],
+  "lineage_registration_refs": [
+    "case-lineage-registration:pb-case-expansion-0c:diagnostic"
+  ],
+  "limitation_note": "Closeout omits slice C and must be rejected.",
+  "matrix_candidate_handoff_refs": [
+    "case-matrix-candidate-handoff:pb-case-expansion-0c:diagnostic"
+  ],
+  "model_ranking_posture": "no_model_ranking_authority_granted_by_0c",
+  "oracle_boundary_refs": [
+    "case-oracle-boundary:pb-case-expansion-0b:diagnostic"
+  ],
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_0c",
+  "probe_contract_refs": [
+    "case-probe-contract:pb-case-expansion-0b:diagnostic"
+  ],
+  "readiness_summary_refs": [
+    "case-expansion-readiness:pb-case-expansion-0c:diagnostic"
+  ],
+  "registered_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "source_pool_manifest_refs": [
+    "case-source-pool:pb-case-expansion-0a:reference"
+  ],
+  "released_a_refs": [
+    "case-expansion-control:pb-case-expansion-0a:reference",
+    "case-expansion-eligibility:pb-case-expansion-0a:reference",
+    "case-expansion-guardrail:pb-case-expansion-0a:reference",
+    "case-expansion:pb-case-expansion-0a:reference",
+    "case-source-pool:pb-case-expansion-0a:reference"
+  ],
+  "released_b_refs": [
+    "case-blueprint:pb-case-expansion-0b:diagnostic",
+    "case-contamination-screen:pb-case-expansion-0b:diagnostic",
+    "case-evidence-pack:pb-case-expansion-0b:diagnostic",
+    "case-oracle-boundary:pb-case-expansion-0b:diagnostic",
+    "case-probe-contract:pb-case-expansion-0b:diagnostic"
+  ],
+  "released_c_refs": [
+    "case-expansion-closeout:pb-case-expansion-0c:missing-slice",
+    "case-expansion-readiness:pb-case-expansion-0c:diagnostic",
+    "case-lineage-registration:pb-case-expansion-0c:diagnostic",
+    "case-matrix-candidate-handoff:pb-case-expansion-0c:diagnostic"
+  ],
+  "schema": "programbench_local_case_expansion_family_closeout_alignment@1",
+  "shipped_record_shapes": [
+    "programbench_local_case_blueprint@1",
+    "programbench_local_case_cleanroom_evidence_pack@1",
+    "programbench_local_case_contamination_screen@1",
+    "programbench_local_case_expansion_control_contract@1",
+    "programbench_local_case_expansion_eligibility_review@1",
+    "programbench_local_case_expansion_family_closeout_alignment@1",
+    "programbench_local_case_expansion_non_authority_guardrail@1",
+    "programbench_local_case_expansion_readiness_summary@1",
+    "programbench_local_case_expansion_request@1",
+    "programbench_local_case_lineage_registration@1",
+    "programbench_local_case_matrix_candidate_handoff@1",
+    "programbench_local_case_oracle_boundary@1",
+    "programbench_local_case_probe_contract@1",
+    "programbench_local_case_source_pool_manifest@1"
+  ]
+}
