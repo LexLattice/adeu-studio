@@ -163,23 +163,31 @@ from .programbench_cleanroom_reconstruction import (
 )
 from .programbench_cleanroom_retry import (
     PROGRAMBENCH_LOCAL_RETRY_CANDIDATE_DELTA_SNAPSHOT_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_DELTA_OBSERVATION_SUMMARY_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_DISPATCH_RECORD_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_ELIGIBILITY_REVIEW_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_EXECUTION_CAPTURE_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_LIFECYCLE_PROJECTION_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_LINEAGE_REGISTRY_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_OUTCOME_AUDIT_SCHEMA,
+    PROGRAMBENCH_LOCAL_RETRY_REMAND_SETTLEMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_REQUEST_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_SANDBOX_APPLICATION_TRACE_SCHEMA,
     PROGRAMBENCH_LOCAL_RETRY_SCOPE_CONTRACT_SCHEMA,
     PROGRAMBENCH_TRIAL_REMAND_SOURCE_INDEX_SCHEMA,
     ProgrambenchLocalRetryCandidateDeltaSnapshot,
+    ProgrambenchLocalRetryDeltaObservationSummary,
     ProgrambenchLocalRetryDispatchRecord,
     ProgrambenchLocalRetryEligibilityReview,
     ProgrambenchLocalRetryExecutionCapture,
+    ProgrambenchLocalRetryFamilyCloseoutAlignment,
     ProgrambenchLocalRetryLifecycleProjection,
     ProgrambenchLocalRetryLineageRegistry,
     ProgrambenchLocalRetryNonAuthorityGuardrail,
+    ProgrambenchLocalRetryOutcomeAudit,
+    ProgrambenchLocalRetryRemandSettlement,
     ProgrambenchLocalRetryRequest,
     ProgrambenchLocalRetrySandboxApplicationTrace,
     ProgrambenchLocalRetryScopeContract,
@@ -1238,6 +1246,50 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_retry_sandbox_application_trace.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryOutcomeAudit,
+            PROGRAMBENCH_LOCAL_RETRY_OUTCOME_AUDIT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_outcome_audit.v1.json",
+            root / "spec" / "programbench_local_retry_outcome_audit.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryDeltaObservationSummary,
+            PROGRAMBENCH_LOCAL_RETRY_DELTA_OBSERVATION_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_delta_observation_summary.v1.json",
+            root
+            / "spec"
+            / "programbench_local_retry_delta_observation_summary.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryRemandSettlement,
+            PROGRAMBENCH_LOCAL_RETRY_REMAND_SETTLEMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_remand_settlement.v1.json",
+            root / "spec" / "programbench_local_retry_remand_settlement.schema.json",
+        ),
+        (
+            ProgrambenchLocalRetryFamilyCloseoutAlignment,
+            PROGRAMBENCH_LOCAL_RETRY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_retry_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_local_retry_family_closeout_alignment.schema.json",
         ),
     ]
 

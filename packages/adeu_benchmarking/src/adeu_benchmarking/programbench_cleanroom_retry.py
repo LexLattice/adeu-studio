@@ -120,6 +120,17 @@ _ALLOWED_RETRY_RATIONALE_KINDS = {
 }
 _PB_RETRY_0B_DISPATCH_AUTHORITY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS258.md"
 _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT = "passed"
+_PB_RETRY_CLOSED_SLICES = ["PB-RETRY-0-A", "PB-RETRY-0-B", "PB-RETRY-0-C"]
+_RETRY_COMPARATIVE_LANGUAGE_MARKERS = (
+    "benchmark-like result",
+    "leaderboard",
+    "model b is better",
+    "near leaderboard",
+    "official score",
+    "outperformed",
+    "retry improved the model",
+    "this approach wins",
+)
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -889,6 +900,286 @@ class ProgrambenchLocalRetrySandboxApplicationTrace(_RetryBase):
         return self
 
 
+class ProgrambenchLocalRetryRemandSatisfactionRow(_RetryBase):
+    remand_satisfaction_ref: str
+    source_remand_ref: str
+    satisfaction_kind: Literal[
+        "candidate_delta_addresses_remand",
+        "execution_capture_addresses_remand",
+        "lifecycle_projection_addresses_remand",
+        "local_remand_satisfied",
+    ]
+    satisfaction_posture: Literal["blocked", "satisfied", "unresolved"]
+    evidence_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_satisfaction(self) -> "ProgrambenchLocalRetryRemandSatisfactionRow":
+        _ensure_sorted_unique(self.evidence_refs, field_name="remand satisfaction evidence_refs")
+        _ensure_no_forbidden_refs(
+            self.evidence_refs,
+            field_name="remand satisfaction evidence_refs",
+        )
+        _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalRetrySameLineageDeltaRow(_RetryBase):
+    same_lineage_delta_ref: str
+    delta_kind: Literal[
+        "candidate_delta_observed",
+        "execution_delta_observed",
+        "local_remand_resolution_observed",
+    ]
+    source_trial_refs: list[str] = Field(min_length=1)
+    retry_refs: list[str] = Field(min_length=1)
+    delta_scope_posture: Literal["same_lineage_local_delta_only"]
+    delta_text: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_delta_row(self) -> "ProgrambenchLocalRetrySameLineageDeltaRow":
+        for field_name in ("source_trial_refs", "retry_refs"):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        for field_name in ("delta_text", "limitation_note"):
+            value = getattr(self, field_name)
+            leaked = [
+                marker
+                for marker in _RETRY_COMPARATIVE_LANGUAGE_MARKERS
+                if marker in value.lower()
+            ]
+            if leaked:
+                raise ValueError(
+                    "retry delta rows cannot contain model or benchmark ranking language: "
+                    f"{leaked}"
+                )
+            _ensure_no_forbidden_content(value, field_name=field_name)
+        return self
+
+
+class ProgrambenchLocalRetryOutcomeAudit(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_OUTCOME_AUDIT_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_outcome_audit_ref: str
+    retry_request_ref: str
+    retry_lineage_ref: str
+    retry_eligibility_review_ref: str
+    retry_scope_contract_ref: str
+    retry_dispatch_record_ref: str
+    retry_execution_capture_ref: str
+    retry_candidate_delta_snapshot_ref: str
+    retry_lifecycle_projection_ref: str
+    retry_sandbox_trace_ref: str
+    local_remand_refs: list[str] = Field(min_length=1)
+    remand_satisfaction_rows: list[ProgrambenchLocalRetryRemandSatisfactionRow] = Field(
+        min_length=1
+    )
+    local_probe_basis_refs: list[str] = Field(min_length=1)
+    carried_blocker_refs: list[str] = Field(default_factory=list)
+    carried_warning_refs: list[str] = Field(default_factory=list)
+    local_retry_result_posture: Literal[
+        "future_family_only",
+        "local_retry_blocked_by_candidate_delta_gap",
+        "local_retry_blocked_by_contamination",
+        "local_retry_blocked_by_execution_capture_gap",
+        "local_retry_blocked_by_lifecycle_projection_gap",
+        "local_retry_blocked_by_sandbox_violation",
+        "local_retry_inconclusive_local_only",
+        "local_retry_remand_unresolved",
+        "local_retry_resolved",
+    ]
+    hidden_test_equivalence_posture: Literal[
+        "no_hidden_test_equivalence_claimed_by_pb_retry_0c"
+    ]
+    official_submission_posture: Literal["no_official_submission_authority_by_pb_retry_0c"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_retry_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_outcome_audit(self) -> "ProgrambenchLocalRetryOutcomeAudit":
+        for field_name in (
+            "local_remand_refs",
+            "local_probe_basis_refs",
+            "carried_blocker_refs",
+            "carried_warning_refs",
+        ):
+            values = getattr(self, field_name)
+            if field_name in {"carried_blocker_refs", "carried_warning_refs"}:
+                _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            else:
+                _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        satisfaction_refs = [
+            row.remand_satisfaction_ref for row in self.remand_satisfaction_rows
+        ]
+        _ensure_sorted_unique(
+            satisfaction_refs,
+            field_name="remand_satisfaction_rows",
+        )
+        satisfaction_source_refs = {row.source_remand_ref for row in self.remand_satisfaction_rows}
+        missing = sorted(set(self.local_remand_refs) - satisfaction_source_refs)
+        if missing:
+            raise ValueError(f"local remands require satisfaction rows: {missing}")
+        if self.local_retry_result_posture == "future_family_only":
+            raise ValueError("PB-RETRY-0-C cannot mark retry outcome future-family-only")
+        if self.local_retry_result_posture == "local_retry_resolved":
+            if self.carried_blocker_refs:
+                raise ValueError("local retry resolution cannot carry blockers")
+            unresolved = [
+                row.remand_satisfaction_ref
+                for row in self.remand_satisfaction_rows
+                if row.satisfaction_posture != "satisfied"
+            ]
+            if unresolved:
+                raise ValueError("local retry resolution requires satisfied remand rows")
+        elif not (self.carried_blocker_refs or self.carried_warning_refs):
+            raise ValueError("non-resolved retry outcomes require blockers or warnings")
+        _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalRetryDeltaObservationSummary(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_DELTA_OBSERVATION_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_delta_observation_summary_ref: str
+    retry_outcome_audit_ref: str
+    source_trial_observation_summary_ref: str
+    retry_execution_capture_refs: list[str] = Field(min_length=1)
+    retry_candidate_delta_snapshot_refs: list[str] = Field(min_length=1)
+    same_lineage_delta_rows: list[ProgrambenchLocalRetrySameLineageDeltaRow] = Field(
+        min_length=1
+    )
+    observation_scope_posture: Literal["single_retry_lineage_local_only"]
+    comparison_scope_posture: Literal[
+        "same_trial_lineage_only_no_model_or_benchmark_comparison"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_retry_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_delta_summary(self) -> "ProgrambenchLocalRetryDeltaObservationSummary":
+        for field_name in (
+            "retry_execution_capture_refs",
+            "retry_candidate_delta_snapshot_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        row_refs = [row.same_lineage_delta_ref for row in self.same_lineage_delta_rows]
+        _ensure_sorted_unique(row_refs, field_name="same_lineage_delta_rows")
+        leaked = [
+            marker
+            for marker in _RETRY_COMPARATIVE_LANGUAGE_MARKERS
+            if marker in self.limitation_note.lower()
+        ]
+        if leaked:
+            raise ValueError(
+                "retry delta summary cannot contain model or benchmark ranking language: "
+                f"{leaked}"
+            )
+        _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalRetryRemandSettlement(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_REMAND_SETTLEMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_remand_settlement_ref: str
+    retry_outcome_audit_ref: str
+    source_trial_remand_decision_ref: str
+    settled_remand_refs: list[str] = Field(default_factory=list)
+    unresolved_remand_refs: list[str] = Field(default_factory=list)
+    new_local_remand_refs: list[str] = Field(default_factory=list)
+    settlement_posture: Literal[
+        "local_remand_settled",
+        "local_remand_unresolved",
+        "local_settlement_blocked",
+    ]
+    second_retry_requestability_posture: Literal[
+        "no_second_retry_authority_granted_by_pb_retry_0c"
+    ]
+    unresolved_remand_future_posture: Literal[
+        "unresolved_remand_pressure_only_no_retry_authority"
+    ]
+    settlement_scope_posture: Literal["local_retry_lineage_only_not_benchmark_truth"]
+    second_retry_authority_posture: Literal[
+        "no_second_retry_dispatch_authority_granted_by_pb_retry_0c"
+    ]
+    future_family_posture: Literal["no_future_family_selected_by_pb_retry_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_remand_settlement(self) -> "ProgrambenchLocalRetryRemandSettlement":
+        for field_name in (
+            "settled_remand_refs",
+            "unresolved_remand_refs",
+            "new_local_remand_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        if self.settlement_posture == "local_remand_settled":
+            if not self.settled_remand_refs:
+                raise ValueError("settled retry remand requires settled remand refs")
+            if self.unresolved_remand_refs or self.new_local_remand_refs:
+                raise ValueError("settled retry remand cannot carry unresolved or new remands")
+        elif not (self.unresolved_remand_refs or self.new_local_remand_refs):
+            raise ValueError("unsettled retry remand requires unresolved or new remand refs")
+        _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalRetryFamilyCloseoutAlignment(_RetryBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_RETRY_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    retry_family_closeout_ref: str
+    retry_request_refs: list[str] = Field(min_length=1)
+    retry_eligibility_review_refs: list[str] = Field(min_length=1)
+    retry_scope_contract_refs: list[str] = Field(min_length=1)
+    retry_dispatch_record_refs: list[str] = Field(min_length=1)
+    retry_execution_capture_refs: list[str] = Field(min_length=1)
+    retry_candidate_delta_snapshot_refs: list[str] = Field(min_length=1)
+    retry_lifecycle_projection_refs: list[str] = Field(min_length=1)
+    retry_outcome_audit_refs: list[str] = Field(min_length=1)
+    retry_delta_observation_summary_refs: list[str] = Field(min_length=1)
+    retry_remand_settlement_refs: list[str] = Field(min_length=1)
+    closed_slice_refs: list[str] = Field(min_length=1)
+    family_closeout_posture: Literal["pb_retry_0_closed_local_retry_only"]
+    future_family_authority_posture: Literal["no_future_family_selected_by_pb_retry_0c"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_family_closeout(
+        self,
+    ) -> "ProgrambenchLocalRetryFamilyCloseoutAlignment":
+        if self.closed_slice_refs != _PB_RETRY_CLOSED_SLICES:
+            raise ValueError("PB-RETRY-0 closeout must close exactly A, B, and C")
+        for field_name in (
+            "retry_request_refs",
+            "retry_eligibility_review_refs",
+            "retry_scope_contract_refs",
+            "retry_dispatch_record_refs",
+            "retry_execution_capture_refs",
+            "retry_candidate_delta_snapshot_refs",
+            "retry_lifecycle_projection_refs",
+            "retry_outcome_audit_refs",
+            "retry_delta_observation_summary_refs",
+            "retry_remand_settlement_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 def validate_pb_retry_0a_retry_bundle(
     *,
     trial_outcome_audit: ProgrambenchLocalTrialOutcomeAudit,
@@ -1191,3 +1482,210 @@ def validate_pb_retry_0b_dispatch_bundle(
         raise ValueError("retry sandbox trace must bind to dispatch sandbox attestation")
     if retry_sandbox_trace.sandbox_violation_refs:
         raise ValueError("retry sandbox trace cannot carry sandbox violations")
+
+
+def validate_pb_retry_0c_closeout_bundle(
+    *,
+    retry_request: ProgrambenchLocalRetryRequest,
+    retry_lineage_registry: ProgrambenchLocalRetryLineageRegistry,
+    remand_source_index: ProgrambenchTrialRemandSourceIndex,
+    retry_eligibility_review: ProgrambenchLocalRetryEligibilityReview,
+    retry_scope_contract: ProgrambenchLocalRetryScopeContract,
+    retry_guardrail: ProgrambenchLocalRetryNonAuthorityGuardrail,
+    source_trial_observation_summary: ProgrambenchLocalTrialObservationSummary,
+    source_trial_remand_decision: ProgrambenchLocalTrialRemandDecision,
+    source_trial_family_closeout: ProgrambenchLocalTrialFamilyCloseoutAlignment,
+    source_trial_dispatch: ProgrambenchLocalTrialWorkerDispatchRecord,
+    source_trial_candidate_snapshot: ProgrambenchLocalTrialCandidateArtifactSnapshot,
+    source_trial_lifecycle_projection: ProgrambenchLocalTrialLifecycleProjection,
+    retry_dispatch_record: ProgrambenchLocalRetryDispatchRecord,
+    retry_execution_capture: ProgrambenchLocalRetryExecutionCapture,
+    retry_candidate_delta_snapshot: ProgrambenchLocalRetryCandidateDeltaSnapshot,
+    retry_lifecycle_projection: ProgrambenchLocalRetryLifecycleProjection,
+    retry_sandbox_trace: ProgrambenchLocalRetrySandboxApplicationTrace,
+    retry_outcome_audit: ProgrambenchLocalRetryOutcomeAudit,
+    retry_delta_observation_summary: ProgrambenchLocalRetryDeltaObservationSummary,
+    retry_remand_settlement: ProgrambenchLocalRetryRemandSettlement,
+    retry_family_closeout: ProgrambenchLocalRetryFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_retry_0b_dispatch_bundle(
+        retry_request=retry_request,
+        retry_lineage_registry=retry_lineage_registry,
+        remand_source_index=remand_source_index,
+        retry_eligibility_review=retry_eligibility_review,
+        retry_scope_contract=retry_scope_contract,
+        retry_guardrail=retry_guardrail,
+        source_trial_dispatch=source_trial_dispatch,
+        source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+        retry_dispatch_record=retry_dispatch_record,
+        retry_execution_capture=retry_execution_capture,
+        retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+        retry_lifecycle_projection=retry_lifecycle_projection,
+        retry_sandbox_trace=retry_sandbox_trace,
+    )
+
+    if source_trial_family_closeout.closed_family_ref != "PB-TRIAL-0":
+        raise ValueError("retry closeout requires released PB-TRIAL-0 closeout")
+    if source_trial_observation_summary.trial_observation_summary_ref not in (
+        source_trial_family_closeout.trial_observation_summary_refs
+    ):
+        raise ValueError("trial closeout must release source observation summary")
+    if source_trial_remand_decision.trial_remand_decision_ref not in (
+        source_trial_family_closeout.trial_remand_decision_refs
+    ):
+        raise ValueError("trial closeout must release source remand decision")
+    if source_trial_remand_decision.trial_observation_summary_ref != (
+        source_trial_observation_summary.trial_observation_summary_ref
+    ):
+        raise ValueError("source trial remand decision must reference observation summary")
+    if retry_request.trial_remand_decision_ref != (
+        source_trial_remand_decision.trial_remand_decision_ref
+    ):
+        raise ValueError("retry request must preserve source trial remand decision")
+
+    if retry_outcome_audit.retry_request_ref != retry_request.retry_request_ref:
+        raise ValueError("retry outcome audit must reference retry request")
+    if retry_outcome_audit.retry_lineage_ref != retry_request.retry_lineage_ref:
+        raise ValueError("retry outcome audit must preserve retry lineage")
+    if retry_outcome_audit.retry_eligibility_review_ref != (
+        retry_eligibility_review.retry_eligibility_review_ref
+    ):
+        raise ValueError("retry outcome audit must reference A eligibility review")
+    if retry_outcome_audit.retry_scope_contract_ref != (
+        retry_scope_contract.retry_scope_contract_ref
+    ):
+        raise ValueError("retry outcome audit must reference A scope contract")
+    if retry_outcome_audit.retry_dispatch_record_ref != (
+        retry_dispatch_record.retry_dispatch_record_ref
+    ):
+        raise ValueError("retry outcome audit must reference retry dispatch")
+    if retry_outcome_audit.retry_execution_capture_ref != (
+        retry_execution_capture.retry_execution_capture_ref
+    ):
+        raise ValueError("retry outcome audit must reference retry execution capture")
+    if retry_outcome_audit.retry_candidate_delta_snapshot_ref != (
+        retry_candidate_delta_snapshot.retry_candidate_delta_snapshot_ref
+    ):
+        raise ValueError("retry outcome audit must reference candidate delta")
+    if retry_outcome_audit.retry_lifecycle_projection_ref != (
+        retry_lifecycle_projection.retry_lifecycle_projection_ref
+    ):
+        raise ValueError("retry outcome audit must reference lifecycle projection")
+    if (
+        retry_outcome_audit.retry_sandbox_trace_ref
+        != retry_sandbox_trace.retry_sandbox_trace_ref
+    ):
+        raise ValueError("retry outcome audit must reference sandbox trace")
+
+    local_retryable_remands = set(remand_source_index.local_retryable_source_refs)
+    unknown_local_remands = sorted(
+        set(retry_outcome_audit.local_remand_refs) - local_retryable_remands
+    )
+    if unknown_local_remands:
+        raise ValueError(
+            "retry outcome audit local remands must come from released retryable remands: "
+            f"{unknown_local_remands}"
+        )
+    if retry_outcome_audit.local_retry_result_posture == "local_retry_resolved":
+        if (
+            retry_execution_capture.sandbox_violation_refs
+            or retry_sandbox_trace.sandbox_violation_refs
+        ):
+            raise ValueError("local retry resolution cannot carry sandbox violations")
+        if retry_execution_capture.forbidden_content_screen_verdict != (
+            _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
+        ):
+            raise ValueError("local retry resolution requires passed output screening")
+        if retry_candidate_delta_snapshot.forbidden_content_screen_verdict != (
+            _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
+        ):
+            raise ValueError("local retry resolution requires screened candidate delta")
+        if retry_candidate_delta_snapshot.inside_released_write_scope is not True:
+            raise ValueError("local retry resolution requires candidate delta inside write scope")
+        if retry_lifecycle_projection.projection_validation_posture != (
+            "projected_to_released_trial_and_attempt_lifecycle_refs"
+        ):
+            raise ValueError("local retry resolution requires lifecycle projection validation")
+        if retry_lifecycle_projection.new_evidence_law_posture != (
+            "no_new_evidence_law_defined_by_pb_retry_0b"
+        ):
+            raise ValueError("local retry resolution cannot define new evidence law")
+
+    if retry_delta_observation_summary.retry_outcome_audit_ref != (
+        retry_outcome_audit.retry_outcome_audit_ref
+    ):
+        raise ValueError("retry delta summary must reference outcome audit")
+    if retry_delta_observation_summary.source_trial_observation_summary_ref != (
+        source_trial_observation_summary.trial_observation_summary_ref
+    ):
+        raise ValueError("retry delta summary must reference source trial observation summary")
+    if retry_execution_capture.retry_execution_capture_ref not in (
+        retry_delta_observation_summary.retry_execution_capture_refs
+    ):
+        raise ValueError("retry delta summary must include retry execution capture")
+    if retry_candidate_delta_snapshot.retry_candidate_delta_snapshot_ref not in (
+        retry_delta_observation_summary.retry_candidate_delta_snapshot_refs
+    ):
+        raise ValueError("retry delta summary must include retry candidate delta")
+
+    if retry_remand_settlement.retry_outcome_audit_ref != (
+        retry_outcome_audit.retry_outcome_audit_ref
+    ):
+        raise ValueError("retry settlement must reference outcome audit")
+    if retry_remand_settlement.source_trial_remand_decision_ref != (
+        source_trial_remand_decision.trial_remand_decision_ref
+    ):
+        raise ValueError("retry settlement must reference source trial remand decision")
+    if retry_remand_settlement.settlement_posture == "local_remand_settled":
+        if sorted(retry_remand_settlement.settled_remand_refs) != sorted(
+            retry_outcome_audit.local_remand_refs
+        ):
+            raise ValueError("settled remands must match outcome audit local remands")
+        if retry_outcome_audit.local_retry_result_posture != "local_retry_resolved":
+            raise ValueError("settled retry remand requires resolved retry outcome")
+    unresolved_refs = set(retry_remand_settlement.unresolved_remand_refs)
+    new_refs = set(retry_remand_settlement.new_local_remand_refs)
+    if unresolved_refs & set(retry_remand_settlement.settled_remand_refs):
+        raise ValueError("settled and unresolved remand refs must not overlap")
+    if new_refs & set(retry_remand_settlement.settled_remand_refs):
+        raise ValueError("settled and new remand refs must not overlap")
+
+    if retry_request.retry_request_ref not in retry_family_closeout.retry_request_refs:
+        raise ValueError("retry closeout must release retry request")
+    if retry_eligibility_review.retry_eligibility_review_ref not in (
+        retry_family_closeout.retry_eligibility_review_refs
+    ):
+        raise ValueError("retry closeout must release eligibility review")
+    if retry_scope_contract.retry_scope_contract_ref not in (
+        retry_family_closeout.retry_scope_contract_refs
+    ):
+        raise ValueError("retry closeout must release scope contract")
+    if retry_dispatch_record.retry_dispatch_record_ref not in (
+        retry_family_closeout.retry_dispatch_record_refs
+    ):
+        raise ValueError("retry closeout must release dispatch record")
+    if retry_execution_capture.retry_execution_capture_ref not in (
+        retry_family_closeout.retry_execution_capture_refs
+    ):
+        raise ValueError("retry closeout must release execution capture")
+    if retry_candidate_delta_snapshot.retry_candidate_delta_snapshot_ref not in (
+        retry_family_closeout.retry_candidate_delta_snapshot_refs
+    ):
+        raise ValueError("retry closeout must release candidate delta")
+    if retry_lifecycle_projection.retry_lifecycle_projection_ref not in (
+        retry_family_closeout.retry_lifecycle_projection_refs
+    ):
+        raise ValueError("retry closeout must release lifecycle projection")
+    if retry_outcome_audit.retry_outcome_audit_ref not in (
+        retry_family_closeout.retry_outcome_audit_refs
+    ):
+        raise ValueError("retry closeout must release outcome audit")
+    if retry_delta_observation_summary.retry_delta_observation_summary_ref not in (
+        retry_family_closeout.retry_delta_observation_summary_refs
+    ):
+        raise ValueError("retry closeout must release delta summary")
+    if retry_remand_settlement.retry_remand_settlement_ref not in (
+        retry_family_closeout.retry_remand_settlement_refs
+    ):
+        raise ValueError("retry closeout must release remand settlement")

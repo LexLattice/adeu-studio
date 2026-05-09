@@ -1,0 +1,136 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "family_closeout_posture": {
+      "const": "pb_retry_0_closed_local_retry_only",
+      "title": "Family Closeout Posture",
+      "type": "string"
+    },
+    "future_family_authority_posture": {
+      "const": "no_future_family_selected_by_pb_retry_0c",
+      "title": "Future Family Authority Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "retry_candidate_delta_snapshot_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Candidate Delta Snapshot Refs",
+      "type": "array"
+    },
+    "retry_delta_observation_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Delta Observation Summary Refs",
+      "type": "array"
+    },
+    "retry_dispatch_record_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Dispatch Record Refs",
+      "type": "array"
+    },
+    "retry_eligibility_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Eligibility Review Refs",
+      "type": "array"
+    },
+    "retry_execution_capture_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Execution Capture Refs",
+      "type": "array"
+    },
+    "retry_family_closeout_ref": {
+      "title": "Retry Family Closeout Ref",
+      "type": "string"
+    },
+    "retry_lifecycle_projection_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Lifecycle Projection Refs",
+      "type": "array"
+    },
+    "retry_outcome_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Outcome Audit Refs",
+      "type": "array"
+    },
+    "retry_remand_settlement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Remand Settlement Refs",
+      "type": "array"
+    },
+    "retry_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Request Refs",
+      "type": "array"
+    },
+    "retry_scope_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Retry Scope Contract Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_retry_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_family_closeout_ref",
+    "retry_request_refs",
+    "retry_eligibility_review_refs",
+    "retry_scope_contract_refs",
+    "retry_dispatch_record_refs",
+    "retry_execution_capture_refs",
+    "retry_candidate_delta_snapshot_refs",
+    "retry_lifecycle_projection_refs",
+    "retry_outcome_audit_refs",
+    "retry_delta_observation_summary_refs",
+    "retry_remand_settlement_refs",
+    "closed_slice_refs",
+    "family_closeout_posture",
+    "future_family_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryFamilyCloseoutAlignment",
+  "type": "object"
+}

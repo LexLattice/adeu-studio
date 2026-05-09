@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "ProgrambenchLocalRetryRemandSatisfactionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "remand_satisfaction_ref": {
+          "title": "Remand Satisfaction Ref",
+          "type": "string"
+        },
+        "satisfaction_kind": {
+          "enum": [
+            "candidate_delta_addresses_remand",
+            "execution_capture_addresses_remand",
+            "lifecycle_projection_addresses_remand",
+            "local_remand_satisfied"
+          ],
+          "title": "Satisfaction Kind",
+          "type": "string"
+        },
+        "satisfaction_posture": {
+          "enum": [
+            "blocked",
+            "satisfied",
+            "unresolved"
+          ],
+          "title": "Satisfaction Posture",
+          "type": "string"
+        },
+        "source_remand_ref": {
+          "title": "Source Remand Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remand_satisfaction_ref",
+        "source_remand_ref",
+        "satisfaction_kind",
+        "satisfaction_posture",
+        "evidence_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalRetryRemandSatisfactionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "no_hidden_test_equivalence_claimed_by_pb_retry_0c",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_probe_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Probe Basis Refs",
+      "type": "array"
+    },
+    "local_remand_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Remand Refs",
+      "type": "array"
+    },
+    "local_retry_result_posture": {
+      "enum": [
+        "future_family_only",
+        "local_retry_blocked_by_candidate_delta_gap",
+        "local_retry_blocked_by_contamination",
+        "local_retry_blocked_by_execution_capture_gap",
+        "local_retry_blocked_by_lifecycle_projection_gap",
+        "local_retry_blocked_by_sandbox_violation",
+        "local_retry_inconclusive_local_only",
+        "local_retry_remand_unresolved",
+        "local_retry_resolved"
+      ],
+      "title": "Local Retry Result Posture",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_retry_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_submission_posture": {
+      "const": "no_official_submission_authority_by_pb_retry_0c",
+      "title": "Official Submission Posture",
+      "type": "string"
+    },
+    "remand_satisfaction_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalRetryRemandSatisfactionRow"
+      },
+      "minItems": 1,
+      "title": "Remand Satisfaction Rows",
+      "type": "array"
+    },
+    "retry_candidate_delta_snapshot_ref": {
+      "title": "Retry Candidate Delta Snapshot Ref",
+      "type": "string"
+    },
+    "retry_dispatch_record_ref": {
+      "title": "Retry Dispatch Record Ref",
+      "type": "string"
+    },
+    "retry_eligibility_review_ref": {
+      "title": "Retry Eligibility Review Ref",
+      "type": "string"
+    },
+    "retry_execution_capture_ref": {
+      "title": "Retry Execution Capture Ref",
+      "type": "string"
+    },
+    "retry_lifecycle_projection_ref": {
+      "title": "Retry Lifecycle Projection Ref",
+      "type": "string"
+    },
+    "retry_lineage_ref": {
+      "title": "Retry Lineage Ref",
+      "type": "string"
+    },
+    "retry_outcome_audit_ref": {
+      "title": "Retry Outcome Audit Ref",
+      "type": "string"
+    },
+    "retry_request_ref": {
+      "title": "Retry Request Ref",
+      "type": "string"
+    },
+    "retry_sandbox_trace_ref": {
+      "title": "Retry Sandbox Trace Ref",
+      "type": "string"
+    },
+    "retry_scope_contract_ref": {
+      "title": "Retry Scope Contract Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_retry_outcome_audit@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "retry_outcome_audit_ref",
+    "retry_request_ref",
+    "retry_lineage_ref",
+    "retry_eligibility_review_ref",
+    "retry_scope_contract_ref",
+    "retry_dispatch_record_ref",
+    "retry_execution_capture_ref",
+    "retry_candidate_delta_snapshot_ref",
+    "retry_lifecycle_projection_ref",
+    "retry_sandbox_trace_ref",
+    "local_remand_refs",
+    "remand_satisfaction_rows",
+    "local_probe_basis_refs",
+    "local_retry_result_posture",
+    "hidden_test_equivalence_posture",
+    "official_submission_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalRetryOutcomeAudit",
+  "type": "object"
+}
