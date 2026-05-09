@@ -118,7 +118,7 @@ _SOFT_RESULT_LANGUAGE_MARKERS = (
     "solved the case",
     "success rate",
 )
-_REQUIRED_B_WITNESS_REFS = [
+_REQUIRED_B_WITNESS_REFS = (
     "decompilation_absence_witness_ref",
     "docker_socket_absence_witness_ref",
     "network_mode_witness_ref",
@@ -127,7 +127,18 @@ _REQUIRED_B_WITNESS_REFS = [
     "secret_absence_witness_ref",
     "source_lookup_absence_witness_ref",
     "write_scope_attestation_ref",
-]
+)
+_REQUIRED_PREFLIGHT_CHECK_KINDS = (
+    "decompilation_disabled",
+    "docker_socket_absent",
+    "host_secret_absent",
+    "local_probe_basis_declared",
+    "network_disabled",
+    "run_budget_bounded",
+    "source_lookup_disabled",
+    "tool_manifest_closed",
+    "write_scope_bounded",
+)
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -525,14 +536,17 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
         for field_name in ("sandbox_witness_requirement_refs", "required_b_witness_refs"):
             values = getattr(self, field_name)
             _ensure_sorted_unique(values, field_name=field_name)
-        if self.sandbox_witness_requirement_refs != _REQUIRED_B_WITNESS_REFS:
+        if self.sandbox_witness_requirement_refs != list(_REQUIRED_B_WITNESS_REFS):
             raise ValueError(
                 "sandbox_witness_requirement_refs must match B witness requirements"
             )
-        if self.required_b_witness_refs != _REQUIRED_B_WITNESS_REFS:
+        if self.required_b_witness_refs != list(_REQUIRED_B_WITNESS_REFS):
             raise ValueError("required_b_witness_refs must match B witness requirements")
         row_refs = [row.preflight_check_ref for row in self.preflight_check_rows]
         _ensure_sorted_unique(row_refs, field_name="preflight_check_rows")
+        check_kinds = [row.check_kind for row in self.preflight_check_rows]
+        if len(check_kinds) != len(set(check_kinds)):
+            raise ValueError("preflight_check_rows must not duplicate check kinds")
         _ensure_no_forbidden_refs(
             [
                 self.single_case_execution_preflight_ref,
@@ -553,6 +567,13 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
             if row.check_status == "blocked"
         ]
         if self.preflight_status == "ready_for_later_local_single_case_execution_review":
+            missing_check_kinds = sorted(set(_REQUIRED_PREFLIGHT_CHECK_KINDS) - set(check_kinds))
+            unexpected_check_kinds = sorted(set(check_kinds) - set(_REQUIRED_PREFLIGHT_CHECK_KINDS))
+            if missing_check_kinds or unexpected_check_kinds:
+                raise ValueError(
+                    "ready preflight must cover required check kinds: "
+                    f"missing={missing_check_kinds}, unexpected={unexpected_check_kinds}"
+                )
             if blocked_rows:
                 raise ValueError("ready preflight cannot carry blocked checks")
         elif not blocked_rows:
@@ -730,6 +751,10 @@ def validate_pb_single_case_run_0a_bundle(
         raise ValueError("target selection hash must match requested case lineage hash")
     if target_selection.matrix_membership_status != "included":
         raise ValueError("matrix-member target must be included")
+    if target_selection.target_selection_status != "selected_for_later_local_run_preflight":
+        raise ValueError("target selection must be selected for later local run preflight")
+    if target_selection.target_selection_blocker_refs:
+        raise ValueError("target selection must not carry blockers")
     if (
         target_selection.source_matrix_ref
         != matrix_revision_registration.target_matrix_ref
@@ -785,19 +810,21 @@ def validate_pb_single_case_run_0a_bundle(
         != target_selection.worker_visible_packet_hash
     ):
         raise ValueError("control contract worker packet hash must match target")
-    if run_control_contract.local_probe_basis_hash != target_selection.local_probe_basis_hash:
-        raise ValueError("control contract local probe basis hash must match target")
-    for field_name in (
-        "runbook_hash",
-        "sandbox_policy_hash",
-        "run_budget_hash",
-        "tool_manifest_hash",
-        "write_scope_hash",
+    if (
+        run_control_contract.local_probe_basis_hash
+        != target_selection.local_probe_basis_hash
     ):
-        if getattr(run_control_contract, field_name) != getattr(
-            execution_preflight, field_name
-        ):
-            raise ValueError(f"control contract {field_name} must match preflight")
+        raise ValueError("control contract local probe basis hash must match target")
+    if run_control_contract.runbook_hash != execution_preflight.runbook_hash:
+        raise ValueError("control contract runbook_hash must match preflight")
+    if run_control_contract.sandbox_policy_hash != execution_preflight.sandbox_policy_hash:
+        raise ValueError("control contract sandbox_policy_hash must match preflight")
+    if run_control_contract.run_budget_hash != execution_preflight.run_budget_hash:
+        raise ValueError("control contract run_budget_hash must match preflight")
+    if run_control_contract.tool_manifest_hash != execution_preflight.tool_manifest_hash:
+        raise ValueError("control contract tool_manifest_hash must match preflight")
+    if run_control_contract.write_scope_hash != execution_preflight.write_scope_hash:
+        raise ValueError("control contract write_scope_hash must match preflight")
     if execution_preflight.preflight_status != (
         "ready_for_later_local_single_case_execution_review"
     ):

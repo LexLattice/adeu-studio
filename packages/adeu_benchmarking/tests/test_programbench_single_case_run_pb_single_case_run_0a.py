@@ -232,6 +232,49 @@ def test_pb_single_case_run_0a_rejects_missing_required_b_witness() -> None:
         )
 
 
+def test_pb_single_case_run_0a_rejects_ready_preflight_missing_check_kind() -> None:
+    _, _, preflight, _, _ = _load_single_case_run_a_rows()
+
+    with pytest.raises(ValidationError, match="required check kinds"):
+        ProgrambenchSingleCaseExecutionPreflight.model_validate(
+            preflight.model_dump(by_alias=True)
+            | {
+                "preflight_check_rows": [
+                    row.model_dump()
+                    for row in preflight.preflight_check_rows
+                    if row.check_kind != "network_disabled"
+                ]
+            }
+        )
+
+
+def test_pb_single_case_run_0a_bundle_rejects_blocked_target_selection() -> None:
+    matrix_closeout, matrix_registration, matrix_readiness = (
+        _load_matrix_inclusion_c_rows()
+    )
+    request, target, preflight, control, guardrail = _load_single_case_run_a_rows()
+    blocked_target = target.model_copy(
+        update={
+            "target_selection_status": "blocked",
+            "target_selection_blocker_refs": [
+                "single-case-blocker:pb-single-case-run-0a:selection-blocked"
+            ],
+        }
+    )
+
+    with pytest.raises(ValueError, match="selected for later local run preflight"):
+        validate_pb_single_case_run_0a_bundle(
+            matrix_inclusion_family_closeout=matrix_closeout,
+            matrix_revision_registration=matrix_registration,
+            matrix_revision_readiness_summary=matrix_readiness,
+            run_request=request,
+            target_selection=blocked_target,
+            execution_preflight=preflight,
+            run_control_contract=control,
+            non_authority_guardrail=guardrail,
+        )
+
+
 def test_pb_single_case_run_0a_rejects_current_artifacts_as_future_forbidden() -> None:
     _, _, _, _, guardrail = _load_single_case_run_a_rows()
 
