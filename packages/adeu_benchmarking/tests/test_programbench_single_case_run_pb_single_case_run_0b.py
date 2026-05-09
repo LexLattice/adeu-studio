@@ -265,6 +265,29 @@ def test_pb_single_case_run_0b_rejects_shell_shaped_command() -> None:
         ProgrambenchSingleCaseExecutionTrace.model_validate(payload)
 
 
+def test_pb_single_case_run_0b_rejects_shell_path_command() -> None:
+    _, trace, _, _, _ = _load_single_case_run_b_rows()
+    payload = trace.model_dump(by_alias=True)
+    payload["command_argv_rows"] = [
+        payload["command_argv_rows"][0] | {"argv": ["/bin/sh", "-c", "echo local"]}
+    ]
+
+    with pytest.raises(ValidationError, match="shell executable"):
+        ProgrambenchSingleCaseExecutionTrace.model_validate(payload)
+
+
+def test_pb_single_case_run_0b_rejects_shell_marker_in_argv_token() -> None:
+    _, trace, _, _, _ = _load_single_case_run_b_rows()
+    payload = trace.model_dump(by_alias=True)
+    payload["command_argv_rows"] = [
+        payload["command_argv_rows"][0]
+        | {"argv": [".venv/bin/python", "-m", "local_case_worker", "out>file"]}
+    ]
+
+    with pytest.raises(ValidationError, match="raw shell markers"):
+        ProgrambenchSingleCaseExecutionTrace.model_validate(payload)
+
+
 def test_pb_single_case_run_0b_rejects_capture_before_screening_passes() -> None:
     _, trace, _, capture, _ = _load_single_case_run_b_rows()
     bad_trace = trace.model_copy(
@@ -297,6 +320,22 @@ def test_pb_single_case_run_0b_rejects_artifact_outside_write_scope() -> None:
             capture.model_dump(by_alias=True)
             | {"inside_write_scope_posture": "outside_released_write_scope"}
         )
+
+
+def test_pb_single_case_run_0b_rejects_artifact_hash_contradiction() -> None:
+    capture = _load_single_case_run_b_rows()[3]
+    payload = capture.model_dump(by_alias=True)
+    payload["artifact_hash_rows"] = [
+        payload["artifact_hash_rows"][0]
+        | {
+            "artifact_hash": (
+                "sha256:6565656565656565656565656565656565656565656565656565656565656565"
+            )
+        }
+    ]
+
+    with pytest.raises(ValidationError, match="generated artifact hashes"):
+        ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(payload)
 
 
 def test_pb_single_case_run_0b_rejects_materialization_hash_not_from_trace() -> None:

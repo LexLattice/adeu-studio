@@ -143,15 +143,22 @@ _PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS270.md"
 )
 _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT = "passed"
-_RAW_SHELL_MARKERS = ("&&", "||", ";", "|", "$(", "`")
+_RAW_SHELL_MARKERS = ("&&", "||", ";", "|", "$(", "`", ">", "<", "&", "\n", "\r")
 _RAW_SHELL_EXECUTABLES = {
+    "ash",
     "bash",
+    "csh",
     "cmd",
     "cmd.exe",
+    "dash",
     "fish",
+    "ksh",
     "powershell",
+    "powershell.exe",
     "pwsh",
+    "pwsh.exe",
     "sh",
+    "tcsh",
     "zsh",
 }
 
@@ -205,11 +212,15 @@ def _ensure_no_result_language(value: str, *, field_name: str) -> None:
         )
 
 
+def _argv_executable_name(value: str) -> str:
+    return re.split(r"[\\/]+", value)[-1].lower()
+
+
 def _ensure_argv_shaped(argv: list[str], *, field_name: str) -> None:
     if not argv:
         raise ValueError(f"{field_name} must contain at least one argv token")
     _ensure_non_empty_trimmed(argv, field_name=field_name)
-    executable = argv[0].lower()
+    executable = _argv_executable_name(argv[0])
     if executable in _RAW_SHELL_EXECUTABLES:
         raise ValueError(f"{field_name} must not invoke a shell executable")
     shell_like = [
@@ -1101,12 +1112,27 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
         _ensure_sorted_unique(generated_refs, field_name="generated_artifact_rows")
         artifact_hash_refs = [row.artifact_hash_ref for row in self.artifact_hash_rows]
         _ensure_sorted_unique(artifact_hash_refs, field_name="artifact_hash_rows")
-        generated_artifact_refs = {
-            row.generated_artifact_ref for row in self.generated_artifact_rows
+        generated_hashes_by_ref = {
+            row.generated_artifact_ref: row.artifact_hash
+            for row in self.generated_artifact_rows
         }
-        hashed_artifact_refs = {row.artifact_ref for row in self.artifact_hash_rows}
-        if not generated_artifact_refs <= hashed_artifact_refs:
+        hash_rows_by_artifact_ref = {
+            row.artifact_ref: row.artifact_hash for row in self.artifact_hash_rows
+        }
+        if len(hash_rows_by_artifact_ref) != len(self.artifact_hash_rows):
+            raise ValueError("artifact hash rows must not duplicate artifact refs")
+        if not set(generated_refs) <= set(hash_rows_by_artifact_ref):
             raise ValueError("generated artifacts must have artifact hash rows")
+        mismatched_artifacts = sorted(
+            artifact_ref
+            for artifact_ref, artifact_hash in generated_hashes_by_ref.items()
+            if hash_rows_by_artifact_ref[artifact_ref] != artifact_hash
+        )
+        if mismatched_artifacts:
+            raise ValueError(
+                "generated artifact hashes must match artifact hash rows: "
+                f"{mismatched_artifacts}"
+            )
         _ensure_no_forbidden_refs(
             [
                 self.single_case_candidate_artifact_capture_ref,
