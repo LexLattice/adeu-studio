@@ -915,6 +915,10 @@ class ProgrambenchLocalRetryRemandSatisfactionRow(_RetryBase):
 
     @model_validator(mode="after")
     def _validate_remand_satisfaction(self) -> "ProgrambenchLocalRetryRemandSatisfactionRow":
+        _ensure_no_forbidden_refs(
+            [self.source_remand_ref],
+            field_name="source_remand_ref",
+        )
         _ensure_sorted_unique(self.evidence_refs, field_name="remand satisfaction evidence_refs")
         _ensure_no_forbidden_refs(
             self.evidence_refs,
@@ -1020,9 +1024,13 @@ class ProgrambenchLocalRetryOutcomeAudit(_RetryBase):
             field_name="remand_satisfaction_rows",
         )
         satisfaction_source_refs = {row.source_remand_ref for row in self.remand_satisfaction_rows}
-        missing = sorted(set(self.local_remand_refs) - satisfaction_source_refs)
+        local_remand_set = set(self.local_remand_refs)
+        missing = sorted(local_remand_set - satisfaction_source_refs)
         if missing:
             raise ValueError(f"local remands require satisfaction rows: {missing}")
+        extra = sorted(satisfaction_source_refs - local_remand_set)
+        if extra:
+            raise ValueError(f"satisfaction rows reference undeclared remands: {extra}")
         if self.local_retry_result_posture == "future_family_only":
             raise ValueError("PB-RETRY-0-C cannot mark retry outcome future-family-only")
         if self.local_retry_result_posture == "local_retry_resolved":
@@ -1124,6 +1132,15 @@ class ProgrambenchLocalRetryRemandSettlement(_RetryBase):
             values = getattr(self, field_name)
             _ensure_sorted_unique_allow_empty(values, field_name=field_name)
             _ensure_no_forbidden_refs(values, field_name=field_name)
+        settled = set(self.settled_remand_refs)
+        unresolved = set(self.unresolved_remand_refs)
+        new = set(self.new_local_remand_refs)
+        if settled & unresolved:
+            raise ValueError("settled and unresolved remand refs must not overlap")
+        if settled & new:
+            raise ValueError("settled and new remand refs must not overlap")
+        if unresolved & new:
+            raise ValueError("unresolved and new remand refs must not overlap")
         if self.settlement_posture == "local_remand_settled":
             if not self.settled_remand_refs:
                 raise ValueError("settled retry remand requires settled remand refs")
@@ -1159,8 +1176,6 @@ class ProgrambenchLocalRetryFamilyCloseoutAlignment(_RetryBase):
     def _validate_family_closeout(
         self,
     ) -> "ProgrambenchLocalRetryFamilyCloseoutAlignment":
-        if self.closed_slice_refs != _PB_RETRY_CLOSED_SLICES:
-            raise ValueError("PB-RETRY-0 closeout must close exactly A, B, and C")
         for field_name in (
             "retry_request_refs",
             "retry_eligibility_review_refs",
@@ -1172,10 +1187,13 @@ class ProgrambenchLocalRetryFamilyCloseoutAlignment(_RetryBase):
             "retry_outcome_audit_refs",
             "retry_delta_observation_summary_refs",
             "retry_remand_settlement_refs",
+            "closed_slice_refs",
         ):
             values = getattr(self, field_name)
             _ensure_sorted_unique(values, field_name=field_name)
             _ensure_no_forbidden_refs(values, field_name=field_name)
+        if self.closed_slice_refs != _PB_RETRY_CLOSED_SLICES:
+            raise ValueError("PB-RETRY-0 closeout must close exactly A, B, and C")
         _ensure_no_forbidden_content(self.limitation_note, field_name="limitation_note")
         return self
 
@@ -1637,19 +1655,16 @@ def validate_pb_retry_0c_closeout_bundle(
         source_trial_remand_decision.trial_remand_decision_ref
     ):
         raise ValueError("retry settlement must reference source trial remand decision")
+    accounted_for = set(retry_remand_settlement.settled_remand_refs) | set(
+        retry_remand_settlement.unresolved_remand_refs
+    )
+    if accounted_for != set(retry_outcome_audit.local_remand_refs):
+        raise ValueError("settlement must account for all outcome audit local remands")
     if retry_remand_settlement.settlement_posture == "local_remand_settled":
-        if sorted(retry_remand_settlement.settled_remand_refs) != sorted(
-            retry_outcome_audit.local_remand_refs
-        ):
-            raise ValueError("settled remands must match outcome audit local remands")
         if retry_outcome_audit.local_retry_result_posture != "local_retry_resolved":
             raise ValueError("settled retry remand requires resolved retry outcome")
-    unresolved_refs = set(retry_remand_settlement.unresolved_remand_refs)
-    new_refs = set(retry_remand_settlement.new_local_remand_refs)
-    if unresolved_refs & set(retry_remand_settlement.settled_remand_refs):
-        raise ValueError("settled and unresolved remand refs must not overlap")
-    if new_refs & set(retry_remand_settlement.settled_remand_refs):
-        raise ValueError("settled and new remand refs must not overlap")
+    elif retry_outcome_audit.local_retry_result_posture == "local_retry_resolved":
+        raise ValueError("resolved retry outcome requires settled remand settlement")
 
     if retry_request.retry_request_ref not in retry_family_closeout.retry_request_refs:
         raise ValueError("retry closeout must release retry request")

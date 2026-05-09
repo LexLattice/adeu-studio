@@ -611,6 +611,126 @@ def test_pb_retry_0c_rejects_unresolved_remand_marked_settled() -> None:
         )
 
 
+def test_pb_retry_0c_rejects_extra_remand_satisfaction_sources() -> None:
+    retry_outcome_audit, _, _, _ = _load_retry_c_rows()
+    extra_row = retry_outcome_audit.remand_satisfaction_rows[0].model_copy(
+        update={
+            "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:zz-extra",
+            "source_remand_ref": "remand-row:pb-retry-0c:undeclared",
+        }
+    )
+    drifted_outcome = retry_outcome_audit.model_copy(
+        update={
+            "remand_satisfaction_rows": [
+                *retry_outcome_audit.remand_satisfaction_rows,
+                extra_row,
+            ]
+        }
+    )
+
+    with pytest.raises(ValidationError, match="undeclared remands"):
+        ProgrambenchLocalRetryOutcomeAudit.model_validate(drifted_outcome.model_dump(by_alias=True))
+
+
+def test_pb_retry_0c_rejects_hidden_remand_satisfaction_source_even_with_valid_remand() -> None:
+    retry_outcome_audit, _, _, _ = _load_retry_c_rows()
+    extra_row = retry_outcome_audit.remand_satisfaction_rows[0].model_copy(
+        update={
+            "remand_satisfaction_ref": "remand-satisfaction:pb-retry-0c:zz-hidden-extra",
+            "source_remand_ref": "hidden-test:pb-retry-0c:leaked",
+        }
+    )
+    drifted_outcome = retry_outcome_audit.model_copy(
+        update={
+            "remand_satisfaction_rows": [
+                *retry_outcome_audit.remand_satisfaction_rows,
+                extra_row,
+            ]
+        }
+    )
+
+    with pytest.raises(ValidationError, match="source_remand_ref"):
+        ProgrambenchLocalRetryOutcomeAudit.model_validate(drifted_outcome.model_dump(by_alias=True))
+
+
+def test_pb_retry_0c_rejects_resolved_outcome_with_unresolved_settlement() -> None:
+    (
+        retry_request,
+        retry_lineage_registry,
+        remand_source_index,
+        retry_eligibility_review,
+        retry_scope_contract,
+        retry_guardrail,
+    ) = _load_retry_a_rows()
+    (
+        source_trial_dispatch,
+        source_trial_candidate_snapshot,
+        source_trial_lifecycle_projection,
+    ) = _load_trial_b_rows()
+    (
+        source_trial_observation_summary,
+        source_trial_remand_decision,
+        source_trial_family_closeout,
+    ) = _load_trial_c_rows()
+    (
+        retry_dispatch_record,
+        retry_execution_capture,
+        retry_candidate_delta_snapshot,
+        retry_lifecycle_projection,
+        retry_sandbox_trace,
+    ) = _load_retry_b_rows()
+    (
+        retry_outcome_audit,
+        retry_delta_observation_summary,
+        retry_remand_settlement,
+        retry_family_closeout,
+    ) = _load_retry_c_rows()
+    unresolved_settlement = retry_remand_settlement.model_copy(
+        update={
+            "settled_remand_refs": [],
+            "settlement_posture": "local_remand_unresolved",
+            "unresolved_remand_refs": ["remand-row:pb-trial-0c:runbook-gap"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="resolved retry outcome requires settled remand"):
+        validate_pb_retry_0c_closeout_bundle(
+            retry_request=retry_request,
+            retry_lineage_registry=retry_lineage_registry,
+            remand_source_index=remand_source_index,
+            retry_eligibility_review=retry_eligibility_review,
+            retry_scope_contract=retry_scope_contract,
+            retry_guardrail=retry_guardrail,
+            source_trial_observation_summary=source_trial_observation_summary,
+            source_trial_remand_decision=source_trial_remand_decision,
+            source_trial_family_closeout=source_trial_family_closeout,
+            source_trial_dispatch=source_trial_dispatch,
+            source_trial_candidate_snapshot=source_trial_candidate_snapshot,
+            source_trial_lifecycle_projection=source_trial_lifecycle_projection,
+            retry_dispatch_record=retry_dispatch_record,
+            retry_execution_capture=retry_execution_capture,
+            retry_candidate_delta_snapshot=retry_candidate_delta_snapshot,
+            retry_lifecycle_projection=retry_lifecycle_projection,
+            retry_sandbox_trace=retry_sandbox_trace,
+            retry_outcome_audit=retry_outcome_audit,
+            retry_delta_observation_summary=retry_delta_observation_summary,
+            retry_remand_settlement=unresolved_settlement,
+            retry_family_closeout=retry_family_closeout,
+        )
+
+
+def test_pb_retry_0c_rejects_settlement_overlap_at_model_boundary() -> None:
+    _, _, retry_remand_settlement, _ = _load_retry_c_rows()
+    drifted_settlement = retry_remand_settlement.model_copy(
+        update={"unresolved_remand_refs": ["remand-row:pb-trial-0c:runbook-gap"]}
+    )
+
+    with pytest.raises(ValidationError, match="settled and unresolved"):
+        ProgrambenchLocalRetryRemandSettlement.model_validate(
+            drifted_settlement.model_dump(by_alias=True)
+        )
+
+
 def test_pb_retry_0c_schema_exports_mirror_root_spec_files() -> None:
     export_schema_main()
 
