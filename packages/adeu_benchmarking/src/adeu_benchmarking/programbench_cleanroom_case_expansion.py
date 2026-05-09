@@ -75,6 +75,9 @@ PB_CASE_EXPANSION_0C_ARTIFACT_KINDS = {
 PB_CASE_EXPANSION_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
     PB_CASE_EXPANSION_0B_ARTIFACT_KINDS | PB_CASE_EXPANSION_0C_ARTIFACT_KINDS
 )
+PB_CASE_EXPANSION_0B_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
+    PB_CASE_EXPANSION_0C_ARTIFACT_KINDS
+)
 
 _SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 _FORBIDDEN_REF_MARKERS = (
@@ -955,6 +958,766 @@ class ProgrambenchLocalCaseExpansionNonAuthorityGuardrail(_CaseExpansionBase):
         return self
 
 
+class ProgrambenchLocalCaseSourceWitnessRow(_CaseExpansionBase):
+    source_witness_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    witness_kind: Literal[
+        "artifact_obligation_witness",
+        "behavior_obligation_witness",
+        "io_observation_witness",
+        "support_context_witness",
+    ]
+    witness_strength: Literal["direct", "indirect", "support_only"]
+    witnessed_obligation_refs: list[str] = Field(min_length=1)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_source_witness(self) -> "ProgrambenchLocalCaseSourceWitnessRow":
+        _ensure_sorted_unique(self.source_refs, field_name="source_witness.source_refs")
+        _ensure_sorted_unique(
+            self.witnessed_obligation_refs,
+            field_name="source_witness.witnessed_obligation_refs",
+        )
+        _ensure_no_forbidden_refs(self.source_refs, field_name="source_witness.source_refs")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseBehaviorObligationRow(_CaseExpansionBase):
+    obligation_ref: str
+    obligation_kind: Literal[
+        "cli_argument_behavior",
+        "exit_code_behavior",
+        "filesystem_side_effect_behavior",
+        "stderr_diagnostic_behavior",
+        "stdout_output_behavior",
+    ]
+    obligation_status: Literal["locally_witnessed", "support_only", "unknown"]
+    local_obligation_posture: Literal[
+        "local_blueprint_obligation_only_not_official_task_truth"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_behavior_obligation(self) -> "ProgrambenchLocalCaseBehaviorObligationRow":
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseBehaviorObligationBasisRow(_CaseExpansionBase):
+    obligation_ref: str
+    source_witness_refs: list[str] = Field(min_length=1)
+    support_kind: Literal[
+        "cleanroom_artifact",
+        "cleanroom_usage_doc",
+        "local_probe_observation",
+        "support_context_only",
+    ]
+    support_strength: Literal["direct", "indirect", "support_only"]
+    unresolved_counterevidence_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_behavior_obligation_basis(
+        self,
+    ) -> "ProgrambenchLocalCaseBehaviorObligationBasisRow":
+        _ensure_sorted_unique(
+            self.source_witness_refs,
+            field_name="behavior_obligation_basis.source_witness_refs",
+        )
+        _ensure_sorted_unique_allow_empty(
+            self.unresolved_counterevidence_refs,
+            field_name="behavior_obligation_basis.unresolved_counterevidence_refs",
+        )
+        if self.support_kind == "support_context_only" and self.support_strength != "support_only":
+            raise ValueError("support-context basis rows require support_only strength")
+        _ensure_no_forbidden_refs(
+            self.source_witness_refs,
+            field_name="behavior_obligation_basis.source_witness_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.unresolved_counterevidence_refs,
+            field_name="behavior_obligation_basis.unresolved_counterevidence_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseIOObservationRow(_CaseExpansionBase):
+    io_observation_ref: str
+    obligation_ref: str
+    source_witness_refs: list[str] = Field(min_length=1)
+    io_channel: Literal["stderr", "stdin", "stdout"]
+    observation_posture: Literal["local_cleanroom_observation_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_io_observation(self) -> "ProgrambenchLocalCaseIOObservationRow":
+        _ensure_sorted_unique(
+            self.source_witness_refs,
+            field_name="io_observation.source_witness_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.source_witness_refs,
+            field_name="io_observation.source_witness_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseArtifactObligationRow(_CaseExpansionBase):
+    artifact_obligation_ref: str
+    obligation_ref: str
+    source_witness_refs: list[str] = Field(min_length=1)
+    artifact_kind: Literal[
+        "expected_input_artifact",
+        "expected_output_artifact",
+        "filesystem_side_effect",
+    ]
+    artifact_obligation_posture: Literal[
+        "local_blueprint_artifact_obligation_only_not_materialized"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_artifact_obligation(self) -> "ProgrambenchLocalCaseArtifactObligationRow":
+        _ensure_sorted_unique(
+            self.source_witness_refs,
+            field_name="artifact_obligation.source_witness_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.source_witness_refs,
+            field_name="artifact_obligation.source_witness_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseProbeTemplateRow(_CaseExpansionBase):
+    probe_ref: str
+    obligation_refs: list[str] = Field(min_length=1)
+    probe_kind: Literal[
+        "exit_code_probe",
+        "filesystem_side_effect_probe",
+        "stderr_probe",
+        "stdout_probe",
+    ]
+    probe_template_posture: Literal["local_probe_template_only_not_executed"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_template(self) -> "ProgrambenchLocalCaseProbeTemplateRow":
+        _ensure_sorted_unique(self.obligation_refs, field_name="probe_template.obligation_refs")
+        _ensure_no_forbidden_refs(
+            self.obligation_refs,
+            field_name="probe_template.obligation_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseProbeCommandShapeRow(_CaseExpansionBase):
+    probe_ref: str
+    argv_template: list[str] = Field(min_length=1)
+    stdin_fixture_ref: str | None = None
+    expected_stdout_ref: str | None = None
+    expected_stderr_ref: str | None = None
+    expected_exit_code_ref: str | None = None
+    filesystem_expectation_refs: list[str] = Field(default_factory=list)
+    execution_deferred_posture: Literal["probe_execution_deferred_to_later_trial"]
+
+    @model_validator(mode="after")
+    def _validate_probe_command_shape(self) -> "ProgrambenchLocalCaseProbeCommandShapeRow":
+        _ensure_non_empty_trimmed(self.argv_template, field_name="argv_template")
+        shell_markers = ("&&", ";", "|", "`", "$(", ">", "<")
+        if len(self.argv_template) == 1 and " " in self.argv_template[0]:
+            raise ValueError("probe command rows must use argv templates, not raw shell strings")
+        leaked = [
+            token
+            for token in self.argv_template
+            if any(marker in token for marker in shell_markers)
+        ]
+        if leaked:
+            raise ValueError(f"argv_template contains shell metacharacters: {leaked}")
+        optional_refs = [
+            ref
+            for ref in (
+                self.stdin_fixture_ref,
+                self.expected_stdout_ref,
+                self.expected_stderr_ref,
+                self.expected_exit_code_ref,
+            )
+            if ref is not None
+        ]
+        _ensure_no_forbidden_refs(optional_refs, field_name="probe command refs")
+        _ensure_sorted_unique_allow_empty(
+            self.filesystem_expectation_refs,
+            field_name="filesystem_expectation_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.filesystem_expectation_refs,
+            field_name="filesystem_expectation_refs",
+        )
+        return self
+
+
+class ProgrambenchLocalCaseProbeRequirementRow(_CaseExpansionBase):
+    requirement_ref: str
+    probe_ref: str
+    obligation_refs: list[str] = Field(min_length=1)
+    requirement_kind: Literal[
+        "negative_probe_requirement",
+        "positive_probe_requirement",
+    ]
+    requirement_posture: Literal["local_probe_requirement_only_not_executed"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_requirement(self) -> "ProgrambenchLocalCaseProbeRequirementRow":
+        _ensure_sorted_unique(
+            self.obligation_refs,
+            field_name="probe_requirement.obligation_refs",
+        )
+        _ensure_no_forbidden_refs(
+            [self.probe_ref, *self.obligation_refs],
+            field_name="probe_requirement refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseStdoutStderrExpectationRow(_CaseExpansionBase):
+    expectation_ref: str
+    probe_ref: str
+    stream_kind: Literal["stderr", "stdout"]
+    expected_artifact_ref: str
+    expectation_posture: Literal["local_stream_expectation_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_stream_expectation(self) -> "ProgrambenchLocalCaseStdoutStderrExpectationRow":
+        _ensure_no_forbidden_refs(
+            [self.probe_ref, self.expected_artifact_ref],
+            field_name="stream expectation refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseExitCodeExpectationRow(_CaseExpansionBase):
+    expectation_ref: str
+    probe_ref: str
+    expected_exit_code: int = Field(ge=0)
+    expectation_posture: Literal["local_exit_code_expectation_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_exit_code_expectation(self) -> "ProgrambenchLocalCaseExitCodeExpectationRow":
+        _ensure_no_forbidden_refs([self.probe_ref], field_name="exit code expectation refs")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseFilesystemSideEffectExpectationRow(_CaseExpansionBase):
+    expectation_ref: str
+    probe_ref: str
+    expected_artifact_ref: str
+    side_effect_kind: Literal["file_created", "file_not_created", "file_updated"]
+    expectation_posture: Literal["local_filesystem_expectation_only_not_executed"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_fs_expectation(
+        self,
+    ) -> "ProgrambenchLocalCaseFilesystemSideEffectExpectationRow":
+        _ensure_no_forbidden_refs(
+            [self.probe_ref, self.expected_artifact_ref],
+            field_name="filesystem expectation refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseOracleBasisRow(_CaseExpansionBase):
+    oracle_basis_ref: str
+    source_witness_refs: list[str] = Field(min_length=1)
+    basis_kind: Literal[
+        "artifact_obligation_basis",
+        "behavior_obligation_basis",
+        "io_observation_basis",
+    ]
+    support_strength: Literal["direct", "indirect"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_oracle_basis(self) -> "ProgrambenchLocalCaseOracleBasisRow":
+        _ensure_sorted_unique(
+            self.source_witness_refs,
+            field_name="oracle_basis.source_witness_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.source_witness_refs,
+            field_name="oracle_basis.source_witness_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseOracleBehaviorBoundaryRow(_CaseExpansionBase):
+    behavior_boundary_ref: str
+    obligation_ref: str
+    oracle_basis_refs: list[str] = Field(default_factory=list)
+    behavior_boundary_kind: Literal[
+        "expected_behavior",
+        "out_of_scope_behavior",
+        "unknown_behavior",
+    ]
+    boundary_posture: Literal[
+        "local_blueprint_expected_behavior",
+        "local_blueprint_out_of_scope_behavior",
+        "local_blueprint_unknown_behavior",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_oracle_behavior_boundary(
+        self,
+    ) -> "ProgrambenchLocalCaseOracleBehaviorBoundaryRow":
+        _ensure_sorted_unique_allow_empty(
+            self.oracle_basis_refs,
+            field_name="oracle_behavior_boundary.oracle_basis_refs",
+        )
+        if self.behavior_boundary_kind == "expected_behavior":
+            if self.boundary_posture != "local_blueprint_expected_behavior":
+                raise ValueError("expected behavior rows require expected behavior posture")
+            if not self.oracle_basis_refs:
+                raise ValueError("expected behavior rows require oracle basis refs")
+        elif self.behavior_boundary_kind == "unknown_behavior":
+            if self.boundary_posture != "local_blueprint_unknown_behavior":
+                raise ValueError("unknown behavior rows require unknown behavior posture")
+        elif self.behavior_boundary_kind == "out_of_scope_behavior":
+            if self.boundary_posture != "local_blueprint_out_of_scope_behavior":
+                raise ValueError("out-of-scope behavior rows require out-of-scope posture")
+        _ensure_no_forbidden_refs(
+            self.oracle_basis_refs,
+            field_name="oracle_behavior_boundary.oracle_basis_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseContaminationRow(_CaseExpansionBase):
+    contamination_ref: str
+    source_ref: str
+    contamination_kind: Literal[
+        "clean",
+        "decompilation_or_source_lookup_exposure",
+        "forbidden_source_exposure",
+        "hidden_evidence_exposure",
+        "official_evaluator_exposure",
+    ]
+    contamination_posture: Literal["blocked", "clean"]
+    redacted_detail_note: str
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_row(self) -> "ProgrambenchLocalCaseContaminationRow":
+        for field_name in ("redacted_detail_note", "limitation_note"):
+            _ensure_no_laundered_summary(getattr(self, field_name), field_name=field_name)
+        if self.contamination_kind == "clean":
+            if self.contamination_posture != "clean":
+                raise ValueError("clean contamination rows require clean posture")
+            _ensure_no_forbidden_refs([self.source_ref], field_name="contamination source_ref")
+        elif self.contamination_posture != "blocked":
+            raise ValueError("non-clean contamination rows require blocked posture")
+        return self
+
+
+class ProgrambenchLocalCaseBlueprint(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_BLUEPRINT_SCHEMA] = Field(alias="schema")
+    case_blueprint_ref: str
+    case_expansion_ref: str
+    candidate_case_idea_ref: str
+    source_pool_manifest_ref: str
+    expansion_eligibility_review_ref: str
+    expansion_control_contract_ref: str
+    expansion_guardrail_ref: str
+    cleanroom_evidence_pack_ref: str
+    probe_contract_ref: str
+    oracle_boundary_ref: str
+    contamination_screen_ref: str
+    source_refs: list[str] = Field(min_length=1)
+    case_kind: Literal[
+        "cli_behavior_case",
+        "filesystem_side_effect_case",
+        "io_artifact_case",
+    ]
+    case_blueprint_status: Literal[
+        "blocked_by_contamination",
+        "blocked_missing_evidence",
+        "blueprint_ready_for_later_lineage_review",
+    ]
+    expected_submission_shape: Literal[
+        "python_package_entrypoint",
+        "python_program_file",
+    ]
+    expected_input_artifact_refs: list[str] = Field(default_factory=list)
+    expected_output_artifact_refs: list[str] = Field(default_factory=list)
+    filesystem_side_effect_expectation_refs: list[str] = Field(default_factory=list)
+    source_pool_subset_hash: str
+    blueprint_hash: str
+    execution_deferred_posture: Literal["execution_deferred_to_later_trial_family"]
+    matrix_inclusion_deferred_posture: Literal[
+        "matrix_inclusion_deferred_to_pb_case_expansion_0c_or_later"
+    ]
+    benchmark_score_posture: Literal["no_benchmark_score_authority_granted_by_0b"]
+    baseline_comparison_posture: Literal["no_baseline_comparison_authority_granted_by_0b"]
+    model_ranking_posture: Literal["no_model_ranking_claimed_by_pb_case_expansion_0b"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_blueprint(self) -> "ProgrambenchLocalCaseBlueprint":
+        for field_name in (
+            "source_refs",
+            "expected_input_artifact_refs",
+            "expected_output_artifact_refs",
+            "filesystem_side_effect_expectation_refs",
+        ):
+            values = getattr(self, field_name)
+            if field_name == "source_refs":
+                _ensure_sorted_unique(values, field_name=field_name)
+            else:
+                _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_hash(self.source_pool_subset_hash, field_name="source_pool_subset_hash")
+        _ensure_hash(self.blueprint_hash, field_name="blueprint_hash")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseCleanroomEvidencePack(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_CLEANROOM_EVIDENCE_PACK_SCHEMA] = Field(
+        alias="schema"
+    )
+    cleanroom_evidence_pack_ref: str
+    case_expansion_ref: str
+    case_blueprint_ref: str
+    source_witness_rows: list[ProgrambenchLocalCaseSourceWitnessRow] = Field(min_length=1)
+    behavior_obligation_rows: list[ProgrambenchLocalCaseBehaviorObligationRow] = Field(
+        min_length=1
+    )
+    behavior_obligation_basis_rows: list[
+        ProgrambenchLocalCaseBehaviorObligationBasisRow
+    ] = Field(min_length=1)
+    io_observation_rows: list[ProgrambenchLocalCaseIOObservationRow] = Field(
+        default_factory=list
+    )
+    artifact_obligation_rows: list[ProgrambenchLocalCaseArtifactObligationRow] = Field(
+        default_factory=list
+    )
+    source_identity_hashes: list[str] = Field(min_length=1)
+    evidence_pack_hash: str
+    forbidden_source_exclusion_refs: list[str] = Field(default_factory=list)
+    support_only_context_refs: list[str] = Field(default_factory=list)
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_evidence_pack(self) -> "ProgrambenchLocalCaseCleanroomEvidencePack":
+        witness_refs = [row.source_witness_ref for row in self.source_witness_rows]
+        _ensure_sorted_unique(witness_refs, field_name="source_witness_rows")
+        obligation_refs = [row.obligation_ref for row in self.behavior_obligation_rows]
+        _ensure_sorted_unique(obligation_refs, field_name="behavior_obligation_rows")
+        basis_obligations = [row.obligation_ref for row in self.behavior_obligation_basis_rows]
+        _ensure_sorted_unique(
+            basis_obligations,
+            field_name="behavior_obligation_basis_rows.obligation_ref",
+        )
+        if set(basis_obligations) != set(obligation_refs):
+            raise ValueError("every behavior obligation requires exactly one basis row")
+        witness_ref_set = set(witness_refs)
+        witness_by_ref = {row.source_witness_ref: row for row in self.source_witness_rows}
+        for row in self.behavior_obligation_basis_rows:
+            _ensure_refs_resolve(
+                row.source_witness_refs,
+                witness_ref_set,
+                field_name="behavior_obligation_basis.source_witness_refs",
+            )
+            for source_witness_ref in row.source_witness_refs:
+                witness = witness_by_ref[source_witness_ref]
+                if row.obligation_ref not in witness.witnessed_obligation_refs:
+                    raise ValueError(
+                        "behavior obligation basis witnesses must witness the supported obligation"
+                    )
+        for row in self.source_witness_rows:
+            _ensure_refs_resolve(
+                row.witnessed_obligation_refs,
+                set(obligation_refs),
+                field_name="source_witness.witnessed_obligation_refs",
+            )
+        for row in self.io_observation_rows:
+            if row.obligation_ref not in set(obligation_refs):
+                raise ValueError("io observation rows must reference behavior obligations")
+            _ensure_refs_resolve(
+                row.source_witness_refs,
+                witness_ref_set,
+                field_name="io_observation.source_witness_refs",
+            )
+        for row in self.artifact_obligation_rows:
+            if row.obligation_ref not in set(obligation_refs):
+                raise ValueError("artifact obligation rows must reference behavior obligations")
+            _ensure_refs_resolve(
+                row.source_witness_refs,
+                witness_ref_set,
+                field_name="artifact_obligation.source_witness_refs",
+            )
+        for value in self.source_identity_hashes:
+            _ensure_hash(value, field_name="source_identity_hashes")
+        _ensure_sorted_unique(self.source_identity_hashes, field_name="source_identity_hashes")
+        _ensure_hash(self.evidence_pack_hash, field_name="evidence_pack_hash")
+        _ensure_sorted_unique_allow_empty(
+            self.forbidden_source_exclusion_refs,
+            field_name="forbidden_source_exclusion_refs",
+        )
+        _ensure_sorted_unique_allow_empty(
+            self.support_only_context_refs,
+            field_name="support_only_context_refs",
+        )
+        _ensure_no_forbidden_refs(
+            self.support_only_context_refs,
+            field_name="support_only_context_refs",
+        )
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseProbeContract(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_PROBE_CONTRACT_SCHEMA] = Field(
+        alias="schema"
+    )
+    probe_contract_ref: str
+    case_expansion_ref: str
+    case_blueprint_ref: str
+    probe_template_rows: list[ProgrambenchLocalCaseProbeTemplateRow] = Field(min_length=1)
+    probe_command_shape_rows: list[ProgrambenchLocalCaseProbeCommandShapeRow] = Field(
+        min_length=1
+    )
+    positive_probe_requirement_rows: list[ProgrambenchLocalCaseProbeRequirementRow] = Field(
+        min_length=1
+    )
+    negative_probe_requirement_rows: list[ProgrambenchLocalCaseProbeRequirementRow] = Field(
+        min_length=1
+    )
+    stdout_stderr_expectation_rows: list[
+        ProgrambenchLocalCaseStdoutStderrExpectationRow
+    ] = Field(default_factory=list)
+    exit_code_expectation_rows: list[ProgrambenchLocalCaseExitCodeExpectationRow] = Field(
+        min_length=1
+    )
+    filesystem_side_effect_expectation_rows: list[
+        ProgrambenchLocalCaseFilesystemSideEffectExpectationRow
+    ] = Field(default_factory=list)
+    command_execution_posture: Literal["no_command_execution_authority_granted_by_0b"]
+    probe_execution_deferred_posture: Literal["probe_execution_deferred_to_later_trial"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_probe_contract(self) -> "ProgrambenchLocalCaseProbeContract":
+        probe_refs = [row.probe_ref for row in self.probe_template_rows]
+        _ensure_sorted_unique(probe_refs, field_name="probe_template_rows")
+        command_probe_refs = [row.probe_ref for row in self.probe_command_shape_rows]
+        _ensure_sorted_unique(command_probe_refs, field_name="probe_command_shape_rows")
+        if set(command_probe_refs) != set(probe_refs):
+            raise ValueError("probe command rows must match probe template rows")
+        obligation_refs = {
+            obligation_ref
+            for row in self.probe_template_rows
+            for obligation_ref in row.obligation_refs
+        }
+        for rows, field_name, requirement_kind in (
+            (
+                self.positive_probe_requirement_rows,
+                "positive_probe_requirement_rows",
+                "positive_probe_requirement",
+            ),
+            (
+                self.negative_probe_requirement_rows,
+                "negative_probe_requirement_rows",
+                "negative_probe_requirement",
+            ),
+        ):
+            row_refs = [row.requirement_ref for row in rows]
+            _ensure_sorted_unique(row_refs, field_name=field_name)
+            for row in rows:
+                if row.requirement_kind != requirement_kind:
+                    raise ValueError(f"{field_name} contains wrong requirement kind")
+                if row.probe_ref not in set(probe_refs):
+                    raise ValueError(f"{field_name} must reference declared probes")
+                _ensure_refs_resolve(
+                    row.obligation_refs,
+                    obligation_refs,
+                    field_name=f"{field_name}.obligation_refs",
+                )
+        for rows, field_name in (
+            (self.stdout_stderr_expectation_rows, "stdout_stderr_expectation_rows"),
+            (self.exit_code_expectation_rows, "exit_code_expectation_rows"),
+            (
+                self.filesystem_side_effect_expectation_rows,
+                "filesystem_side_effect_expectation_rows",
+            ),
+        ):
+            row_refs = [row.expectation_ref for row in rows]
+            _ensure_sorted_unique_allow_empty(row_refs, field_name=field_name)
+            for row in rows:
+                if row.probe_ref not in set(probe_refs):
+                    raise ValueError(f"{field_name} must reference declared probes")
+        if not self.stdout_stderr_expectation_rows and not (
+            self.filesystem_side_effect_expectation_rows
+        ):
+            raise ValueError("probe contract requires stream or filesystem expectations")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseOracleBoundary(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_ORACLE_BOUNDARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    oracle_boundary_ref: str
+    case_expansion_ref: str
+    case_blueprint_ref: str
+    local_oracle_basis_rows: list[ProgrambenchLocalCaseOracleBasisRow] = Field(min_length=1)
+    expected_behavior_boundary_rows: list[
+        ProgrambenchLocalCaseOracleBehaviorBoundaryRow
+    ] = Field(min_length=1)
+    unknown_behavior_boundary_rows: list[
+        ProgrambenchLocalCaseOracleBehaviorBoundaryRow
+    ] = Field(default_factory=list)
+    out_of_scope_behavior_rows: list[
+        ProgrambenchLocalCaseOracleBehaviorBoundaryRow
+    ] = Field(default_factory=list)
+    oracle_boundary_scope_hash: str
+    unknown_behavior_policy: Literal["preserve_unknown_behavior_as_local_gap"]
+    out_of_scope_behavior_policy: Literal["exclude_from_local_oracle_claim"]
+    local_oracle_not_task_truth_posture: Literal[
+        "local_blueprint_oracle_only_not_official_programbench_truth"
+    ]
+    hidden_test_equivalence_posture: Literal["no_hidden_test_equivalence_claimed"]
+    official_evaluator_equivalence_posture: Literal[
+        "no_official_evaluator_equivalence_claimed"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_oracle_boundary(self) -> "ProgrambenchLocalCaseOracleBoundary":
+        basis_refs = [row.oracle_basis_ref for row in self.local_oracle_basis_rows]
+        _ensure_sorted_unique(basis_refs, field_name="local_oracle_basis_rows")
+        basis_ref_set = set(basis_refs)
+        expected_refs = [
+            row.behavior_boundary_ref for row in self.expected_behavior_boundary_rows
+        ]
+        _ensure_sorted_unique(expected_refs, field_name="expected_behavior_boundary_rows")
+        for rows, field_name, expected_kind in (
+            (
+                self.expected_behavior_boundary_rows,
+                "expected_behavior_boundary_rows",
+                "expected_behavior",
+            ),
+            (
+                self.unknown_behavior_boundary_rows,
+                "unknown_behavior_boundary_rows",
+                "unknown_behavior",
+            ),
+            (
+                self.out_of_scope_behavior_rows,
+                "out_of_scope_behavior_rows",
+                "out_of_scope_behavior",
+            ),
+        ):
+            row_refs = [row.behavior_boundary_ref for row in rows]
+            if field_name != "expected_behavior_boundary_rows":
+                _ensure_sorted_unique_allow_empty(row_refs, field_name=field_name)
+            for row in rows:
+                if row.behavior_boundary_kind != expected_kind:
+                    raise ValueError(f"{field_name} contains wrong behavior boundary kind")
+                _ensure_refs_resolve(
+                    row.oracle_basis_refs,
+                    basis_ref_set,
+                    field_name=f"{field_name}.oracle_basis_refs",
+                )
+        _ensure_hash(self.oracle_boundary_scope_hash, field_name="oracle_boundary_scope_hash")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseContaminationScreen(_CaseExpansionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_CONTAMINATION_SCREEN_SCHEMA] = Field(
+        alias="schema"
+    )
+    contamination_screen_ref: str
+    case_expansion_ref: str
+    case_blueprint_ref: str
+    screened_source_refs: list[str] = Field(min_length=1)
+    contamination_status: Literal[
+        "blocked_by_contamination",
+        "clean",
+        "inconclusive_requires_review",
+    ]
+    contamination_rows: list[ProgrambenchLocalCaseContaminationRow] = Field(min_length=1)
+    forbidden_source_exposure_refs: list[str] = Field(default_factory=list)
+    hidden_evidence_exposure_refs: list[str] = Field(default_factory=list)
+    official_evaluator_exposure_refs: list[str] = Field(default_factory=list)
+    decompilation_or_source_lookup_exposure_refs: list[str] = Field(default_factory=list)
+    redaction_policy: Literal["redacted_category_count_reason_only"]
+    screen_verdict: Literal[
+        "blocked_contamination_detected",
+        "inconclusive_requires_review",
+        "passed_cleanroom_screen",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_screen(self) -> "ProgrambenchLocalCaseContaminationScreen":
+        _ensure_sorted_unique(self.screened_source_refs, field_name="screened_source_refs")
+        _ensure_no_forbidden_refs(self.screened_source_refs, field_name="screened_source_refs")
+        row_refs = [row.contamination_ref for row in self.contamination_rows]
+        _ensure_sorted_unique(row_refs, field_name="contamination_rows")
+        row_source_refs = {row.source_ref for row in self.contamination_rows}
+        if row_source_refs != set(self.screened_source_refs):
+            raise ValueError("contamination rows must cover screened source refs")
+        lists_by_kind = {
+            "forbidden_source_exposure": self.forbidden_source_exposure_refs,
+            "hidden_evidence_exposure": self.hidden_evidence_exposure_refs,
+            "official_evaluator_exposure": self.official_evaluator_exposure_refs,
+            "decompilation_or_source_lookup_exposure": (
+                self.decompilation_or_source_lookup_exposure_refs
+            ),
+        }
+        for field_name in (
+            "forbidden_source_exposure_refs",
+            "hidden_evidence_exposure_refs",
+            "official_evaluator_exposure_refs",
+            "decompilation_or_source_lookup_exposure_refs",
+        ):
+            _ensure_sorted_unique_allow_empty(getattr(self, field_name), field_name=field_name)
+        for kind, refs in lists_by_kind.items():
+            from_rows = {
+                row.source_ref
+                for row in self.contamination_rows
+                if row.contamination_kind == kind
+            }
+            if set(refs) != from_rows:
+                raise ValueError(f"{kind} refs must match contamination rows")
+        has_blocked = any(row.contamination_posture == "blocked" for row in self.contamination_rows)
+        if self.screen_verdict == "passed_cleanroom_screen":
+            if self.contamination_status != "clean" or has_blocked:
+                raise ValueError("passed contamination screens require clean rows and status")
+        elif self.contamination_status == "clean":
+            raise ValueError("clean contamination status requires passed screen verdict")
+        _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 def validate_pb_case_expansion_0a_bundle(
     *,
     matrix_family_closeout: ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
@@ -1051,3 +1814,136 @@ def validate_pb_case_expansion_0a_bundle(
         raise ValueError("case expansion request must deny benchmark representativeness")
     if non_authority_guardrail.benchmark_truth_posture != "not_benchmark_truth":
         raise ValueError("case expansion guardrail must deny benchmark truth")
+
+
+def validate_pb_case_expansion_0b_blueprint_bundle(
+    *,
+    expansion_request: ProgrambenchLocalCaseExpansionRequest,
+    source_pool_manifest: ProgrambenchLocalCaseSourcePoolManifest,
+    eligibility_review: ProgrambenchLocalCaseExpansionEligibilityReview,
+    control_contract: ProgrambenchLocalCaseExpansionControlContract,
+    non_authority_guardrail: ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
+    case_blueprint: ProgrambenchLocalCaseBlueprint,
+    cleanroom_evidence_pack: ProgrambenchLocalCaseCleanroomEvidencePack,
+    probe_contract: ProgrambenchLocalCaseProbeContract,
+    oracle_boundary: ProgrambenchLocalCaseOracleBoundary,
+    contamination_screen: ProgrambenchLocalCaseContaminationScreen,
+) -> None:
+    if case_blueprint.case_expansion_ref != expansion_request.case_expansion_ref:
+        raise ValueError("case blueprint must reference released A request")
+    if case_blueprint.source_pool_manifest_ref != source_pool_manifest.source_pool_manifest_ref:
+        raise ValueError("case blueprint must reference released A source pool manifest")
+    if case_blueprint.expansion_eligibility_review_ref != (
+        eligibility_review.expansion_eligibility_review_ref
+    ):
+        raise ValueError("case blueprint must reference released A eligibility review")
+    if case_blueprint.expansion_control_contract_ref != (
+        control_contract.expansion_control_contract_ref
+    ):
+        raise ValueError("case blueprint must reference released A control contract")
+    if case_blueprint.expansion_guardrail_ref != non_authority_guardrail.expansion_guardrail_ref:
+        raise ValueError("case blueprint must reference released A guardrail")
+
+    for artifact in (
+        cleanroom_evidence_pack,
+        probe_contract,
+        oracle_boundary,
+        contamination_screen,
+    ):
+        if artifact.case_expansion_ref != expansion_request.case_expansion_ref:
+            raise ValueError("PB-CASE-EXPANSION-0-B artifacts must share case_expansion_ref")
+        if artifact.case_blueprint_ref != case_blueprint.case_blueprint_ref:
+            raise ValueError("PB-CASE-EXPANSION-0-B artifacts must share case_blueprint_ref")
+
+    if case_blueprint.cleanroom_evidence_pack_ref != (
+        cleanroom_evidence_pack.cleanroom_evidence_pack_ref
+    ):
+        raise ValueError("case blueprint must reference cleanroom evidence pack")
+    if case_blueprint.probe_contract_ref != probe_contract.probe_contract_ref:
+        raise ValueError("case blueprint must reference probe contract")
+    if case_blueprint.oracle_boundary_ref != oracle_boundary.oracle_boundary_ref:
+        raise ValueError("case blueprint must reference oracle boundary")
+    if case_blueprint.contamination_screen_ref != contamination_screen.contamination_screen_ref:
+        raise ValueError("case blueprint must reference contamination screen")
+
+    candidate_by_ref = {
+        row.candidate_case_idea_ref: row
+        for row in source_pool_manifest.candidate_case_idea_rows
+    }
+    if case_blueprint.candidate_case_idea_ref not in candidate_by_ref:
+        raise ValueError("case blueprint candidate must exist in released A manifest")
+    candidate = candidate_by_ref[case_blueprint.candidate_case_idea_ref]
+    if case_blueprint.candidate_case_idea_ref not in (
+        eligibility_review.eligible_candidate_case_idea_refs
+    ):
+        raise ValueError("case blueprint cannot target an A-blocked candidate")
+    if candidate.eligibility_claim != "eligible_for_later_blueprint_review":
+        raise ValueError("case blueprint candidate must carry eligible A claim")
+
+    allowed_sources = set(source_pool_manifest.allowed_source_refs)
+    blueprint_sources = set(case_blueprint.source_refs)
+    if not blueprint_sources.issubset(allowed_sources):
+        raise ValueError("case blueprint source refs must be subset of A-allowed sources")
+    if not blueprint_sources.issubset(set(candidate.source_refs)):
+        raise ValueError("case blueprint source refs must be subset of candidate sources")
+
+    evidence_sources = {
+        source_ref
+        for row in cleanroom_evidence_pack.source_witness_rows
+        for source_ref in row.source_refs
+    }
+    if evidence_sources != blueprint_sources:
+        raise ValueError("evidence source witnesses must match blueprint sources")
+    source_hash_by_ref = {
+        row.source_ref: row.source_identity_hash
+        for row in source_pool_manifest.source_pool_rows
+        if row.source_ref in blueprint_sources
+    }
+    if set(cleanroom_evidence_pack.source_identity_hashes) != set(source_hash_by_ref.values()):
+        raise ValueError("evidence pack source hashes must match A source identity hashes")
+    source_witness_refs = {
+        row.source_witness_ref for row in cleanroom_evidence_pack.source_witness_rows
+    }
+
+    obligation_refs = {
+        row.obligation_ref for row in cleanroom_evidence_pack.behavior_obligation_rows
+    }
+    probe_obligations = {
+        obligation_ref
+        for row in probe_contract.probe_template_rows
+        for obligation_ref in row.obligation_refs
+    }
+    if not probe_obligations.issubset(obligation_refs):
+        raise ValueError("probe contract obligations must be declared in evidence pack")
+
+    oracle_expected = {
+        row.obligation_ref for row in oracle_boundary.expected_behavior_boundary_rows
+    }
+    if not oracle_expected.issubset(obligation_refs):
+        raise ValueError("oracle expected behavior must be declared in evidence pack")
+    if not oracle_expected:
+        raise ValueError("oracle boundary requires expected behavior rows")
+    for row in oracle_boundary.local_oracle_basis_rows:
+        _ensure_refs_resolve(
+            row.source_witness_refs,
+            source_witness_refs,
+            field_name="local_oracle_basis_rows.source_witness_refs",
+        )
+
+    if contamination_screen.screen_verdict != "passed_cleanroom_screen":
+        raise ValueError("B lineage candidates require clean contamination screen")
+    if contamination_screen.contamination_status != "clean":
+        raise ValueError("B lineage candidates require clean contamination status")
+    if set(contamination_screen.screened_source_refs) != blueprint_sources:
+        raise ValueError("contamination screen must cover blueprint sources")
+
+    if control_contract.execution_deferred_control_ref != "control:execution-deferred":
+        raise ValueError("B requires A execution-deferred control")
+    if non_authority_guardrail.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("B requires A benchmark truth denial")
+    if case_blueprint.benchmark_score_posture != "no_benchmark_score_authority_granted_by_0b":
+        raise ValueError("case blueprint cannot grant scoring authority")
+    if probe_contract.command_execution_posture != "no_command_execution_authority_granted_by_0b":
+        raise ValueError("probe contract cannot grant command execution authority")
+    if oracle_boundary.benchmark_truth_posture != "not_benchmark_truth":
+        raise ValueError("oracle boundary must deny benchmark truth")

@@ -1,0 +1,130 @@
+{
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "command_execution_posture": "no_command_execution_authority_granted_by_0b",
+  "exit_code_expectation_rows": [
+    {
+      "expectation_posture": "local_exit_code_expectation_only",
+      "expectation_ref": "exit-expectation:diagnostic:exit-code",
+      "expected_exit_code": 2,
+      "limitation_note": "Expected exit code is local blueprint evidence only.",
+      "probe_ref": "probe:diagnostic:exit-code"
+    }
+  ],
+  "filesystem_side_effect_expectation_rows": [],
+  "limitation_note": "Probe contract includes a raw shell-shaped command.",
+  "negative_probe_requirement_rows": [
+    {
+      "limitation_note": "Negative probe requires diagnostics not to appear as normal output.",
+      "obligation_refs": [
+        "obligation:diagnostic:stdout"
+      ],
+      "probe_ref": "probe:diagnostic:stdout",
+      "requirement_kind": "negative_probe_requirement",
+      "requirement_posture": "local_probe_requirement_only_not_executed",
+      "requirement_ref": "probe-requirement:diagnostic:negative-stdout"
+    }
+  ],
+  "positive_probe_requirement_rows": [
+    {
+      "limitation_note": "Positive probe requires diagnostic stderr behavior.",
+      "obligation_refs": [
+        "obligation:diagnostic:stderr"
+      ],
+      "probe_ref": "probe:diagnostic:stderr",
+      "requirement_kind": "positive_probe_requirement",
+      "requirement_posture": "local_probe_requirement_only_not_executed",
+      "requirement_ref": "probe-requirement:diagnostic:positive-stderr"
+    }
+  ],
+  "probe_command_shape_rows": [
+    {
+      "argv_template": [
+        "python solution.py --missing-value"
+      ],
+      "execution_deferred_posture": "probe_execution_deferred_to_later_trial",
+      "expected_exit_code_ref": "exit-expectation:diagnostic:exit-code",
+      "expected_stderr_ref": "stream-expectation:diagnostic:stderr",
+      "expected_stdout_ref": "stream-expectation:diagnostic:stdout",
+      "filesystem_expectation_refs": [],
+      "probe_ref": "probe:diagnostic:exit-code",
+      "stdin_fixture_ref": null
+    },
+    {
+      "argv_template": [
+        "python",
+        "solution.py"
+      ],
+      "execution_deferred_posture": "probe_execution_deferred_to_later_trial",
+      "expected_exit_code_ref": "exit-expectation:diagnostic:exit-code",
+      "expected_stderr_ref": "stream-expectation:diagnostic:stderr",
+      "expected_stdout_ref": "stream-expectation:diagnostic:stdout",
+      "filesystem_expectation_refs": [],
+      "probe_ref": "probe:diagnostic:stderr",
+      "stdin_fixture_ref": null
+    },
+    {
+      "argv_template": [
+        "python",
+        "solution.py"
+      ],
+      "execution_deferred_posture": "probe_execution_deferred_to_later_trial",
+      "expected_exit_code_ref": "exit-expectation:diagnostic:exit-code",
+      "expected_stderr_ref": "stream-expectation:diagnostic:stderr",
+      "expected_stdout_ref": "stream-expectation:diagnostic:stdout",
+      "filesystem_expectation_refs": [],
+      "probe_ref": "probe:diagnostic:stdout",
+      "stdin_fixture_ref": null
+    }
+  ],
+  "probe_contract_ref": "case-probe-contract:pb-case-expansion-0b:diagnostic",
+  "probe_execution_deferred_posture": "probe_execution_deferred_to_later_trial",
+  "probe_template_rows": [
+    {
+      "limitation_note": "Exit code probe is planned only.",
+      "obligation_refs": [
+        "obligation:diagnostic:exit-code"
+      ],
+      "probe_kind": "exit_code_probe",
+      "probe_ref": "probe:diagnostic:exit-code",
+      "probe_template_posture": "local_probe_template_only_not_executed"
+    },
+    {
+      "limitation_note": "Stderr probe is planned only.",
+      "obligation_refs": [
+        "obligation:diagnostic:stderr"
+      ],
+      "probe_kind": "stderr_probe",
+      "probe_ref": "probe:diagnostic:stderr",
+      "probe_template_posture": "local_probe_template_only_not_executed"
+    },
+    {
+      "limitation_note": "Stdout probe is planned only.",
+      "obligation_refs": [
+        "obligation:diagnostic:stdout"
+      ],
+      "probe_kind": "stdout_probe",
+      "probe_ref": "probe:diagnostic:stdout",
+      "probe_template_posture": "local_probe_template_only_not_executed"
+    }
+  ],
+  "schema": "programbench_local_case_probe_contract@1",
+  "stdout_stderr_expectation_rows": [
+    {
+      "expectation_posture": "local_stream_expectation_only",
+      "expectation_ref": "stream-expectation:diagnostic:stderr",
+      "expected_artifact_ref": "artifact-expectation:diagnostic:stderr",
+      "limitation_note": "Stderr expectation is local only.",
+      "probe_ref": "probe:diagnostic:stderr",
+      "stream_kind": "stderr"
+    },
+    {
+      "expectation_posture": "local_stream_expectation_only",
+      "expectation_ref": "stream-expectation:diagnostic:stdout",
+      "expected_artifact_ref": "artifact-expectation:diagnostic:stdout",
+      "limitation_note": "Stdout expectation is local only.",
+      "probe_ref": "probe:diagnostic:stdout",
+      "stream_kind": "stdout"
+    }
+  ]
+}

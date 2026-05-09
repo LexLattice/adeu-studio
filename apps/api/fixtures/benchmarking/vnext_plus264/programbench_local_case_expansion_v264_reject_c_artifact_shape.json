@@ -1,0 +1,5 @@
+{
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "case_lineage_registration_ref": "case-lineage-registration:pb-case-expansion-0c:premature",
+  "schema": "programbench_local_case_lineage_registration@1"
+}

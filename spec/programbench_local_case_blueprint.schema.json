@@ -1,0 +1,174 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_0b",
+      "title": "Baseline Comparison Posture",
+      "type": "string"
+    },
+    "benchmark_score_posture": {
+      "const": "no_benchmark_score_authority_granted_by_0b",
+      "title": "Benchmark Score Posture",
+      "type": "string"
+    },
+    "blueprint_hash": {
+      "title": "Blueprint Hash",
+      "type": "string"
+    },
+    "candidate_case_idea_ref": {
+      "title": "Candidate Case Idea Ref",
+      "type": "string"
+    },
+    "case_blueprint_ref": {
+      "title": "Case Blueprint Ref",
+      "type": "string"
+    },
+    "case_blueprint_status": {
+      "enum": [
+        "blocked_by_contamination",
+        "blocked_missing_evidence",
+        "blueprint_ready_for_later_lineage_review"
+      ],
+      "title": "Case Blueprint Status",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_kind": {
+      "enum": [
+        "cli_behavior_case",
+        "filesystem_side_effect_case",
+        "io_artifact_case"
+      ],
+      "title": "Case Kind",
+      "type": "string"
+    },
+    "cleanroom_evidence_pack_ref": {
+      "title": "Cleanroom Evidence Pack Ref",
+      "type": "string"
+    },
+    "contamination_screen_ref": {
+      "title": "Contamination Screen Ref",
+      "type": "string"
+    },
+    "execution_deferred_posture": {
+      "const": "execution_deferred_to_later_trial_family",
+      "title": "Execution Deferred Posture",
+      "type": "string"
+    },
+    "expansion_control_contract_ref": {
+      "title": "Expansion Control Contract Ref",
+      "type": "string"
+    },
+    "expansion_eligibility_review_ref": {
+      "title": "Expansion Eligibility Review Ref",
+      "type": "string"
+    },
+    "expansion_guardrail_ref": {
+      "title": "Expansion Guardrail Ref",
+      "type": "string"
+    },
+    "expected_input_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Input Artifact Refs",
+      "type": "array"
+    },
+    "expected_output_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Output Artifact Refs",
+      "type": "array"
+    },
+    "expected_submission_shape": {
+      "enum": [
+        "python_package_entrypoint",
+        "python_program_file"
+      ],
+      "title": "Expected Submission Shape",
+      "type": "string"
+    },
+    "filesystem_side_effect_expectation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Filesystem Side Effect Expectation Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_inclusion_deferred_posture": {
+      "const": "matrix_inclusion_deferred_to_pb_case_expansion_0c_or_later",
+      "title": "Matrix Inclusion Deferred Posture",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_case_expansion_0b",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "oracle_boundary_ref": {
+      "title": "Oracle Boundary Ref",
+      "type": "string"
+    },
+    "probe_contract_ref": {
+      "title": "Probe Contract Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_blueprint@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_pool_manifest_ref": {
+      "title": "Source Pool Manifest Ref",
+      "type": "string"
+    },
+    "source_pool_subset_hash": {
+      "title": "Source Pool Subset Hash",
+      "type": "string"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "case_blueprint_ref",
+    "case_expansion_ref",
+    "candidate_case_idea_ref",
+    "source_pool_manifest_ref",
+    "expansion_eligibility_review_ref",
+    "expansion_control_contract_ref",
+    "expansion_guardrail_ref",
+    "cleanroom_evidence_pack_ref",
+    "probe_contract_ref",
+    "oracle_boundary_ref",
+    "contamination_screen_ref",
+    "source_refs",
+    "case_kind",
+    "case_blueprint_status",
+    "expected_submission_shape",
+    "source_pool_subset_hash",
+    "blueprint_hash",
+    "execution_deferred_posture",
+    "matrix_inclusion_deferred_posture",
+    "benchmark_score_posture",
+    "baseline_comparison_posture",
+    "model_ranking_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseBlueprint",
+  "type": "object"
+}

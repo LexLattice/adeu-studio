@@ -1,0 +1,58 @@
+{
+  "artifact_obligation_rows": [],
+  "behavior_obligation_basis_rows": [
+    {
+      "limitation_note": "Exit code obligation is witnessed by clean documentation.",
+      "obligation_ref": "obligation:diagnostic:exit-code",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc"
+      ],
+      "support_kind": "cleanroom_usage_doc",
+      "support_strength": "direct",
+      "unresolved_counterevidence_refs": []
+    }
+  ],
+  "behavior_obligation_rows": [
+    {
+      "limitation_note": "Local blueprint expects deterministic exit status.",
+      "local_obligation_posture": "local_blueprint_obligation_only_not_official_task_truth",
+      "obligation_kind": "exit_code_behavior",
+      "obligation_ref": "obligation:diagnostic:exit-code",
+      "obligation_status": "locally_witnessed"
+    },
+    {
+      "limitation_note": "Local blueprint expects diagnostic text on stderr.",
+      "local_obligation_posture": "local_blueprint_obligation_only_not_official_task_truth",
+      "obligation_kind": "stderr_diagnostic_behavior",
+      "obligation_ref": "obligation:diagnostic:stderr",
+      "obligation_status": "locally_witnessed"
+    }
+  ],
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "cleanroom_evidence_pack_ref": "case-evidence-pack:pb-case-expansion-0b:diagnostic",
+  "evidence_pack_hash": "sha256:1313131313131313131313131313131313131313131313131313131313131313",
+  "forbidden_source_exclusion_refs": [],
+  "io_observation_rows": [],
+  "limitation_note": "Evidence pack misses one required basis row.",
+  "schema": "programbench_local_case_cleanroom_evidence_pack@1",
+  "source_identity_hashes": [
+    "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+  ],
+  "source_witness_rows": [
+    {
+      "limitation_note": "Clean documentation directly witnesses local diagnostic obligations.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ],
+      "source_witness_ref": "source-witness:diagnostic-cli-doc",
+      "witness_kind": "behavior_obligation_witness",
+      "witness_strength": "direct",
+      "witnessed_obligation_refs": [
+        "obligation:diagnostic:exit-code",
+        "obligation:diagnostic:stderr"
+      ]
+    }
+  ],
+  "support_only_context_refs": []
+}

@@ -1,0 +1,78 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "expected_behavior_boundary_rows": [
+    {
+      "behavior_boundary_kind": "expected_behavior",
+      "behavior_boundary_ref": "oracle-behavior:diagnostic:exit-code",
+      "boundary_posture": "local_blueprint_expected_behavior",
+      "limitation_note": "Exit code behavior is a local oracle expectation only.",
+      "obligation_ref": "obligation:diagnostic:exit-code",
+      "oracle_basis_refs": [
+        "oracle-basis:diagnostic:doc",
+        "oracle-basis:diagnostic:probe"
+      ]
+    },
+    {
+      "behavior_boundary_kind": "expected_behavior",
+      "behavior_boundary_ref": "oracle-behavior:diagnostic:stderr",
+      "boundary_posture": "local_blueprint_expected_behavior",
+      "limitation_note": "Stderr behavior is a local oracle expectation only.",
+      "obligation_ref": "obligation:diagnostic:stderr",
+      "oracle_basis_refs": [
+        "oracle-basis:diagnostic:doc",
+        "oracle-basis:diagnostic:probe"
+      ]
+    }
+  ],
+  "hidden_test_equivalence_posture": "no_hidden_test_equivalence_claimed",
+  "limitation_note": "Oracle boundary is local to the blueprint and creates no external truth claim.",
+  "local_oracle_basis_rows": [
+    {
+      "basis_kind": "behavior_obligation_basis",
+      "limitation_note": "Documentation basis remains local.",
+      "oracle_basis_ref": "oracle-basis:diagnostic:doc",
+      "source_witness_refs": [
+        "source-witness:diagnostic-cli-doc"
+      ],
+      "support_strength": "direct"
+    },
+    {
+      "basis_kind": "io_observation_basis",
+      "limitation_note": "Observation basis remains local.",
+      "oracle_basis_ref": "oracle-basis:diagnostic:probe",
+      "source_witness_refs": [
+        "source-witness:diagnostic-probe"
+      ],
+      "support_strength": "direct"
+    }
+  ],
+  "local_oracle_not_task_truth_posture": "local_blueprint_oracle_only_not_official_programbench_truth",
+  "official_evaluator_equivalence_posture": "no_official_evaluator_equivalence_claimed",
+  "oracle_boundary_ref": "case-oracle-boundary:pb-case-expansion-0b:diagnostic",
+  "oracle_boundary_scope_hash": "sha256:1414141414141414141414141414141414141414141414141414141414141414",
+  "out_of_scope_behavior_policy": "exclude_from_local_oracle_claim",
+  "out_of_scope_behavior_rows": [
+    {
+      "behavior_boundary_kind": "out_of_scope_behavior",
+      "behavior_boundary_ref": "oracle-behavior:diagnostic:output-format-width",
+      "boundary_posture": "local_blueprint_out_of_scope_behavior",
+      "limitation_note": "Output wrapping is outside this local blueprint.",
+      "obligation_ref": "obligation:diagnostic:output-format-width",
+      "oracle_basis_refs": []
+    }
+  ],
+  "schema": "programbench_local_case_oracle_boundary@1",
+  "unknown_behavior_boundary_rows": [
+    {
+      "behavior_boundary_kind": "unknown_behavior",
+      "behavior_boundary_ref": "oracle-behavior:diagnostic:locale",
+      "boundary_posture": "local_blueprint_unknown_behavior",
+      "limitation_note": "Locale behavior is preserved as a local gap.",
+      "obligation_ref": "obligation:diagnostic:locale",
+      "oracle_basis_refs": []
+    }
+  ],
+  "unknown_behavior_policy": "preserve_unknown_behavior_as_local_gap"
+}

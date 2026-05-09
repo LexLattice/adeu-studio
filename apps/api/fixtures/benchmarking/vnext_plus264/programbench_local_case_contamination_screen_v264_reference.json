@@ -1,0 +1,36 @@
+{
+  "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "contamination_rows": [
+    {
+      "contamination_kind": "clean",
+      "contamination_posture": "clean",
+      "contamination_ref": "contamination:diagnostic:clean-cli-doc",
+      "limitation_note": "Clean source remains visible for local blueprinting.",
+      "redacted_detail_note": "clean category only",
+      "source_ref": "source:pb-case-expansion-0a:clean-cli-doc"
+    },
+    {
+      "contamination_kind": "clean",
+      "contamination_posture": "clean",
+      "contamination_ref": "contamination:diagnostic:clean-probe-observation",
+      "limitation_note": "Clean observation remains visible for local blueprinting.",
+      "redacted_detail_note": "clean category only",
+      "source_ref": "source:pb-case-expansion-0a:clean-probe-observation"
+    }
+  ],
+  "contamination_screen_ref": "case-contamination-screen:pb-case-expansion-0b:diagnostic",
+  "contamination_status": "clean",
+  "decompilation_or_source_lookup_exposure_refs": [],
+  "forbidden_source_exposure_refs": [],
+  "hidden_evidence_exposure_refs": [],
+  "limitation_note": "Contamination screen passes only cleanroom-visible blueprint sources.",
+  "official_evaluator_exposure_refs": [],
+  "redaction_policy": "redacted_category_count_reason_only",
+  "schema": "programbench_local_case_contamination_screen@1",
+  "screen_verdict": "passed_cleanroom_screen",
+  "screened_source_refs": [
+    "source:pb-case-expansion-0a:clean-cli-doc",
+    "source:pb-case-expansion-0a:clean-probe-observation"
+  ]
+}
