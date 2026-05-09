@@ -300,3 +300,14 @@ The following options remain unselected:
 Select `PB-MATRIX-INCLUSION-0` as the next family for review. Do not implement
 `PB-MATRIX-INCLUSION-0-A` until the family bundle and A/B/C implementation
 mapping have been reviewed.
+
+## Post-A Continuation Note
+
+After `PB-MATRIX-INCLUSION-0-A` is implemented, merged, and closed on main,
+select `PB-MATRIX-INCLUSION-0-B` as the next default candidate.
+
+`PB-MATRIX-INCLUSION-0-B` should instantiate only the local matrix amendment
+plan, case delta manifest, comparability delta review, contamination delta
+review, and inclusion decision record. It must not register a revised matrix,
+project results, execute cases, summarize outcomes, score benchmarks, compare
+baselines, rank models, or select a future family.
