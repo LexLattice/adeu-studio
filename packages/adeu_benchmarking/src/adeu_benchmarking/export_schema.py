@@ -131,6 +131,18 @@ from .programbench_cleanroom_attempt import (
     ProgrambenchReconstructionAttemptWorkerInputPacket,
     ProgrambenchReconstructionAttemptWorkerInvocationRecord,
 )
+from .programbench_cleanroom_matrix import (
+    PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA,
+    ProgrambenchLocalCaseInclusionManifest,
+    ProgrambenchLocalCaseLineageEligibilityReview,
+    ProgrambenchLocalCaseMatrixControlContract,
+    ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
+    ProgrambenchLocalCaseMatrixRequest,
+)
 from .programbench_cleanroom_reconstruction import (
     PROGRAMBENCH_RECONSTRUCTION_CANDIDATE_ARTIFACT_MANIFEST_SCHEMA,
     PROGRAMBENCH_RECONSTRUCTION_CONTEXT_EXCLUSION_MANIFEST_SCHEMA,
@@ -1290,6 +1302,62 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_retry_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixRequest,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_request.v1.json",
+            root / "spec" / "programbench_local_case_matrix_request.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseInclusionManifest,
+            PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_inclusion_manifest.v1.json",
+            root / "spec" / "programbench_local_case_inclusion_manifest.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseLineageEligibilityReview,
+            PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_lineage_eligibility_review.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_lineage_eligibility_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixControlContract,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTROL_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_control_contract.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_matrix_control_contract.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_matrix_non_authority_guardrail.schema.json",
         ),
     ]
 

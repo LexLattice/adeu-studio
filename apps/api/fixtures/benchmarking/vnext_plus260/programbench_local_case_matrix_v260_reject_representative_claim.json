@@ -1,0 +1,25 @@
+{
+  "aggregate_count_posture": "local_inventory_count_only",
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_pb_matrix_0a",
+  "case_inclusion_manifest_ref": "matrix-inclusion:pb-matrix-0a:reference",
+  "case_lineage_eligibility_review_ref": "matrix-eligibility:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "future_family_selection_posture": "no_future_family_selected_by_pb_matrix_0a",
+  "limitation_note": "This local smoke matrix is a representative benchmark subset.",
+  "matrix_case_candidate_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "matrix_control_contract_ref": "matrix-control:pb-matrix-0a:reference",
+  "matrix_horizon": "local_smoke_matrix",
+  "matrix_max_case_count": 2,
+  "matrix_request_ref": "matrix-request:pb-matrix-0a:reference",
+  "matrix_selection_rationale_refs": [
+    "matrix-rationale:pb-matrix-0a:smoke"
+  ],
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_matrix_0a",
+  "official_benchmark_authority_posture": "no_official_programbench_authority_granted_by_pb_matrix_0a",
+  "requested_case_count": 2,
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "schema": "programbench_local_case_matrix_request@1"
+}

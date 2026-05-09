@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixEligibilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Refs",
+          "type": "array"
+        },
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "eligibility_posture": {
+          "enum": [
+            "blocked_by_contamination",
+            "blocked_by_forbidden_source",
+            "blocked_by_missing_lineage",
+            "blocked_by_official_evaluator_source",
+            "blocked_by_support_only",
+            "deferred",
+            "eligible_for_local_matrix_inclusion"
+          ],
+          "title": "Eligibility Posture",
+          "type": "string"
+        },
+        "eligibility_row_ref": {
+          "title": "Eligibility Row Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lineage_release_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lineage Release Refs",
+          "type": "array"
+        },
+        "warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warning Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "eligibility_row_ref",
+        "case_ref",
+        "eligibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixEligibilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Refs",
+      "type": "array"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "case_eligibility_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixEligibilityRow"
+      },
+      "minItems": 1,
+      "title": "Case Eligibility Rows",
+      "type": "array"
+    },
+    "case_lineage_eligibility_review_ref": {
+      "title": "Case Lineage Eligibility Review Ref",
+      "type": "string"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "eligible_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Eligible Case Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "non_authority_guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Non Authority Guardrail Refs",
+      "type": "array"
+    },
+    "released_family_closeout_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Family Closeout Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_lineage_eligibility_review@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_lineage_eligibility_review_ref",
+    "case_matrix_ref",
+    "case_eligibility_rows",
+    "eligible_case_refs",
+    "released_family_closeout_refs",
+    "non_authority_guardrail_refs",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseLineageEligibilityReview",
+  "type": "object"
+}

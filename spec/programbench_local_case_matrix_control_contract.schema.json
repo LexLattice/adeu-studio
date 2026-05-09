@@ -1,0 +1,268 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixAllowedActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "case_inclusion_review",
+            "lineage_eligibility_review",
+            "matrix_control_accounting",
+            "non_authority_guardrail_review"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "action_scope_posture": {
+          "const": "allowed_for_pb_matrix_0a_review_only",
+          "title": "Action Scope Posture",
+          "type": "string"
+        },
+        "allowed_action_ref": {
+          "title": "Allowed Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "allowed_action_ref",
+        "action_kind",
+        "action_scope_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixAllowedActionRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseMatrixForbiddenActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "batch_command_execution",
+            "benchmark_scoring",
+            "candidate_materialization",
+            "decompilation",
+            "docker_socket_access",
+            "external_repo_lookup",
+            "hidden_test_access",
+            "host_secret_access",
+            "internet_lookup",
+            "matrix_result_projection",
+            "model_ranking",
+            "official_evaluator_access",
+            "official_submission",
+            "second_retry_authority",
+            "source_lookup",
+            "widen_write_scope"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_matrix_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_action_ref": {
+          "title": "Forbidden Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_action_ref",
+        "action_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixForbiddenActionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_count_posture": {
+      "enum": [
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score"
+      ],
+      "title": "Aggregate Count Posture",
+      "type": "string"
+    },
+    "allowed_matrix_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixAllowedActionRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Matrix Action Rows",
+      "type": "array"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "forbidden_matrix_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixForbiddenActionRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Matrix Action Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_comparability_posture": {
+      "enum": [
+        "single_profile_controls",
+        "comparability_accounting_only_no_ranking"
+      ],
+      "title": "Matrix Comparability Posture",
+      "type": "string"
+    },
+    "matrix_control_contract_ref": {
+      "title": "Matrix Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_non_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_matrix_0a",
+      "title": "Matrix Non Ranking Posture",
+      "type": "string"
+    },
+    "matrix_probe_basis_control_ref": {
+      "title": "Matrix Probe Basis Control Ref",
+      "type": "string"
+    },
+    "matrix_sandbox_policy_control_ref": {
+      "title": "Matrix Sandbox Policy Control Ref",
+      "type": "string"
+    },
+    "matrix_tool_policy_control_ref": {
+      "title": "Matrix Tool Policy Control Ref",
+      "type": "string"
+    },
+    "matrix_visibility_control_ref": {
+      "title": "Matrix Visibility Control Ref",
+      "type": "string"
+    },
+    "matrix_worker_profile_control_ref": {
+      "title": "Matrix Worker Profile Control Ref",
+      "type": "string"
+    },
+    "matrix_write_scope_control_ref": {
+      "title": "Matrix Write Scope Control Ref",
+      "type": "string"
+    },
+    "model_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Model Profile Refs",
+      "type": "array"
+    },
+    "multi_profile_matrix_posture": {
+      "enum": [
+        "comparability_accounting_only_no_ranking",
+        "single_profile_matrix"
+      ],
+      "title": "Multi Profile Matrix Posture",
+      "type": "string"
+    },
+    "probe_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Basis Refs",
+      "type": "array"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "sandbox_policy_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Sandbox Policy Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_control_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "tool_policy_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Tool Policy Refs",
+      "type": "array"
+    },
+    "worker_profile_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Worker Profile Refs",
+      "type": "array"
+    },
+    "write_scope_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Write Scope Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_control_contract_ref",
+    "case_matrix_ref",
+    "matrix_worker_profile_control_ref",
+    "matrix_tool_policy_control_ref",
+    "matrix_probe_basis_control_ref",
+    "matrix_sandbox_policy_control_ref",
+    "matrix_write_scope_control_ref",
+    "matrix_visibility_control_ref",
+    "worker_profile_refs",
+    "model_profile_refs",
+    "tool_policy_refs",
+    "probe_basis_refs",
+    "sandbox_policy_refs",
+    "write_scope_refs",
+    "matrix_non_ranking_posture",
+    "matrix_comparability_posture",
+    "multi_profile_matrix_posture",
+    "aggregate_count_posture",
+    "representativeness_posture",
+    "allowed_matrix_action_rows",
+    "forbidden_matrix_action_rows",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixControlContract",
+  "type": "object"
+}
