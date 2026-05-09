@@ -278,18 +278,31 @@ class ProgrambenchLocalCaseSourcePoolRow(_CaseExpansionBase):
     @model_validator(mode="after")
     def _validate_source_row(self) -> "ProgrambenchLocalCaseSourcePoolRow":
         _ensure_hash(self.source_identity_hash, field_name="source_identity_hash")
-        forbidden_source_kind = self.source_kind in {
-            "decompilation_source",
-            "external_repo_source",
-            "hidden_test",
-            "internet_lookup_source",
-            "official_evaluator_source",
-            "original_source",
-            "postmortem_only",
-        }
+        is_forbidden = (
+            self.source_kind
+            in {
+                "decompilation_source",
+                "external_repo_source",
+                "hidden_test",
+                "internet_lookup_source",
+                "official_evaluator_source",
+                "original_source",
+                "postmortem_only",
+            }
+            or self.source_origin_posture
+            in {
+                "decompilation_derived",
+                "external_repo_derived",
+                "hidden",
+                "internet_derived",
+                "official_evaluator_derived",
+                "original_source_derived",
+                "postmortem_only",
+            }
+        )
         if self.allowed_for_expansion:
-            if forbidden_source_kind:
-                raise ValueError("forbidden source kinds cannot be allowed for expansion")
+            if is_forbidden:
+                raise ValueError("forbidden source kind/origin cannot be allowed for expansion")
             if self.source_origin_posture != "cleanroom_visible":
                 raise ValueError("allowed expansion sources require cleanroom-visible origin")
             if self.source_visibility_posture != "cleanroom_visible":
@@ -303,8 +316,22 @@ class ProgrambenchLocalCaseSourcePoolRow(_CaseExpansionBase):
         else:
             if self.exclusion_reason == "not_applicable":
                 raise ValueError("blocked source rows require an exclusion reason")
-        if forbidden_source_kind and self.derived_summary_policy != "no_derived_summary_allowed":
-            raise ValueError("forbidden source rows cannot permit derived summaries")
+            if self.source_kind == "support_context":
+                if self.exclusion_reason != "support_only_not_sufficient":
+                    raise ValueError(
+                        "support context sources require support_only_not_sufficient "
+                        "exclusion reason"
+                    )
+                if self.source_visibility_posture != "support_only":
+                    raise ValueError("support context sources require support_only visibility")
+        if is_forbidden:
+            if self.derived_summary_policy != "no_derived_summary_allowed":
+                raise ValueError("forbidden source rows cannot permit derived summaries")
+            if self.source_visibility_posture in {
+                "blueprint_visible_later_if_selected",
+                "cleanroom_visible",
+            }:
+                raise ValueError("forbidden sources cannot have visible postures")
         if self.source_visibility_posture == "cleanroom_visible":
             _ensure_no_forbidden_refs([self.source_ref], field_name="source_ref")
         _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
@@ -640,8 +667,7 @@ class ProgrambenchLocalCaseSourcePoolManifest(_CaseExpansionBase):
         forbidden_from_rows = {
             row.source_ref
             for row in self.source_pool_rows
-            if row.source_kind
-            in {
+            if row.source_kind in {
                 "decompilation_source",
                 "external_repo_source",
                 "hidden_test",
@@ -650,10 +676,33 @@ class ProgrambenchLocalCaseSourcePoolManifest(_CaseExpansionBase):
                 "original_source",
                 "postmortem_only",
             }
+            or row.source_origin_posture
+            in {
+                "decompilation_derived",
+                "external_repo_derived",
+                "hidden",
+                "internet_derived",
+                "official_evaluator_derived",
+                "original_source_derived",
+                "postmortem_only",
+            }
         }
-        if not forbidden_from_rows.issubset(set(self.forbidden_source_refs)):
-            missing = sorted(forbidden_from_rows - set(self.forbidden_source_refs))
-            raise ValueError(f"forbidden_source_refs missing forbidden source rows: {missing}")
+        if set(self.forbidden_source_refs) != forbidden_from_rows:
+            raise ValueError("forbidden_source_refs must match forbidden source pool rows")
+        blocked_from_rows = {
+            row.source_ref
+            for row in self.source_pool_rows
+            if row.exclusion_reason.startswith("blocked_")
+        }
+        if set(self.blocked_source_refs) != blocked_from_rows:
+            raise ValueError("blocked_source_refs must match blocked source pool rows")
+        auditor_from_rows = {
+            row.source_ref
+            for row in self.source_pool_rows
+            if row.source_visibility_posture == "auditor_only"
+        }
+        if set(self.auditor_only_source_refs) != auditor_from_rows:
+            raise ValueError("auditor_only_source_refs must match auditor-only source pool rows")
         support_from_rows = {
             row.source_ref for row in self.source_pool_rows if row.source_kind == "support_context"
         }
@@ -758,11 +807,12 @@ class ProgrambenchLocalCaseExpansionEligibilityReview(_CaseExpansionBase):
         )
         if overlaps:
             raise ValueError(f"candidate eligibility posture refs must be disjoint: {overlaps}")
-        row_blockers = {
-            blocker for row in self.candidate_eligibility_rows for blocker in row.blocker_refs
-        }
+        row_blockers = set().union(*(row.blocker_refs for row in self.candidate_eligibility_rows))
         if not set(self.carried_blocker_refs).issubset(row_blockers):
             raise ValueError("carried blockers must resolve to eligibility row blocker refs")
+        row_warnings = set().union(*(row.warning_refs for row in self.candidate_eligibility_rows))
+        if not set(self.carried_warning_refs).issubset(row_warnings):
+            raise ValueError("carried warnings must resolve to eligibility row warning refs")
         _ensure_no_laundered_summary(self.limitation_note, field_name="limitation_note")
         return self
 

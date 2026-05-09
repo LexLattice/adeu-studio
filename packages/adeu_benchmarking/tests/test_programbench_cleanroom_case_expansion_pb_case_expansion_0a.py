@@ -304,6 +304,39 @@ def test_pb_case_expansion_0a_review_rejects_duplicate_candidate_decisions() -> 
         ProgrambenchLocalCaseExpansionEligibilityReview.model_validate(payload)
 
 
+def test_pb_case_expansion_0a_manifest_rejects_forbidden_origin_visible_posture() -> None:
+    payload = _load_case_expansion_fixture(
+        "programbench_local_case_source_pool_manifest_v263_reference.json"
+    )
+    payload["source_pool_rows"][0]["allowed_for_expansion"] = False
+    payload["source_pool_rows"][0]["derived_summary_policy"] = "no_derived_summary_allowed"
+    payload["source_pool_rows"][0]["exclusion_reason"] = "blocked_hidden_test_source"
+    payload["source_pool_rows"][0]["source_origin_posture"] = "hidden"
+
+    with pytest.raises(ValidationError, match="visible postures"):
+        ProgrambenchLocalCaseSourcePoolManifest.model_validate(payload)
+
+
+def test_pb_case_expansion_0a_manifest_requires_exact_blocked_source_summary() -> None:
+    payload = _load_case_expansion_fixture(
+        "programbench_local_case_source_pool_manifest_v263_reference.json"
+    )
+    payload["blocked_source_refs"] = []
+
+    with pytest.raises(ValidationError, match="blocked_source_refs must match"):
+        ProgrambenchLocalCaseSourcePoolManifest.model_validate(payload)
+
+
+def test_pb_case_expansion_0a_review_rejects_orphan_carried_warning() -> None:
+    payload = _load_case_expansion_fixture(
+        "programbench_local_case_expansion_eligibility_review_v263_reference.json"
+    )
+    payload["carried_warning_refs"] = ["warning:pb-case-expansion-0a:orphan"]
+
+    with pytest.raises(ValidationError, match="carried warnings"):
+        ProgrambenchLocalCaseExpansionEligibilityReview.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [
