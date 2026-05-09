@@ -273,6 +273,37 @@ def test_pb_case_expansion_0a_bundle_requires_allowed_source_witness() -> None:
         )
 
 
+def test_pb_case_expansion_0a_manifest_rejects_foreign_candidate_expansion_ref() -> None:
+    payload = _load_case_expansion_fixture(
+        "programbench_local_case_source_pool_manifest_v263_reference.json"
+    )
+    payload["candidate_case_idea_rows"][0]["case_expansion_ref"] = (
+        "case-expansion:pb-case-expansion-0a:foreign"
+    )
+
+    with pytest.raises(ValidationError, match="manifest case_expansion_ref"):
+        ProgrambenchLocalCaseSourcePoolManifest.model_validate(payload)
+
+
+def test_pb_case_expansion_0a_review_rejects_duplicate_candidate_decisions() -> None:
+    payload = _load_case_expansion_fixture(
+        "programbench_local_case_expansion_eligibility_review_v263_reference.json"
+    )
+    duplicate = dict(payload["candidate_eligibility_rows"][0])
+    duplicate["eligibility_row_ref"] = "eligibility-row:pb-case-expansion-0a:duplicate"
+    duplicate["eligibility_posture"] = "blocked_by_support_only_source"
+    duplicate["blocker_refs"] = ["blocker:pb-case-expansion-0a:duplicate"]
+    duplicate["source_witness_refs"] = []
+    payload["candidate_eligibility_rows"].insert(1, duplicate)
+    payload["blocked_candidate_case_idea_refs"] = [
+        "case-idea:pb-case-expansion-0a:diagnostic"
+    ]
+    payload["carried_blocker_refs"] = ["blocker:pb-case-expansion-0a:duplicate"]
+
+    with pytest.raises(ValidationError, match="candidate_case_idea_ref"):
+        ProgrambenchLocalCaseExpansionEligibilityReview.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "model"),
     [

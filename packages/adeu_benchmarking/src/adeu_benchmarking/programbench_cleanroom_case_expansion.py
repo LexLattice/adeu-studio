@@ -668,6 +668,8 @@ class ProgrambenchLocalCaseSourcePoolManifest(_CaseExpansionBase):
             field_name="candidate case idea source_refs",
         )
         for row in self.candidate_case_idea_rows:
+            if row.case_expansion_ref != self.case_expansion_ref:
+                raise ValueError("candidate case idea rows must match manifest case_expansion_ref")
             if row.eligibility_claim == "eligible_for_later_blueprint_review":
                 if not set(row.source_refs) & set(self.allowed_source_refs):
                     raise ValueError("eligible case ideas require cleanroom-visible source witness")
@@ -697,6 +699,13 @@ class ProgrambenchLocalCaseExpansionEligibilityReview(_CaseExpansionBase):
     def _validate_review(self) -> "ProgrambenchLocalCaseExpansionEligibilityReview":
         row_refs = [row.eligibility_row_ref for row in self.candidate_eligibility_rows]
         _ensure_sorted_unique(row_refs, field_name="candidate_eligibility_rows")
+        candidate_refs = [
+            row.candidate_case_idea_ref for row in self.candidate_eligibility_rows
+        ]
+        _ensure_sorted_unique(
+            candidate_refs,
+            field_name="candidate_eligibility_rows.candidate_case_idea_ref",
+        )
         eligible_from_rows = {
             row.candidate_case_idea_ref
             for row in self.candidate_eligibility_rows
@@ -737,6 +746,18 @@ class ProgrambenchLocalCaseExpansionEligibilityReview(_CaseExpansionBase):
             raise ValueError("blocked_candidate_case_idea_refs must match eligibility rows")
         if set(self.deferred_candidate_case_idea_refs) != deferred_from_rows:
             raise ValueError("deferred_candidate_case_idea_refs must match eligibility rows")
+        top_level_posture_refs = (
+            set(self.eligible_candidate_case_idea_refs),
+            set(self.blocked_candidate_case_idea_refs),
+            set(self.deferred_candidate_case_idea_refs),
+        )
+        overlaps = sorted(
+            ref
+            for ref in set().union(*top_level_posture_refs)
+            if sum(ref in refs for refs in top_level_posture_refs) > 1
+        )
+        if overlaps:
+            raise ValueError(f"candidate eligibility posture refs must be disjoint: {overlaps}")
         row_blockers = {
             blocker for row in self.candidate_eligibility_rows for blocker in row.blocker_refs
         }
