@@ -1,8 +1,8 @@
 # Assessment vNext+265 Edges
 
-Status: pre-lock edge assessment for `PB-CASE-EXPANSION-0-C`.
+Status: post-closeout edge assessment for `PB-CASE-EXPANSION-0-C`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS265_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,95 +20,104 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: C Could Register A Case Without Complete Released A/B Lineage
 
-- Risk:
-  a local case lineage could be registered from a partial blueprint or stale
-  source pool.
-- Required containment:
-  C must require released A and B refs, one `case_expansion_ref`, and a
-  complete B blueprint, evidence pack, probe contract, oracle boundary, and
-  contamination screen before lineage registration.
+- Closeout state:
+  contained.
+- Evidence:
+  C bundle validation requires released A and B refs, one
+  `case_expansion_ref`, and complete B blueprint, evidence pack, probe
+  contract, oracle boundary, and contamination screen refs before lineage
+  registration validates.
 
 ### Edge 2: Contaminated Blueprint Rows Could Become Registered Lineages
 
-- Risk:
-  a non-clean or inconclusive contamination screen could be treated as
-  registration-ready.
-- Required containment:
-  lineage registration must require `contamination_status = clean` and
-  `screen_verdict = passed_cleanroom_screen`; exposure refs or contamination
-  blockers must fail closed.
+- Closeout state:
+  contained.
+- Evidence:
+  lineage registration requires clean contamination status and clean screen
+  verdict. Contamination blockers, hidden/forbidden exposure refs, and
+  non-clean screens fail closed.
 
-### Edge 3: Ready Counts Could Become Benchmark-Like Scores
+### Edge 3: Component Hash Drift Could Break Lineage Auditability
 
-- Risk:
-  readiness inventory counts could be read as pass rates, solve rates,
-  success rates, benchmark scores, model scores, or official success rates.
-- Required containment:
-  readiness summaries must carry inventory-only count posture,
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  lineage registration binds blueprint, evidence pack, probe contract, oracle
+  boundary, and contamination screen component hashes. Foreign or stale
+  component hash refs are rejected.
+
+### Edge 4: Ready Counts Could Become Benchmark-Like Scores
+
+- Closeout state:
+  contained.
+- Evidence:
+  readiness summaries require inventory-only ready-count posture,
   expansion-request denominator posture, and non-representative benchmark
-  posture. Soft scoring language must be rejected.
+  posture. Pass-rate, solve-rate, success-rate, benchmark-score, model-score,
+  and official-success language is rejected.
 
-### Edge 4: Readiness Could Ignore Missing Probe Or Oracle Rows
+### Edge 5: Readiness Could Ignore Missing Probe Or Oracle Rows
 
-- Risk:
-  a case could be marked ready without complete probe contracts or oracle
-  boundaries.
-- Required containment:
-  readiness marked ready must require complete source identity, complete
-  probe contracts, complete oracle boundaries, clean contamination, and no
-  carried blockers.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  readiness marked ready requires complete source identity, complete probe
+  contracts, complete oracle boundaries, clean contamination, and no carried
+  blockers. Missing probe contract coverage is rejected.
 
-### Edge 5: Matrix Candidate Handoff Could Become Direct Matrix Inclusion
+### Edge 6: Ready And Blocked Coverage Could Overlap
 
-- Risk:
-  handoff rows could be overread as adding cases to a matrix.
-- Required containment:
-  matrix candidate handoff must be pressure-only and non-selecting. It must
-  deny direct matrix inclusion and defer all matrix accounting to a later
-  matrix family or matrix update review.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  readiness coverage rows cannot mark the same logical case key both ready
+  and blocked. Duplicate logical coverage keys and ready/blocked overlap are
+  rejected.
 
-### Edge 6: Handoff Could Grant Batch Execution Or Benchmark Authority
+### Edge 7: Matrix Candidate Handoff Could Become Direct Matrix Inclusion
 
-- Risk:
-  a ready expanded case could trigger local execution, batch execution,
-  official ProgramBench participation, benchmark scoring, or hidden evaluator
-  access.
-- Required containment:
-  C handoff rows must reject batch execution authority, scoring authority,
-  official participation, hidden evaluator access, model-ranking authority,
-  retry-chain authority, and future-family selection.
+- Closeout state:
+  contained.
+- Evidence:
+  matrix candidate handoff is pressure-only and non-selecting. Direct matrix
+  inclusion, batch execution, benchmark scoring, model ranking, official
+  participation, hidden evaluator access, and future-family selection are
+  rejected.
 
-### Edge 7: Family Closeout Could Omit A/B/C Surfaces
+### Edge 8: Family Closeout Could Omit A/B/C Surfaces
 
-- Risk:
-  the final family closeout could claim closure while omitting a slice or
-  shipped shape.
-- Required containment:
+- Closeout state:
+  contained after review hardening.
+- Evidence:
   family closeout alignment must list exact closed slice refs for
   `PB-CASE-EXPANSION-0-A`, `PB-CASE-EXPANSION-0-B`, and
-  `PB-CASE-EXPANSION-0-C`, and must enumerate shipped A/B/C record shapes.
+  `PB-CASE-EXPANSION-0-C`, and must enumerate shipped A/B/C record shapes
+  with per-surface closeout refs.
 
-### Edge 8: C Could Emit Execution Or Scoring Artifacts
+### Edge 9: C Could Emit Execution Or Scoring Artifacts
 
-- Risk:
-  C could ship local trial dockets, execution traces, matrix projections,
-  benchmark scores, baseline comparisons, or model rankings.
-- Required containment:
-  C fixtures and validators must reject local execution, probe execution,
-  batch execution, candidate materialization, direct matrix inclusion,
-  benchmark score, baseline comparison, model ranking, official ProgramBench
-  authority, hidden-test handling, and future-family selection.
+- Closeout state:
+  contained.
+- Evidence:
+  C emits only lineage registration, readiness summary, matrix candidate
+  handoff, and family closeout alignment shapes. Local execution, probe
+  execution, batch execution, candidate materialization, direct matrix
+  inclusion, benchmark score, baseline comparison, model ranking, official
+  ProgramBench authority, hidden-test handling, and future-family selection
+  remain absent.
 
 ## Residual Edges
 
-- The implementation PR must add focused reference and reject fixtures under
-  `apps/api/fixtures/benchmarking/vnext_plus265/`.
-- The implementation PR must run the focused `PB-CASE-EXPANSION-0-C` tests
-  and `make check` before opening the PR.
-- The family closeout produced by C must close only `PB-CASE-EXPANSION-0` and
-  must not select the next ProgramBench family.
+- Expanded local case lineages remain supply artifacts only until a later
+  selector or canonical lock authorizes execution, trial, matrix inclusion,
+  result projection, or batch governance.
+- Matrix candidate handoff rows remain pressure-only; they do not update an
+  existing matrix and do not create a new matrix inclusion decision.
+- Local readiness counts remain inventory accounting only and cannot be read
+  as benchmark coverage, solve rate, pass rate, success rate, baseline
+  comparison, or model performance.
 
 ## Current Judgment
 
-The `PB-CASE-EXPANSION-0-C` starter is bounded enough to proceed to
-implementation after `make arc-start-check ARC=265` passes.
+`PB-CASE-EXPANSION-0-C` is closed. The full `PB-CASE-EXPANSION-0` family is
+closed as local cleanroom case-supply governance only.
