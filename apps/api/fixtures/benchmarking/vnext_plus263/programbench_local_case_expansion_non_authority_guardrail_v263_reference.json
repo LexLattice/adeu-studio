@@ -1,0 +1,123 @@
+{
+  "baseline_comparison_posture": "no_baseline_comparison_authority_granted_by_0a",
+  "batch_execution_posture": "no_batch_execution_authority_granted_by_pb_case_expansion_0a",
+  "benchmark_score_posture": "no_benchmark_score_authority_granted_by_0a",
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "case_expansion_refs": [
+    "case-expansion:pb-case-expansion-0a:reference"
+  ],
+  "expansion_guardrail_ref": "case-expansion-guardrail:pb-case-expansion-0a:reference",
+  "forbidden_future_artifact_kinds": [
+    "programbench_local_case_blueprint@1",
+    "programbench_local_case_cleanroom_evidence_pack@1",
+    "programbench_local_case_contamination_screen@1",
+    "programbench_local_case_expansion_family_closeout_alignment@1",
+    "programbench_local_case_expansion_readiness_summary@1",
+    "programbench_local_case_lineage_registration@1",
+    "programbench_local_case_matrix_candidate_handoff@1",
+    "programbench_local_case_oracle_boundary@1",
+    "programbench_local_case_probe_contract@1"
+  ],
+  "future_family_posture": "no_future_family_selected_by_pb_case_expansion_0a",
+  "guardrail_source_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS263.md"
+  ],
+  "hidden_test_posture": "hidden_tests_not_visible_not_inference_evidence",
+  "limitation_note": "Guardrail keeps Slice A from blueprinting, execution, scoring, ranking, or direct matrix inclusion.",
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_case_expansion_0a",
+  "non_authority_rows": [
+    {
+      "authority_kind": "baseline_comparison",
+      "forbidden_authority_ref": "forbidden-authority:baseline-comparison",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "batch_execution",
+      "forbidden_authority_ref": "forbidden-authority:batch-execution",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "benchmark_score",
+      "forbidden_authority_ref": "forbidden-authority:benchmark-score",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "benchmark_truth",
+      "forbidden_authority_ref": "forbidden-authority:benchmark-truth",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "case_blueprint",
+      "forbidden_authority_ref": "forbidden-authority:case-blueprint",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "case_lineage_registration",
+      "forbidden_authority_ref": "forbidden-authority:case-lineage-registration",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "future_family_selection",
+      "forbidden_authority_ref": "forbidden-authority:future-family-selection",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "hidden_test_inference",
+      "forbidden_authority_ref": "forbidden-authority:hidden-test-inference",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "local_trial_execution",
+      "forbidden_authority_ref": "forbidden-authority:local-trial-execution",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "matrix_inclusion",
+      "forbidden_authority_ref": "forbidden-authority:matrix-inclusion",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "model_ranking",
+      "forbidden_authority_ref": "forbidden-authority:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "official_programbench_participation",
+      "forbidden_authority_ref": "forbidden-authority:official-programbench-participation",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "official_submission",
+      "forbidden_authority_ref": "forbidden-authority:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "retry_chain",
+      "forbidden_authority_ref": "forbidden-authority:retry-chain",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "authority_kind": "second_retry",
+      "forbidden_authority_ref": "forbidden-authority:second-retry",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    }
+  ],
+  "official_programbench_posture": "no_official_programbench_authority_granted_by_pb_case_expansion_0a",
+  "schema": "programbench_local_case_expansion_non_authority_guardrail@1",
+  "trial_execution_posture": "no_local_trial_execution_authority_granted_by_0a"
+}

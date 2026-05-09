@@ -1,0 +1,225 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseSelectionRationaleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_case_idea_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Case Idea Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rationale_kind": {
+          "enum": [
+            "local_coverage_probe_case_expansion",
+            "local_regression_case_expansion",
+            "local_research_case_expansion",
+            "local_smoke_case_expansion"
+          ],
+          "title": "Rationale Kind",
+          "type": "string"
+        },
+        "rationale_scope_posture": {
+          "const": "local_case_selection_only_not_representative",
+          "title": "Rationale Scope Posture",
+          "type": "string"
+        },
+        "selection_rationale_ref": {
+          "title": "Selection Rationale Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selection_rationale_ref",
+        "rationale_kind",
+        "candidate_case_idea_refs",
+        "rationale_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseSelectionRationaleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_0a",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_case_expansion_0a",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_0a",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "candidate_case_idea_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Candidate Case Idea Refs",
+      "type": "array"
+    },
+    "case_diversity_posture": {
+      "enum": [
+        "local_diversity_accounting_only",
+        "not_representative_diversity_claim"
+      ],
+      "title": "Case Diversity Posture",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_expansion_request_ref": {
+      "title": "Case Expansion Request Ref",
+      "type": "string"
+    },
+    "case_selection_bias_posture": {
+      "const": "bias_declared_not_representative_benchmark_sample",
+      "title": "Case Selection Bias Posture",
+      "type": "string"
+    },
+    "case_selection_horizon": {
+      "enum": [
+        "local_coverage_probe_case_expansion",
+        "local_regression_case_expansion",
+        "local_research_case_expansion",
+        "local_smoke_case_expansion"
+      ],
+      "title": "Case Selection Horizon",
+      "type": "string"
+    },
+    "case_selection_rationale_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseSelectionRationaleRow"
+      },
+      "minItems": 1,
+      "title": "Case Selection Rationale Rows",
+      "type": "array"
+    },
+    "dedupe_policy_ref": {
+      "title": "Dedupe Policy Ref",
+      "type": "string"
+    },
+    "expansion_control_contract_ref": {
+      "title": "Expansion Control Contract Ref",
+      "type": "string"
+    },
+    "expansion_eligibility_review_ref": {
+      "title": "Expansion Eligibility Review Ref",
+      "type": "string"
+    },
+    "expansion_horizon": {
+      "enum": [
+        "local_coverage_probe_case_expansion",
+        "local_regression_case_expansion",
+        "local_research_case_expansion",
+        "local_smoke_case_expansion"
+      ],
+      "title": "Expansion Horizon",
+      "type": "string"
+    },
+    "expansion_max_case_count": {
+      "minimum": 1,
+      "title": "Expansion Max Case Count",
+      "type": "integer"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selected_by_pb_case_expansion_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_pressure_kind": {
+      "enum": [
+        "future_local_case_expansion_review",
+        "local_matrix_gap_pressure",
+        "local_matrix_research_pressure"
+      ],
+      "title": "Matrix Pressure Kind",
+      "type": "string"
+    },
+    "matrix_pressure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Pressure Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_case_expansion_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_benchmark_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_case_expansion_0a",
+      "title": "Official Benchmark Authority Posture",
+      "type": "string"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "requested_case_count": {
+      "minimum": 1,
+      "title": "Requested Case Count",
+      "type": "integer"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_pool_manifest_ref": {
+      "title": "Source Pool Manifest Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_expansion_ref",
+    "case_expansion_request_ref",
+    "source_pool_manifest_ref",
+    "expansion_eligibility_review_ref",
+    "expansion_control_contract_ref",
+    "expansion_horizon",
+    "expansion_max_case_count",
+    "candidate_case_idea_refs",
+    "requested_case_count",
+    "matrix_pressure_refs",
+    "matrix_pressure_kind",
+    "case_selection_horizon",
+    "case_selection_rationale_rows",
+    "case_selection_bias_posture",
+    "case_diversity_posture",
+    "representativeness_posture",
+    "dedupe_policy_ref",
+    "official_benchmark_authority_posture",
+    "benchmark_score_authority_posture",
+    "baseline_comparison_authority_posture",
+    "model_ranking_posture",
+    "batch_execution_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionRequest",
+  "type": "object"
+}

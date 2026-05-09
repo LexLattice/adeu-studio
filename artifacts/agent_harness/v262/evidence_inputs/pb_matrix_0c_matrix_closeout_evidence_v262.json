@@ -1,0 +1,31 @@
+{
+  "aggregate_count_posture_inventory_only": true,
+  "arc": "vNext+262",
+  "benchmark_truth_authority_granted": false,
+  "closed_slice": "PB-MATRIX-0-C",
+  "family": "PB-MATRIX-0",
+  "focused_test": "packages/adeu_benchmarking/tests/test_programbench_cleanroom_matrix_pb_matrix_0c.py",
+  "future_family_selection_granted": false,
+  "handoff_pressure_only": true,
+  "implementation_package": "packages/adeu_benchmarking",
+  "local_matrix_summary_complete_relative_to_declared_cases": true,
+  "matrix_scoring_authority_granted": false,
+  "merged_at": "2026-05-09T03:19:46Z",
+  "merged_pr": "#490",
+  "model_ranking_authority_granted": false,
+  "official_programbench_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus262",
+  "schema": "pb_matrix_0c_matrix_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_local_case_matrix_summary@1",
+    "programbench_post_case_matrix_handoff@1",
+    "programbench_local_case_matrix_family_closeout_alignment@1"
+  ],
+  "soft_scoring_language_rejected": true,
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_cleanroom_matrix_pb_matrix_0c.py -q",
+    "make lint",
+    "make check",
+    "make arc-closeout-check ARC=262"
+  ]
+}

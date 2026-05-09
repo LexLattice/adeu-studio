@@ -1,0 +1,59 @@
+{
+  "allowed_source_refs": [
+    "source:pb-case-expansion-0a:clean-cli-doc"
+  ],
+  "auditor_only_source_refs": [],
+  "blocked_source_refs": [],
+  "blueprint_visible_policy": "blueprint_visibility_deferred_to_pb_case_expansion_0b",
+  "candidate_case_idea_rows": [
+    {
+      "candidate_case_idea_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:smoke-duplicate",
+      "candidate_scope_posture": "case_idea_only_not_blueprint",
+      "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+      "case_idea_label": "cli help duplicate case idea",
+      "case_origin_posture": "cleanroom_visible_source_witnessed",
+      "case_visibility_posture": "blueprint_deferred_cleanroom_visible",
+      "dedupe_against_existing_case_lineages": true,
+      "eligibility_claim": "eligible_for_later_blueprint_review",
+      "existing_case_lineage_overlap_refs": [
+        "trial-lineage:pb-trial-0c:reference"
+      ],
+      "expected_blueprint_deferred_posture": "blueprint_deferred_to_pb_case_expansion_0b",
+      "limitation_note": "Duplicate is not justified by a local smoke or regression posture.",
+      "nearest_existing_case_refs": [
+        "case:pb-matrix-0a:trial"
+      ],
+      "novelty_or_duplication_posture": "overlap_requires_review",
+      "source_pool_subset_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    }
+  ],
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "derived_summary_policy": "no_derived_summary_laundering",
+  "forbidden_source_refs": [],
+  "forbidden_source_set_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "limitation_note": "Manifest exposes only cleanroom-visible source witnesses.",
+  "schema": "programbench_local_case_source_pool_manifest@1",
+  "source_pool_manifest_ref": "case-source-pool:pb-case-expansion-0a:reference",
+  "source_pool_rows": [
+    {
+      "allowed_for_expansion": true,
+      "derived_summary_policy": "visible_summary_allowed_cleanroom_only",
+      "exclusion_reason": "not_applicable",
+      "limitation_note": "Visible documentation source may witness local case ideas.",
+      "source_identity_hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "source_kind": "cleanroom_usage_doc",
+      "source_origin_posture": "cleanroom_visible",
+      "source_ref": "source:pb-case-expansion-0a:clean-cli-doc",
+      "source_visibility_posture": "cleanroom_visible",
+      "store_presence_posture": "known_available_cleanroom_store"
+    }
+  ],
+  "source_set_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "support_only_source_refs": [],
+  "visible_source_set_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "worker_visible_policy": "cleanroom_visible_sources_only"
+}

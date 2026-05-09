@@ -1,0 +1,43 @@
+{
+  "baseline_comparison_authority_posture": "no_baseline_comparison_authority_granted_by_0a",
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_pb_case_expansion_0a",
+  "benchmark_score_authority_posture": "no_benchmark_score_authority_granted_by_0a",
+  "candidate_case_idea_refs": [
+    "case-idea:pb-case-expansion-0a:diagnostic",
+    "case-idea:pb-case-expansion-0a:smoke-duplicate"
+  ],
+  "case_diversity_posture": "local_diversity_accounting_only",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "case_expansion_request_ref": "case-expansion-request:pb-case-expansion-0a:reference",
+  "case_selection_bias_posture": "bias_declared_not_representative_benchmark_sample",
+  "case_selection_horizon": "local_smoke_case_expansion",
+  "case_selection_rationale_rows": [
+    {
+      "candidate_case_idea_refs": [
+        "case-idea:pb-case-expansion-0a:diagnostic",
+        "case-idea:pb-case-expansion-0a:smoke-duplicate"
+      ],
+      "limitation_note": "Selection is local smoke and regression supply only.",
+      "rationale_kind": "local_smoke_case_expansion",
+      "rationale_scope_posture": "local_case_selection_only_not_representative",
+      "selection_rationale_ref": "selection-rationale:pb-case-expansion-0a:reference"
+    }
+  ],
+  "dedupe_policy_ref": "dedupe-policy:pb-case-expansion-0a:reference",
+  "expansion_control_contract_ref": "case-expansion-control:pb-case-expansion-0a:reference",
+  "expansion_eligibility_review_ref": "case-expansion-eligibility:pb-case-expansion-0a:reference",
+  "expansion_horizon": "local_smoke_case_expansion",
+  "expansion_max_case_count": 3,
+  "future_family_selection_posture": "no_future_family_selected_by_pb_case_expansion_0a",
+  "limitation_note": "Request records local case supply pressure only and grants no scoring, execution, or ranking authority.",
+  "matrix_pressure_kind": "future_local_case_expansion_review",
+  "matrix_pressure_refs": [
+    "matrix-handoff:pb-matrix-0c:reference"
+  ],
+  "model_ranking_posture": "no_model_ranking_claimed_by_pb_case_expansion_0a",
+  "official_benchmark_authority_posture": "no_official_programbench_authority_granted_by_pb_case_expansion_0a",
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "requested_case_count": 2,
+  "schema": "programbench_local_case_expansion_request@1",
+  "source_pool_manifest_ref": "case-source-pool:pb-case-expansion-0a:reference"
+}

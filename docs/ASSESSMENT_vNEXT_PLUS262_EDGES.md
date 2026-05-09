@@ -1,8 +1,8 @@
 # Assessment vNext+262 Edges
 
-Status: pre-lock edge assessment for `PB-MATRIX-0-C`.
+Status: post-closeout edge assessment for `PB-MATRIX-0-C`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,8 +10,8 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS262_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -20,84 +20,85 @@ Authority layer: planning / starter scaffold.
 
 ### Edge 1: C Summary Could Ignore Released A/B Basis
 
-- Risk:
-  a matrix summary could cite cases or outcomes not admitted by released
-  `PB-MATRIX-0-A` or projected by released `PB-MATRIX-0-B`.
-- Required containment:
-  C validators must consume released A request/inclusion/eligibility/control/
-  guardrail rows and released B projection/observation/coverage/contamination
-  rows before summary, handoff, or closeout rows validate.
+- Closeout state:
+  contained.
+- Evidence:
+  C bundle validation consumes released A request, inclusion manifest,
+  eligibility review, control contract, and guardrail rows, plus released B
+  result projection, observation ledger, coverage register, and contamination
+  register rows before summary, handoff, or closeout rows validate.
 
 ### Edge 2: Local Complete Could Hide Gaps Or Blockers
 
-- Risk:
-  summary could mark a matrix complete while projection gaps, contamination
-  blockers, missing coverage, or unresolved blockers remain.
-- Required containment:
-  local complete posture must require no projection gaps, clean contamination,
-  no missing local coverage, and no unresolved carried blockers.
+- Closeout state:
+  contained.
+- Evidence:
+  local complete posture requires no projection gaps, clean contamination, no
+  missing local coverage, and no unresolved carried blockers. Reject fixtures
+  block unresolved-case and projection-gap closeout attempts.
 
 ### Edge 3: Aggregate Counts Could Become Benchmark Score
 
-- Risk:
-  local case counts could be read as pass rate, solve rate, success rate,
-  benchmark score, official success rate, model score, or leaderboard metric.
-- Required containment:
-  summary rows must carry aggregate-count posture, representativeness posture,
-  matrix scope statement, not-benchmark-score statement, and validators that
-  reject scoring/ranking language.
+- Closeout state:
+  contained.
+- Evidence:
+  summary rows carry aggregate-count posture, representativeness posture,
+  matrix scope statement, and not-benchmark-score statement. Validators reject
+  pass-rate, solve-rate, success-rate, benchmark-score, official-score,
+  leaderboard, and model-superiority language.
 
 ### Edge 4: Summary Could Claim Official ProgramBench Or Hidden-Test Truth
 
-- Risk:
-  local matrix summary could imply hidden-test equivalence, official evaluator
-  success, official submission readiness, or benchmark truth.
-- Required containment:
-  benchmark truth posture must remain `not_benchmark_truth`, hidden-test
-  equivalence must remain absent, and official ProgramBench participation
-  authority must be rejected.
+- Closeout state:
+  contained.
+- Evidence:
+  benchmark truth posture remains `not_benchmark_truth`, official ProgramBench
+  posture remains no-authority, hidden-test equivalence is absent, and summary
+  validation rejects official evaluator, hidden-test, benchmark-score, and
+  official-submission authority language.
 
 ### Edge 5: Handoff Could Become Authority
 
-- Risk:
-  post-matrix handoff pressure could be overread as authority to run more
-  cases, contact official evaluators, compare models, execute batches, or
-  select the next family.
-- Required containment:
-  handoff rows must be pressure-only, typed, non-selecting, and explicitly
-  deny official participation, hidden evaluator access, model-ranking
-  authority, batch execution authority, retry-chain authority, and
-  future-family selection.
+- Closeout state:
+  contained.
+- Evidence:
+  post-matrix handoff rows are pressure-only, typed, non-selecting, and
+  explicitly deny official participation, hidden evaluator access,
+  model-ranking authority, batch execution authority, retry-chain authority,
+  and future-family selection. Reject fixtures block handoff rows that select a
+  future family.
 
 ### Edge 6: Family Closeout Could Omit A Slice
 
-- Risk:
-  family closeout alignment could close `PB-MATRIX-0` without proving A, B,
-  and C rows shipped and align.
-- Required containment:
-  closeout alignment must list A/B/C closed slice refs, all shipped record
-  shapes, summary refs, handoff refs, and future-family non-authority posture.
+- Closeout state:
+  contained after review fix.
+- Evidence:
+  family closeout alignment requires the exact closed slice sequence
+  `PB-MATRIX-0-A`, `PB-MATRIX-0-B`, and `PB-MATRIX-0-C`, and requires shipped
+  record shapes covering A/B/C. Reject fixtures block missing-slice closeouts.
 
 ### Edge 7: C Could Become Execution Or Batch Surface
 
-- Risk:
-  summary or closeout rows could introduce execution, command, batch,
-  materialization, official runner, or official evaluator surfaces.
-- Required containment:
-  C fixtures and validators must reject execution records, batch authority,
-  candidate materialization, official runner/evaluator integration, hidden-test
-  handling, official submission authority, and retry-chain authority.
+- Closeout state:
+  contained.
+- Evidence:
+  C emits only matrix summary, post-matrix handoff, and family closeout
+  alignment shapes. It ships no command execution, batch execution, candidate
+  materialization, official runner/evaluator contact, hidden-test handling,
+  benchmark score, model ranking, retry-chain authority, or future-family
+  selection surface.
 
 ## Residual Edges
 
-- The implementation PR must add focused reference and reject fixtures under
-  `apps/api/fixtures/benchmarking/vnext_plus262/`.
-- The implementation PR must run the focused `PB-MATRIX-0-C` tests and
-  `make check` before opening the PR.
-- The final family closeout after C merge must close the entire `PB-MATRIX-0`
-  arc without selecting the next family.
+- `PB-MATRIX-0` is closed as local cleanroom case-matrix accounting only.
+- Any future local case expansion, official participation governance, hidden
+  evaluator governance, model-comparison governance, batch execution
+  governance, or benchmark-result governance requires a new selector or
+  canonical lock.
+- The closed matrix remains a local inventory/accounting surface, not a
+  benchmark-result or model-ranking surface.
 
 ## Current Judgment
 
-The `PB-MATRIX-0-C` starter is bounded enough to proceed to implementation
-after `make arc-start-check ARC=262` passes.
+`PB-MATRIX-0-C` is closed, and the full `PB-MATRIX-0` A/B/C family is closed
+on `main`.

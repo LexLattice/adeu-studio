@@ -1,0 +1,162 @@
+{
+  "allowed_expansion_action_rows": [
+    {
+      "action_kind": "case_idea_eligibility_review",
+      "action_scope_posture": "allowed_for_pb_case_expansion_0a_review_only",
+      "allowed_action_ref": "allowed-action:case-idea-eligibility-review",
+      "limitation_note": "Allowed only to review case idea eligibility.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    },
+    {
+      "action_kind": "control_contract_review",
+      "action_scope_posture": "allowed_for_pb_case_expansion_0a_review_only",
+      "allowed_action_ref": "allowed-action:control-contract-review",
+      "limitation_note": "Allowed only to review controls.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    },
+    {
+      "action_kind": "non_authority_guardrail_review",
+      "action_scope_posture": "allowed_for_pb_case_expansion_0a_review_only",
+      "allowed_action_ref": "allowed-action:non-authority-guardrail-review",
+      "limitation_note": "Allowed only to review guardrails.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    },
+    {
+      "action_kind": "source_pool_manifest_review",
+      "action_scope_posture": "allowed_for_pb_case_expansion_0a_review_only",
+      "allowed_action_ref": "allowed-action:source-pool-manifest-review",
+      "limitation_note": "Allowed only to review the source pool manifest.",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    }
+  ],
+  "blueprint_deferred_control_ref": "control:blueprint-deferred",
+  "candidate_count_control_ref": "control:candidate-count",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "execution_deferred_control_ref": "control:execution-deferred",
+  "expansion_control_contract_ref": "case-expansion-control:pb-case-expansion-0a:reference",
+  "forbidden_expansion_action_rows": [
+    {
+      "action_kind": "baseline_comparison",
+      "forbidden_action_ref": "forbidden-action:baseline-comparison",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "batch_command_execution",
+      "forbidden_action_ref": "forbidden-action:batch-command-execution",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "benchmark_scoring",
+      "forbidden_action_ref": "forbidden-action:benchmark-scoring",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "case_blueprinting",
+      "forbidden_action_ref": "forbidden-action:case-blueprinting",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "case_lineage_registration",
+      "forbidden_action_ref": "forbidden-action:case-lineage-registration",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "decompilation",
+      "forbidden_action_ref": "forbidden-action:decompilation",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "docker_socket_access",
+      "forbidden_action_ref": "forbidden-action:docker-socket-access",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "external_repo_lookup",
+      "forbidden_action_ref": "forbidden-action:external-repo-lookup",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "hidden_test_access",
+      "forbidden_action_ref": "forbidden-action:hidden-test-access",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "host_secret_access",
+      "forbidden_action_ref": "forbidden-action:host-secret-access",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "internet_lookup",
+      "forbidden_action_ref": "forbidden-action:internet-lookup",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "local_trial_execution",
+      "forbidden_action_ref": "forbidden-action:local-trial-execution",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "matrix_inclusion",
+      "forbidden_action_ref": "forbidden-action:matrix-inclusion",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "model_ranking",
+      "forbidden_action_ref": "forbidden-action:model-ranking",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "official_evaluator_access",
+      "forbidden_action_ref": "forbidden-action:official-evaluator-access",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "official_submission",
+      "forbidden_action_ref": "forbidden-action:official-submission",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "source_lookup",
+      "forbidden_action_ref": "forbidden-action:source-lookup",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    },
+    {
+      "action_kind": "widen_write_scope",
+      "forbidden_action_ref": "forbidden-action:widen-write-scope",
+      "forbiddance_posture": "forbidden_by_pb_case_expansion_0a",
+      "limitation_note": "Forbidden by Slice A."
+    }
+  ],
+  "limitation_note": "Control contract keeps Slice A to source-pool and eligibility review only.",
+  "matrix_inclusion_deferred_control_ref": "control:matrix-inclusion-deferred",
+  "model_ranking_deferred_control_ref": "control:model-ranking-deferred",
+  "schema": "programbench_local_case_expansion_control_contract@1",
+  "scoring_deferred_control_ref": "control:scoring-deferred",
+  "source_derivation_control_ref": "control:source-derivation",
+  "source_visibility_control_ref": "control:source-visibility"
+}

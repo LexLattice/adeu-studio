@@ -131,6 +131,18 @@ from .programbench_cleanroom_attempt import (
     ProgrambenchReconstructionAttemptWorkerInputPacket,
     ProgrambenchReconstructionAttemptWorkerInvocationRecord,
 )
+from .programbench_cleanroom_case_expansion import (
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_SOURCE_POOL_MANIFEST_SCHEMA,
+    ProgrambenchLocalCaseExpansionControlContract,
+    ProgrambenchLocalCaseExpansionEligibilityReview,
+    ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
+    ProgrambenchLocalCaseExpansionRequest,
+    ProgrambenchLocalCaseSourcePoolManifest,
+)
 from .programbench_cleanroom_matrix import (
     PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA,
@@ -1426,6 +1438,62 @@ def main() -> None:
             root
             / "spec"
             / "programbench_local_case_matrix_family_closeout_alignment.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionRequest,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_REQUEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_request.v1.json",
+            root / "spec" / "programbench_local_case_expansion_request.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseSourcePoolManifest,
+            PROGRAMBENCH_LOCAL_CASE_SOURCE_POOL_MANIFEST_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_source_pool_manifest.v1.json",
+            root / "spec" / "programbench_local_case_source_pool_manifest.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionEligibilityReview,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_ELIGIBILITY_REVIEW_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_eligibility_review.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_expansion_eligibility_review.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionControlContract,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_CONTROL_CONTRACT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_control_contract.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_expansion_control_contract.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_non_authority_guardrail.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_expansion_non_authority_guardrail.schema.json",
         ),
     ]
 

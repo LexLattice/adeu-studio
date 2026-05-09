@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseExpansionEligibilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Refs",
+          "type": "array"
+        },
+        "candidate_case_idea_ref": {
+          "title": "Candidate Case Idea Ref",
+          "type": "string"
+        },
+        "eligibility_posture": {
+          "enum": [
+            "blocked_by_duplicate_without_rationale",
+            "blocked_by_forbidden_source",
+            "blocked_by_support_only_source",
+            "deferred_for_later_review",
+            "eligible_for_later_blueprint_review"
+          ],
+          "title": "Eligibility Posture",
+          "type": "string"
+        },
+        "eligibility_row_ref": {
+          "title": "Eligibility Row Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_witness_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Witness Refs",
+          "type": "array"
+        },
+        "warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warning Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "eligibility_row_ref",
+        "candidate_case_idea_ref",
+        "eligibility_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionEligibilityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "blocked_candidate_case_idea_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Candidate Case Idea Refs",
+      "type": "array"
+    },
+    "candidate_eligibility_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionEligibilityRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Eligibility Rows",
+      "type": "array"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "deferred_candidate_case_idea_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Candidate Case Idea Refs",
+      "type": "array"
+    },
+    "eligible_candidate_case_idea_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Eligible Candidate Case Idea Refs",
+      "type": "array"
+    },
+    "expansion_eligibility_review_ref": {
+      "title": "Expansion Eligibility Review Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "non_authority_guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Non Authority Guardrail Refs",
+      "type": "array"
+    },
+    "released_family_closeout_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Released Family Closeout Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_eligibility_review@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "expansion_eligibility_review_ref",
+    "case_expansion_ref",
+    "candidate_eligibility_rows",
+    "eligible_candidate_case_idea_refs",
+    "released_family_closeout_refs",
+    "non_authority_guardrail_refs",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionEligibilityReview",
+  "type": "object"
+}

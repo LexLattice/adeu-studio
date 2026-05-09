@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseExpansionAllowedActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "case_idea_eligibility_review",
+            "control_contract_review",
+            "non_authority_guardrail_review",
+            "source_pool_manifest_review"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "action_scope_posture": {
+          "const": "allowed_for_pb_case_expansion_0a_review_only",
+          "title": "Action Scope Posture",
+          "type": "string"
+        },
+        "allowed_action_ref": {
+          "title": "Allowed Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "allowed_action_ref",
+        "action_kind",
+        "action_scope_posture",
+        "source_refs",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionAllowedActionRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseExpansionForbiddenActionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "action_kind": {
+          "enum": [
+            "baseline_comparison",
+            "batch_command_execution",
+            "benchmark_scoring",
+            "case_blueprinting",
+            "case_lineage_registration",
+            "decompilation",
+            "docker_socket_access",
+            "external_repo_lookup",
+            "hidden_test_access",
+            "host_secret_access",
+            "internet_lookup",
+            "local_trial_execution",
+            "matrix_inclusion",
+            "model_ranking",
+            "official_evaluator_access",
+            "official_submission",
+            "source_lookup",
+            "widen_write_scope"
+          ],
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_case_expansion_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_action_ref": {
+          "title": "Forbidden Action Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_action_ref",
+        "action_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionForbiddenActionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_expansion_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionAllowedActionRow"
+      },
+      "minItems": 1,
+      "title": "Allowed Expansion Action Rows",
+      "type": "array"
+    },
+    "blueprint_deferred_control_ref": {
+      "title": "Blueprint Deferred Control Ref",
+      "type": "string"
+    },
+    "candidate_count_control_ref": {
+      "title": "Candidate Count Control Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "execution_deferred_control_ref": {
+      "title": "Execution Deferred Control Ref",
+      "type": "string"
+    },
+    "expansion_control_contract_ref": {
+      "title": "Expansion Control Contract Ref",
+      "type": "string"
+    },
+    "forbidden_expansion_action_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionForbiddenActionRow"
+      },
+      "minItems": 1,
+      "title": "Forbidden Expansion Action Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_inclusion_deferred_control_ref": {
+      "title": "Matrix Inclusion Deferred Control Ref",
+      "type": "string"
+    },
+    "model_ranking_deferred_control_ref": {
+      "title": "Model Ranking Deferred Control Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_control_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scoring_deferred_control_ref": {
+      "title": "Scoring Deferred Control Ref",
+      "type": "string"
+    },
+    "source_derivation_control_ref": {
+      "title": "Source Derivation Control Ref",
+      "type": "string"
+    },
+    "source_visibility_control_ref": {
+      "title": "Source Visibility Control Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "expansion_control_contract_ref",
+    "case_expansion_ref",
+    "source_visibility_control_ref",
+    "source_derivation_control_ref",
+    "candidate_count_control_ref",
+    "blueprint_deferred_control_ref",
+    "execution_deferred_control_ref",
+    "matrix_inclusion_deferred_control_ref",
+    "scoring_deferred_control_ref",
+    "model_ranking_deferred_control_ref",
+    "allowed_expansion_action_rows",
+    "forbidden_expansion_action_rows",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionControlContract",
+  "type": "object"
+}

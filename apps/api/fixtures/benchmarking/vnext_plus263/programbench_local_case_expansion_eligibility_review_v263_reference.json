@@ -1,0 +1,49 @@
+{
+  "blocked_candidate_case_idea_refs": [],
+  "candidate_eligibility_rows": [
+    {
+      "blocker_refs": [],
+      "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:diagnostic",
+      "eligibility_posture": "eligible_for_later_blueprint_review",
+      "eligibility_row_ref": "eligibility-row:pb-case-expansion-0a:diagnostic",
+      "limitation_note": "Eligible only for later blueprint review from cleanroom-visible witnesses.",
+      "source_witness_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc",
+        "source:pb-case-expansion-0a:clean-probe-observation"
+      ],
+      "warning_refs": []
+    },
+    {
+      "blocker_refs": [],
+      "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:smoke-duplicate",
+      "eligibility_posture": "eligible_for_later_blueprint_review",
+      "eligibility_row_ref": "eligibility-row:pb-case-expansion-0a:smoke-duplicate",
+      "limitation_note": "Eligible only as local smoke duplicate supply.",
+      "source_witness_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ],
+      "warning_refs": [
+        "warning:pb-case-expansion-0a:duplicate-smoke-only"
+      ]
+    }
+  ],
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [
+    "warning:pb-case-expansion-0a:duplicate-smoke-only"
+  ],
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "deferred_candidate_case_idea_refs": [],
+  "eligible_candidate_case_idea_refs": [
+    "case-idea:pb-case-expansion-0a:diagnostic",
+    "case-idea:pb-case-expansion-0a:smoke-duplicate"
+  ],
+  "expansion_eligibility_review_ref": "case-expansion-eligibility:pb-case-expansion-0a:reference",
+  "limitation_note": "Eligibility does not create blueprint, matrix inclusion, execution, or scoring authority.",
+  "non_authority_guardrail_refs": [
+    "case-expansion-guardrail:pb-case-expansion-0a:reference"
+  ],
+  "released_family_closeout_refs": [
+    "matrix-family-closeout:pb-matrix-0c:reference"
+  ],
+  "schema": "programbench_local_case_expansion_eligibility_review@1"
+}

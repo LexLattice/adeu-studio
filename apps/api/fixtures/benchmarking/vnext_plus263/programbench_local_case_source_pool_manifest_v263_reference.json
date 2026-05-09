@@ -1,0 +1,123 @@
+{
+  "allowed_source_refs": [
+    "source:pb-case-expansion-0a:clean-cli-doc",
+    "source:pb-case-expansion-0a:clean-probe-observation"
+  ],
+  "auditor_only_source_refs": [],
+  "blocked_source_refs": [
+    "source:pb-case-expansion-0a:forbidden-evaluator"
+  ],
+  "blueprint_visible_policy": "blueprint_visibility_deferred_to_pb_case_expansion_0b",
+  "candidate_case_idea_rows": [
+    {
+      "candidate_case_idea_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:diagnostic",
+      "candidate_scope_posture": "case_idea_only_not_blueprint",
+      "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+      "case_idea_label": "cli diagnostic stderr case idea",
+      "case_origin_posture": "cleanroom_visible_source_witnessed",
+      "case_visibility_posture": "blueprint_deferred_cleanroom_visible",
+      "dedupe_against_existing_case_lineages": true,
+      "eligibility_claim": "eligible_for_later_blueprint_review",
+      "existing_case_lineage_overlap_refs": [],
+      "expected_blueprint_deferred_posture": "blueprint_deferred_to_pb_case_expansion_0b",
+      "limitation_note": "Candidate preserves a local source witness and remains only an idea.",
+      "nearest_existing_case_refs": [],
+      "novelty_or_duplication_posture": "novel_local_case_idea",
+      "source_pool_subset_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc",
+        "source:pb-case-expansion-0a:clean-probe-observation"
+      ]
+    },
+    {
+      "candidate_case_idea_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "candidate_case_idea_ref": "case-idea:pb-case-expansion-0a:smoke-duplicate",
+      "candidate_scope_posture": "case_idea_only_not_blueprint",
+      "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+      "case_idea_label": "cli help smoke duplicate case idea",
+      "case_origin_posture": "cleanroom_visible_source_witnessed",
+      "case_visibility_posture": "blueprint_deferred_cleanroom_visible",
+      "dedupe_against_existing_case_lineages": true,
+      "eligibility_claim": "eligible_for_later_blueprint_review",
+      "existing_case_lineage_overlap_refs": [
+        "trial-lineage:pb-trial-0c:reference"
+      ],
+      "expected_blueprint_deferred_posture": "blueprint_deferred_to_pb_case_expansion_0b",
+      "limitation_note": "Duplicate is allowed only for local smoke tracking and creates no coverage claim.",
+      "nearest_existing_case_refs": [
+        "case:pb-matrix-0a:trial"
+      ],
+      "novelty_or_duplication_posture": "duplicate_allowed_for_regression_or_smoke",
+      "source_pool_subset_hash": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+      "source_refs": [
+        "source:pb-case-expansion-0a:clean-cli-doc"
+      ]
+    }
+  ],
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "derived_summary_policy": "no_derived_summary_laundering",
+  "forbidden_source_refs": [
+    "source:pb-case-expansion-0a:forbidden-evaluator"
+  ],
+  "forbidden_source_set_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+  "limitation_note": "Manifest exposes only cleanroom-visible source witnesses to later blueprint review.",
+  "schema": "programbench_local_case_source_pool_manifest@1",
+  "source_pool_manifest_ref": "case-source-pool:pb-case-expansion-0a:reference",
+  "source_pool_rows": [
+    {
+      "allowed_for_expansion": true,
+      "derived_summary_policy": "visible_summary_allowed_cleanroom_only",
+      "exclusion_reason": "not_applicable",
+      "limitation_note": "Visible documentation source may witness local case ideas.",
+      "source_identity_hash": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+      "source_kind": "cleanroom_usage_doc",
+      "source_origin_posture": "cleanroom_visible",
+      "source_ref": "source:pb-case-expansion-0a:clean-cli-doc",
+      "source_visibility_posture": "cleanroom_visible",
+      "store_presence_posture": "known_available_cleanroom_store"
+    },
+    {
+      "allowed_for_expansion": true,
+      "derived_summary_policy": "visible_summary_allowed_cleanroom_only",
+      "exclusion_reason": "not_applicable",
+      "limitation_note": "Visible observation source may witness local case ideas.",
+      "source_identity_hash": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "source_kind": "local_probe_observation",
+      "source_origin_posture": "cleanroom_visible",
+      "source_ref": "source:pb-case-expansion-0a:clean-probe-observation",
+      "source_visibility_posture": "cleanroom_visible",
+      "store_presence_posture": "known_available_cleanroom_store"
+    },
+    {
+      "allowed_for_expansion": false,
+      "derived_summary_policy": "no_derived_summary_allowed",
+      "exclusion_reason": "blocked_official_evaluator_source",
+      "limitation_note": "Excluded category remains unavailable for inference.",
+      "source_identity_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source_kind": "official_evaluator_source",
+      "source_origin_posture": "official_evaluator_derived",
+      "source_ref": "source:pb-case-expansion-0a:forbidden-evaluator",
+      "source_visibility_posture": "blocked_for_expansion",
+      "store_presence_posture": "known_forbidden_store_unmounted"
+    },
+    {
+      "allowed_for_expansion": false,
+      "derived_summary_policy": "redacted_category_count_reason_only",
+      "exclusion_reason": "support_only_not_sufficient",
+      "limitation_note": "Support context may not independently make a case idea eligible.",
+      "source_identity_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "source_kind": "support_context",
+      "source_origin_posture": "support_only",
+      "source_ref": "source:pb-case-expansion-0a:support-roadmap",
+      "source_visibility_posture": "support_only",
+      "store_presence_posture": "known_support_store"
+    }
+  ],
+  "source_set_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+  "support_only_source_refs": [
+    "source:pb-case-expansion-0a:support-roadmap"
+  ],
+  "visible_source_set_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "worker_visible_policy": "cleanroom_visible_sources_only"
+}
