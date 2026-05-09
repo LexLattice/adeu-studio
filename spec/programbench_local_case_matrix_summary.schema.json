@@ -1,0 +1,215 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "aggregate_count_posture": {
+      "enum": [
+        "coverage_accounting_only",
+        "local_case_posture_count_only",
+        "local_inventory_count_only",
+        "not_benchmark_score"
+      ],
+      "title": "Aggregate Count Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "blocked_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Refs",
+      "type": "array"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "case_inclusion_manifest_ref": {
+      "title": "Case Inclusion Manifest Ref",
+      "type": "string"
+    },
+    "case_lineage_eligibility_review_ref": {
+      "title": "Case Lineage Eligibility Review Ref",
+      "type": "string"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "contamination_status": {
+      "enum": [
+        "blocked",
+        "clean"
+      ],
+      "title": "Contamination Status",
+      "type": "string"
+    },
+    "coverage_posture": {
+      "enum": [
+        "local_coverage_complete_for_declared_matrix_cases",
+        "local_coverage_missing_for_declared_matrix_cases"
+      ],
+      "title": "Coverage Posture",
+      "type": "string"
+    },
+    "included_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Included Case Refs",
+      "type": "array"
+    },
+    "inconclusive_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Inconclusive Case Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_matrix_posture": {
+      "enum": [
+        "local_matrix_blocked_by_contamination",
+        "local_matrix_complete_relative_to_declared_cases",
+        "local_matrix_inconclusive_local_only",
+        "local_matrix_open_with_projection_gaps"
+      ],
+      "title": "Local Matrix Posture",
+      "type": "string"
+    },
+    "matrix_contamination_register_ref": {
+      "title": "Matrix Contamination Register Ref",
+      "type": "string"
+    },
+    "matrix_control_contract_ref": {
+      "title": "Matrix Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_coverage_register_ref": {
+      "title": "Matrix Coverage Register Ref",
+      "type": "string"
+    },
+    "matrix_guardrail_ref": {
+      "title": "Matrix Guardrail Ref",
+      "type": "string"
+    },
+    "matrix_observation_ledger_ref": {
+      "title": "Matrix Observation Ledger Ref",
+      "type": "string"
+    },
+    "matrix_request_ref": {
+      "title": "Matrix Request Ref",
+      "type": "string"
+    },
+    "matrix_result_projection_ref": {
+      "title": "Matrix Result Projection Ref",
+      "type": "string"
+    },
+    "matrix_scope_statement": {
+      "title": "Matrix Scope Statement",
+      "type": "string"
+    },
+    "matrix_summary_ref": {
+      "title": "Matrix Summary Ref",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_matrix_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "not_benchmark_score_statement": {
+      "const": "local_matrix_accounting_only_not_benchmark_truth_or_score",
+      "title": "Not Benchmark Score Statement",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_matrix_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "projected_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Projected Case Refs",
+      "type": "array"
+    },
+    "remanded_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Remanded Case Refs",
+      "type": "array"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "resolved_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Resolved Case Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "unresolved_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Case Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_summary_ref",
+    "case_matrix_ref",
+    "matrix_request_ref",
+    "case_inclusion_manifest_ref",
+    "case_lineage_eligibility_review_ref",
+    "matrix_control_contract_ref",
+    "matrix_guardrail_ref",
+    "matrix_result_projection_ref",
+    "matrix_observation_ledger_ref",
+    "matrix_coverage_register_ref",
+    "matrix_contamination_register_ref",
+    "included_case_refs",
+    "local_matrix_posture",
+    "aggregate_count_posture",
+    "representativeness_posture",
+    "matrix_scope_statement",
+    "not_benchmark_score_statement",
+    "coverage_posture",
+    "contamination_status",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "official_programbench_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixSummary",
+  "type": "object"
+}
