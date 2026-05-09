@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixCoverageRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "coverage_basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Coverage Basis Refs",
+          "type": "array"
+        },
+        "coverage_kind": {
+          "enum": [
+            "local_result_projection_coverage",
+            "local_observation_coverage",
+            "local_contamination_review_coverage"
+          ],
+          "title": "Coverage Kind",
+          "type": "string"
+        },
+        "coverage_row_ref": {
+          "title": "Coverage Row Ref",
+          "type": "string"
+        },
+        "coverage_scope_posture": {
+          "const": "local_matrix_coverage_only_not_hidden_test_coverage",
+          "title": "Coverage Scope Posture",
+          "type": "string"
+        },
+        "coverage_status": {
+          "enum": [
+            "covered",
+            "missing_local_coverage"
+          ],
+          "title": "Coverage Status",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "coverage_row_ref",
+        "case_ref",
+        "coverage_kind",
+        "coverage_status",
+        "coverage_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixCoverageRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "coverage_basis_scope": {
+      "const": "local_probe_and_projection_basis_only",
+      "title": "Coverage Basis Scope",
+      "type": "string"
+    },
+    "coverage_denominator_posture": {
+      "const": "declared_local_matrix_cases_only",
+      "title": "Coverage Denominator Posture",
+      "type": "string"
+    },
+    "coverage_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixCoverageRow"
+      },
+      "minItems": 1,
+      "title": "Coverage Rows",
+      "type": "array"
+    },
+    "covered_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Covered Case Refs",
+      "type": "array"
+    },
+    "hidden_test_coverage_exclusion_posture": {
+      "const": "hidden_tests_excluded_from_coverage",
+      "title": "Hidden Test Coverage Exclusion Posture",
+      "type": "string"
+    },
+    "hidden_test_coverage_posture": {
+      "const": "no_hidden_test_coverage_claimed",
+      "title": "Hidden Test Coverage Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_coverage_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Coverage Basis Refs",
+      "type": "array"
+    },
+    "matrix_coverage_register_ref": {
+      "title": "Matrix Coverage Register Ref",
+      "type": "string"
+    },
+    "missing_coverage_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Coverage Case Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_coverage_register@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_coverage_register_ref",
+    "case_matrix_ref",
+    "coverage_rows",
+    "local_coverage_basis_refs",
+    "coverage_denominator_posture",
+    "coverage_basis_scope",
+    "hidden_test_coverage_exclusion_posture",
+    "hidden_test_coverage_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixCoverageRegister",
+  "type": "object"
+}

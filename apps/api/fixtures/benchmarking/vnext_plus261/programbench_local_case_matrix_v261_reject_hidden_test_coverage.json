@@ -1,0 +1,30 @@
+{
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "coverage_basis_scope": "local_probe_and_projection_basis_only",
+  "coverage_denominator_posture": "declared_local_matrix_cases_only",
+  "coverage_rows": [
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "coverage_basis_refs": [
+        "matrix-projection-row:pb-matrix-0b:trial"
+      ],
+      "coverage_kind": "local_result_projection_coverage",
+      "coverage_row_ref": "matrix-coverage-row:pb-matrix-0b:trial",
+      "coverage_scope_posture": "local_matrix_coverage_only_not_hidden_test_coverage",
+      "coverage_status": "covered",
+      "limitation_note": "Bad hidden-test coverage fixture."
+    }
+  ],
+  "covered_case_refs": [
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "hidden_test_coverage_exclusion_posture": "hidden_tests_excluded_from_coverage",
+  "hidden_test_coverage_posture": "hidden_tests_counted_as_coverage",
+  "limitation_note": "Bad coverage register.",
+  "local_coverage_basis_refs": [
+    "matrix-projection-row:pb-matrix-0b:trial"
+  ],
+  "matrix_coverage_register_ref": "matrix-coverage-register:pb-matrix-0b:bad-hidden",
+  "missing_coverage_case_refs": [],
+  "schema": "programbench_local_case_matrix_coverage_register@1"
+}

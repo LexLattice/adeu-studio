@@ -1,0 +1,27 @@
+{
+  "blocked_case_refs": [
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "clean_case_refs": [],
+  "contamination_detail_posture": "no_forbidden_names_paths_excerpts_or_summaries",
+  "contamination_redaction_policy": "redacted_category_count_reason_only",
+  "contamination_rows": [
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "contamination_detail_posture": "no_forbidden_names_paths_excerpts_or_summaries",
+      "contamination_kind": "forbidden_source_exposure",
+      "contamination_posture": "blocked",
+      "contamination_redaction_policy": "redacted_category_count_reason_only",
+      "contamination_row_ref": "matrix-contamination-row:pb-matrix-0b:bad-leak",
+      "limitation_note": "Bad row leaks forbidden detail.",
+      "redacted_detail_note": "original-source path leaked through summary"
+    }
+  ],
+  "contamination_status": "blocked",
+  "excluded_derived_summary_refs": [],
+  "forbidden_exposure_refs": [],
+  "limitation_note": "Bad contamination register.",
+  "matrix_contamination_register_ref": "matrix-contamination-register:pb-matrix-0b:bad-leak",
+  "schema": "programbench_local_case_matrix_contamination_register@1"
+}

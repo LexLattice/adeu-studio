@@ -15,12 +15,8 @@ MODEL_CONFIG = ConfigDict(
     protected_namespaces=(),
 )
 
-PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA = (
-    "programbench_local_case_matrix_request@1"
-)
-PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA = (
-    "programbench_local_case_inclusion_manifest@1"
-)
+PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA = "programbench_local_case_matrix_request@1"
+PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA = "programbench_local_case_inclusion_manifest@1"
 PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA = (
     "programbench_local_case_lineage_eligibility_review@1"
 )
@@ -70,6 +66,7 @@ PB_MATRIX_0C_ARTIFACT_KINDS = {
 PB_MATRIX_0A_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = (
     PB_MATRIX_0B_ARTIFACT_KINDS | PB_MATRIX_0C_ARTIFACT_KINDS
 )
+PB_MATRIX_0B_REQUIRED_FORBIDDEN_FUTURE_ARTIFACT_KINDS = PB_MATRIX_0C_ARTIFACT_KINDS
 
 _SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 _FORBIDDEN_REF_MARKERS = (
@@ -88,6 +85,7 @@ _FORBIDDEN_REF_MARKERS = (
 )
 _SOFT_SCORING_LANGUAGE_MARKERS = (
     "beats baseline",
+    "benchmark score",
     "leaderboard-like",
     "model wins",
     "official-like score",
@@ -147,6 +145,17 @@ def _ensure_no_soft_scoring_language(value: str, *, field_name: str) -> None:
         raise ValueError(
             f"{field_name} contains benchmark-like scoring or ranking language: {leaked}"
         )
+
+
+def _ensure_refs_resolve(
+    values: list[str],
+    allowed_refs: set[str],
+    *,
+    field_name: str,
+) -> None:
+    unknown = sorted(set(values) - allowed_refs)
+    if unknown:
+        raise ValueError(f"{field_name} contains refs outside released matrix basis: {unknown}")
 
 
 class _MatrixBase(BaseModel):
@@ -352,9 +361,7 @@ class ProgrambenchLocalCaseMatrixForbiddenAuthorityRow(_MatrixBase):
 
 
 class ProgrambenchLocalCaseMatrixRequest(_MatrixBase):
-    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_REQUEST_SCHEMA] = Field(alias="schema")
     case_matrix_ref: str
     matrix_request_ref: str
     matrix_horizon: Literal[
@@ -409,17 +416,13 @@ class ProgrambenchLocalCaseMatrixRequest(_MatrixBase):
 
 
 class ProgrambenchLocalCaseInclusionManifest(_MatrixBase):
-    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_INCLUSION_MANIFEST_SCHEMA] = Field(alias="schema")
     case_inclusion_manifest_ref: str
     case_matrix_ref: str
-    case_candidate_rows: list[ProgrambenchLocalCaseMatrixCandidateRow] = Field(
+    case_candidate_rows: list[ProgrambenchLocalCaseMatrixCandidateRow] = Field(min_length=1)
+    matrix_selection_rationale_rows: list[ProgrambenchLocalCaseMatrixSelectionRationaleRow] = Field(
         min_length=1
     )
-    matrix_selection_rationale_rows: list[
-        ProgrambenchLocalCaseMatrixSelectionRationaleRow
-    ] = Field(min_length=1)
     included_case_refs: list[str] = Field(min_length=1)
     blocked_case_refs: list[str] = Field(default_factory=list)
     deferred_case_refs: list[str] = Field(default_factory=list)
@@ -468,9 +471,7 @@ class ProgrambenchLocalCaseInclusionManifest(_MatrixBase):
         if unknown:
             raise ValueError(f"case decision refs must resolve to candidate rows: {unknown}")
         overlaps = sorted(
-            ref
-            for ref in all_case_refs
-            if sum(ref in refs for refs in decision_refs.values()) > 1
+            ref for ref in all_case_refs if sum(ref in refs for refs in decision_refs.values()) > 1
         )
         if overlaps:
             raise ValueError(f"case decision refs must not overlap: {overlaps}")
@@ -508,14 +509,12 @@ class ProgrambenchLocalCaseInclusionManifest(_MatrixBase):
 
 
 class ProgrambenchLocalCaseLineageEligibilityReview(_MatrixBase):
-    schema_id: Literal[
-        PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA
-    ] = Field(alias="schema")
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_LINEAGE_ELIGIBILITY_REVIEW_SCHEMA] = Field(
+        alias="schema"
+    )
     case_lineage_eligibility_review_ref: str
     case_matrix_ref: str
-    case_eligibility_rows: list[ProgrambenchLocalCaseMatrixEligibilityRow] = Field(
-        min_length=1
-    )
+    case_eligibility_rows: list[ProgrambenchLocalCaseMatrixEligibilityRow] = Field(min_length=1)
     eligible_case_refs: list[str] = Field(min_length=1)
     blocked_case_refs: list[str] = Field(default_factory=list)
     carried_blocker_refs: list[str] = Field(default_factory=list)
@@ -555,9 +554,7 @@ class ProgrambenchLocalCaseLineageEligibilityReview(_MatrixBase):
             raise ValueError("eligible_case_refs must match eligible row case refs")
         if self.carried_blocker_refs:
             blocked_row_refs = {
-                blocker
-                for row in self.case_eligibility_rows
-                for blocker in row.blocker_refs
+                blocker for row in self.case_eligibility_rows for blocker in row.blocker_refs
             }
             unknown = sorted(set(self.carried_blocker_refs) - blocked_row_refs)
             if unknown:
@@ -605,9 +602,9 @@ class ProgrambenchLocalCaseMatrixControlContract(_MatrixBase):
     allowed_matrix_action_rows: list[ProgrambenchLocalCaseMatrixAllowedActionRow] = Field(
         min_length=1
     )
-    forbidden_matrix_action_rows: list[
-        ProgrambenchLocalCaseMatrixForbiddenActionRow
-    ] = Field(min_length=1)
+    forbidden_matrix_action_rows: list[ProgrambenchLocalCaseMatrixForbiddenActionRow] = Field(
+        min_length=1
+    )
     limitation_note: str
 
     @model_validator(mode="after")
@@ -639,8 +636,7 @@ class ProgrambenchLocalCaseMatrixControlContract(_MatrixBase):
                 raise ValueError("single-profile matrices require single_profile_controls posture")
         elif (
             self.multi_profile_matrix_posture != "comparability_accounting_only_no_ranking"
-            or self.matrix_comparability_posture
-            != "comparability_accounting_only_no_ranking"
+            or self.matrix_comparability_posture != "comparability_accounting_only_no_ranking"
         ):
             raise ValueError(
                 "multi-profile or multi-control matrices require comparability-only posture"
@@ -684,9 +680,7 @@ class ProgrambenchLocalCaseMatrixNonAuthorityGuardrail(_MatrixBase):
     matrix_guardrail_ref: str
     case_matrix_refs: list[str] = Field(min_length=1)
     guardrail_source_refs: list[str] = Field(min_length=1)
-    non_authority_rows: list[ProgrambenchLocalCaseMatrixForbiddenAuthorityRow] = Field(
-        min_length=1
-    )
+    non_authority_rows: list[ProgrambenchLocalCaseMatrixForbiddenAuthorityRow] = Field(min_length=1)
     forbidden_future_artifact_kinds: list[str] = Field(min_length=1)
     official_programbench_posture: Literal[
         "no_official_programbench_authority_granted_by_pb_matrix_0a"
@@ -743,6 +737,446 @@ class ProgrambenchLocalCaseMatrixNonAuthorityGuardrail(_MatrixBase):
         current = sorted(PB_MATRIX_0A_ARTIFACT_KINDS & set(self.forbidden_future_artifact_kinds))
         if current:
             raise ValueError(f"matrix guardrail cannot forbid current A artifact kinds: {current}")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixProjectionBasisRow(_MatrixBase):
+    projection_basis_ref: str
+    case_ref: str
+    source_result_ref: str
+    source_result_hash: str
+    source_family_closeout_ref: str
+    projection_rule_ref: str
+    basis_kind: Literal[
+        "released_local_retry_settlement",
+        "released_local_trial_outcome",
+        "projection_gap_basis",
+    ]
+    basis_scope_posture: Literal["local_matrix_projection_basis_only_not_new_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_basis(self) -> "ProgrambenchLocalCaseMatrixProjectionBasisRow":
+        _ensure_hash(self.source_result_hash, field_name="source_result_hash")
+        _ensure_no_forbidden_refs(
+            [
+                self.case_ref,
+                self.source_result_ref,
+                self.source_family_closeout_ref,
+                self.projection_rule_ref,
+            ],
+            field_name="projection_basis_row refs",
+        )
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixProjectionCaseRow(_MatrixBase):
+    projection_case_row_ref: str
+    case_ref: str
+    source_result_ref: str
+    source_result_hash: str
+    source_family_closeout_ref: str
+    projection_rule_ref: str
+    projection_basis_refs: list[str] = Field(min_length=1)
+    projection_currentness: Literal[
+        "current_projection",
+        "projection_gap_declared",
+    ]
+    projected_result_posture: Literal[
+        "local_case_blocked",
+        "local_case_inconclusive",
+        "local_case_remanded",
+        "local_case_resolved",
+        "projection_gap",
+    ]
+    projection_gap_ref: str | None = None
+    projection_gap_reason: Literal[
+        "not_applicable",
+        "missing_current_result",
+        "source_result_unreleased",
+        "blocked_by_contamination",
+    ]
+    retry_remand_pressure_posture: Literal[
+        "not_applicable",
+        "unresolved_remand_pressure_preserved",
+        "settled_remand_preserved",
+    ]
+    projection_is_not_new_truth_posture: Literal["derived_local_projection_not_new_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_projection_case_row(self) -> "ProgrambenchLocalCaseMatrixProjectionCaseRow":
+        _ensure_hash(self.source_result_hash, field_name="source_result_hash")
+        _ensure_sorted_unique(self.projection_basis_refs, field_name="projection_basis_refs")
+        _ensure_no_forbidden_refs(
+            [
+                self.case_ref,
+                self.source_result_ref,
+                self.source_family_closeout_ref,
+                self.projection_rule_ref,
+                *self.projection_basis_refs,
+            ],
+            field_name="projection_case_row refs",
+        )
+        if self.projection_currentness == "current_projection":
+            if self.projected_result_posture == "projection_gap":
+                raise ValueError("current projection rows cannot carry projection_gap posture")
+            if self.projection_gap_ref is not None:
+                raise ValueError("current projection rows cannot carry projection_gap_ref")
+            if self.projection_gap_reason != "not_applicable":
+                raise ValueError("current projection rows require not_applicable gap reason")
+        else:
+            if self.projected_result_posture != "projection_gap":
+                raise ValueError("projection gaps require projection_gap result posture")
+            if not self.projection_gap_ref:
+                raise ValueError("projection gaps require projection_gap_ref")
+            if self.projection_gap_reason == "not_applicable":
+                raise ValueError("projection gaps require a concrete gap reason")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixObservationRow(_MatrixBase):
+    observation_ref: str
+    case_ref: str
+    source_projection_case_row_ref: str
+    observation_kind: Literal[
+        "local_blocker_observed",
+        "local_gap_observed",
+        "local_projection_observed",
+        "local_remand_observed",
+    ]
+    observation_text: str
+    observation_scope_posture: Literal["local_matrix_observation_only_not_ranking"]
+    blocked_observation_reason: Literal[
+        "not_applicable",
+        "projection_gap",
+        "contamination_blocked",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_observation_row(self) -> "ProgrambenchLocalCaseMatrixObservationRow":
+        _ensure_no_forbidden_refs(
+            [self.case_ref, self.source_projection_case_row_ref],
+            field_name="observation_row refs",
+        )
+        _ensure_no_soft_scoring_language(self.observation_text, field_name="observation_text")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        is_blocked_observation = self.observation_kind in {
+            "local_blocker_observed",
+            "local_gap_observed",
+        }
+        has_blocked_reason = self.blocked_observation_reason != "not_applicable"
+        if is_blocked_observation and not has_blocked_reason:
+            raise ValueError(f"{self.observation_kind} requires a blocked reason")
+        if not is_blocked_observation and has_blocked_reason:
+            raise ValueError(
+                f"{self.observation_kind} cannot carry a blocked observation reason"
+            )
+        return self
+
+
+class ProgrambenchLocalCaseMatrixCoverageRow(_MatrixBase):
+    coverage_row_ref: str
+    case_ref: str
+    coverage_kind: Literal[
+        "local_result_projection_coverage",
+        "local_observation_coverage",
+        "local_contamination_review_coverage",
+    ]
+    coverage_status: Literal["covered", "missing_local_coverage"]
+    coverage_basis_refs: list[str] = Field(default_factory=list)
+    coverage_scope_posture: Literal["local_matrix_coverage_only_not_hidden_test_coverage"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_coverage_row(self) -> "ProgrambenchLocalCaseMatrixCoverageRow":
+        _ensure_sorted_unique_allow_empty(
+            self.coverage_basis_refs,
+            field_name="coverage_basis_refs",
+        )
+        _ensure_no_forbidden_refs(
+            [self.case_ref, *self.coverage_basis_refs],
+            field_name="coverage_row refs",
+        )
+        if self.coverage_status == "covered" and not self.coverage_basis_refs:
+            raise ValueError("covered matrix cases require local coverage basis refs")
+        if self.coverage_status == "missing_local_coverage" and self.coverage_basis_refs:
+            raise ValueError("missing coverage rows cannot carry coverage basis refs")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixContaminationRow(_MatrixBase):
+    contamination_row_ref: str
+    case_ref: str
+    contamination_kind: Literal[
+        "clean",
+        "excluded_derived_summary",
+        "forbidden_source_exposure",
+        "hidden_test_exposure",
+        "official_evaluator_exposure",
+    ]
+    contamination_posture: Literal["blocked", "clean"]
+    redacted_detail_note: str
+    contamination_redaction_policy: Literal["redacted_category_count_reason_only"]
+    contamination_detail_posture: Literal["no_forbidden_names_paths_excerpts_or_summaries"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_row(self) -> "ProgrambenchLocalCaseMatrixContaminationRow":
+        _ensure_no_forbidden_refs([self.case_ref], field_name="contamination_row refs")
+        for field_name in ("redacted_detail_note", "limitation_note"):
+            value = getattr(self, field_name)
+            _ensure_no_soft_scoring_language(value, field_name=field_name)
+            lowered = value.lower()
+            leaked = [marker for marker in _FORBIDDEN_REF_MARKERS if marker in lowered]
+            if leaked:
+                raise ValueError(
+                    f"{field_name} contains forbidden contamination detail markers: {leaked}"
+                )
+        if self.contamination_kind == "clean" and self.contamination_posture != "clean":
+            raise ValueError("clean contamination rows require clean posture")
+        if self.contamination_kind != "clean" and self.contamination_posture != "blocked":
+            raise ValueError("non-clean contamination rows require blocked posture")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixResultProjection(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_RESULT_PROJECTION_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_result_projection_ref: str
+    case_matrix_ref: str
+    matrix_request_ref: str
+    case_inclusion_manifest_ref: str
+    case_lineage_eligibility_review_ref: str
+    matrix_control_contract_ref: str
+    matrix_guardrail_ref: str
+    projection_case_rows: list[ProgrambenchLocalCaseMatrixProjectionCaseRow] = Field(min_length=1)
+    included_case_refs: list[str] = Field(min_length=1)
+    source_trial_outcome_refs: list[str] = Field(default_factory=list)
+    source_retry_outcome_refs: list[str] = Field(default_factory=list)
+    source_retry_settlement_refs: list[str] = Field(default_factory=list)
+    source_result_ref: str
+    source_result_hash: str
+    source_family_closeout_ref: str
+    projection_rule_ref: str
+    projection_basis_rows: list[ProgrambenchLocalCaseMatrixProjectionBasisRow] = Field(min_length=1)
+    projection_currentness: Literal[
+        "all_included_cases_current_or_gap_declared",
+        "projection_gap_declared",
+    ]
+    projection_gap_reason: Literal[
+        "not_applicable",
+        "missing_current_result",
+        "source_result_unreleased",
+        "blocked_by_contamination",
+    ]
+    projection_is_not_new_truth_posture: Literal["derived_local_projection_not_new_truth"]
+    projected_case_result_rows: list[str] = Field(min_length=1)
+    projection_gap_refs: list[str] = Field(default_factory=list)
+    projection_authority_posture: Literal["no_new_outcome_truth_created_by_pb_matrix_0b"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_projection(self) -> "ProgrambenchLocalCaseMatrixResultProjection":
+        for field_name in (
+            "included_case_refs",
+            "source_trial_outcome_refs",
+            "source_retry_outcome_refs",
+            "source_retry_settlement_refs",
+            "projected_case_result_rows",
+            "projection_gap_refs",
+        ):
+            values = getattr(self, field_name)
+            if field_name in {"included_case_refs", "projected_case_result_rows"}:
+                _ensure_sorted_unique(values, field_name=field_name)
+            else:
+                _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_hash(self.source_result_hash, field_name="source_result_hash")
+        row_refs = [row.projection_case_row_ref for row in self.projection_case_rows]
+        _ensure_sorted_unique(row_refs, field_name="projection_case_rows")
+        basis_refs = [row.projection_basis_ref for row in self.projection_basis_rows]
+        _ensure_sorted_unique(basis_refs, field_name="projection_basis_rows")
+        row_case_refs = [row.case_ref for row in self.projection_case_rows]
+        if sorted(row_case_refs) != self.included_case_refs:
+            raise ValueError("projection rows must cover every included case exactly once")
+        if self.projected_case_result_rows != row_refs:
+            raise ValueError("projected_case_result_rows must match projection row refs")
+        gap_refs = [
+            row.projection_gap_ref
+            for row in self.projection_case_rows
+            if row.projection_gap_ref is not None
+        ]
+        if self.projection_gap_refs != gap_refs:
+            raise ValueError("projection_gap_refs must match projection gap rows")
+        if self.projection_gap_refs and self.projection_gap_reason == "not_applicable":
+            raise ValueError("top-level projection gap reason must describe gap rows")
+        if not self.projection_gap_refs and self.projection_gap_reason != "not_applicable":
+            raise ValueError("top-level projection gap reason requires gap refs")
+        basis_by_ref = {row.projection_basis_ref: row for row in self.projection_basis_rows}
+        for row in self.projection_case_rows:
+            _ensure_refs_resolve(
+                row.projection_basis_refs,
+                set(basis_by_ref),
+                field_name="projection_case_row.projection_basis_refs",
+            )
+            for basis_ref in row.projection_basis_refs:
+                if basis_by_ref[basis_ref].case_ref != row.case_ref:
+                    raise ValueError("projection basis rows must match projection case refs")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixObservationLedger(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_OBSERVATION_LEDGER_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_observation_ledger_ref: str
+    case_matrix_ref: str
+    observation_rows: list[ProgrambenchLocalCaseMatrixObservationRow] = Field(min_length=1)
+    local_observation_refs: list[str] = Field(min_length=1)
+    blocked_observation_refs: list[str] = Field(default_factory=list)
+    non_ranking_posture: Literal["local_observations_only_no_model_ranking"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    soft_scoring_language_posture: Literal["soft_scoring_language_rejected"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_observation_ledger(self) -> "ProgrambenchLocalCaseMatrixObservationLedger":
+        row_refs = [row.observation_ref for row in self.observation_rows]
+        _ensure_sorted_unique(row_refs, field_name="observation_rows")
+        _ensure_sorted_unique(self.local_observation_refs, field_name="local_observation_refs")
+        _ensure_sorted_unique_allow_empty(
+            self.blocked_observation_refs,
+            field_name="blocked_observation_refs",
+        )
+        local_from_rows = [
+            row.observation_ref
+            for row in self.observation_rows
+            if row.blocked_observation_reason == "not_applicable"
+        ]
+        if self.local_observation_refs != local_from_rows:
+            raise ValueError("local_observation_refs must match unblocked observation rows")
+        blocked_from_rows = [
+            row.observation_ref
+            for row in self.observation_rows
+            if row.blocked_observation_reason != "not_applicable"
+        ]
+        if self.blocked_observation_refs != blocked_from_rows:
+            raise ValueError("blocked_observation_refs must match blocked observation rows")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixCoverageRegister(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_COVERAGE_REGISTER_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_coverage_register_ref: str
+    case_matrix_ref: str
+    coverage_rows: list[ProgrambenchLocalCaseMatrixCoverageRow] = Field(min_length=1)
+    covered_case_refs: list[str] = Field(default_factory=list)
+    missing_coverage_case_refs: list[str] = Field(default_factory=list)
+    local_coverage_basis_refs: list[str] = Field(min_length=1)
+    coverage_denominator_posture: Literal["declared_local_matrix_cases_only"]
+    coverage_basis_scope: Literal["local_probe_and_projection_basis_only"]
+    hidden_test_coverage_exclusion_posture: Literal["hidden_tests_excluded_from_coverage"]
+    hidden_test_coverage_posture: Literal["no_hidden_test_coverage_claimed"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_coverage_register(self) -> "ProgrambenchLocalCaseMatrixCoverageRegister":
+        row_refs = [row.coverage_row_ref for row in self.coverage_rows]
+        _ensure_sorted_unique(row_refs, field_name="coverage_rows")
+        for field_name in (
+            "covered_case_refs",
+            "missing_coverage_case_refs",
+            "local_coverage_basis_refs",
+        ):
+            values = getattr(self, field_name)
+            if field_name == "local_coverage_basis_refs":
+                _ensure_sorted_unique(values, field_name=field_name)
+            else:
+                _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        covered_from_rows = {
+            row.case_ref for row in self.coverage_rows if row.coverage_status == "covered"
+        }
+        missing_from_rows = {
+            row.case_ref
+            for row in self.coverage_rows
+            if row.coverage_status == "missing_local_coverage"
+        }
+        if set(self.covered_case_refs) != covered_from_rows:
+            raise ValueError("covered_case_refs must match covered coverage rows")
+        if set(self.missing_coverage_case_refs) != missing_from_rows:
+            raise ValueError("missing_coverage_case_refs must match missing coverage rows")
+        basis_from_rows = {
+            basis_ref for row in self.coverage_rows for basis_ref in row.coverage_basis_refs
+        }
+        if set(self.local_coverage_basis_refs) != basis_from_rows:
+            raise ValueError("local_coverage_basis_refs must match coverage row basis refs")
+        _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchLocalCaseMatrixContaminationRegister(_MatrixBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_CASE_MATRIX_CONTAMINATION_REGISTER_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_contamination_register_ref: str
+    case_matrix_ref: str
+    contamination_rows: list[ProgrambenchLocalCaseMatrixContaminationRow] = Field(min_length=1)
+    clean_case_refs: list[str] = Field(default_factory=list)
+    blocked_case_refs: list[str] = Field(default_factory=list)
+    forbidden_exposure_refs: list[str] = Field(default_factory=list)
+    excluded_derived_summary_refs: list[str] = Field(default_factory=list)
+    contamination_redaction_policy: Literal["redacted_category_count_reason_only"]
+    contamination_detail_posture: Literal["no_forbidden_names_paths_excerpts_or_summaries"]
+    contamination_status: Literal["blocked", "clean"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_register(
+        self,
+    ) -> "ProgrambenchLocalCaseMatrixContaminationRegister":
+        row_refs = [row.contamination_row_ref for row in self.contamination_rows]
+        _ensure_sorted_unique(row_refs, field_name="contamination_rows")
+        for field_name in (
+            "clean_case_refs",
+            "blocked_case_refs",
+            "forbidden_exposure_refs",
+            "excluded_derived_summary_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        clean_from_rows = {
+            row.case_ref for row in self.contamination_rows if row.contamination_posture == "clean"
+        }
+        blocked_from_rows = {
+            row.case_ref
+            for row in self.contamination_rows
+            if row.contamination_posture == "blocked"
+        }
+        if set(self.clean_case_refs) != clean_from_rows:
+            raise ValueError("clean_case_refs must match clean contamination rows")
+        if set(self.blocked_case_refs) != blocked_from_rows:
+            raise ValueError("blocked_case_refs must match blocked contamination rows")
+        if self.contamination_status == "clean" and (
+            self.blocked_case_refs
+            or self.forbidden_exposure_refs
+            or self.excluded_derived_summary_refs
+        ):
+            raise ValueError("clean contamination register cannot carry blocked/exposure refs")
+        if self.contamination_status == "blocked" and not self.blocked_case_refs:
+            raise ValueError("blocked contamination register requires blocked case refs")
         _ensure_no_soft_scoring_language(self.limitation_note, field_name="limitation_note")
         return self
 
@@ -834,9 +1268,7 @@ def validate_pb_matrix_0a_case_matrix_bundle(
             raise ValueError("included matrix case must resolve to released trial lineage")
         if row.case_lineage_kind == "trial_with_retry_settlement":
             if retry_family_closeout is None:
-                raise ValueError(
-                    "retry-settlement matrix case requires PB-RETRY-0 closeout"
-                )
+                raise ValueError("retry-settlement matrix case requires PB-RETRY-0 closeout")
             if row.retry_settlement_ref not in retry_settlement_refs:
                 raise ValueError(
                     "included retry matrix case must resolve to released retry settlement"
@@ -851,3 +1283,111 @@ def validate_pb_matrix_0a_case_matrix_bundle(
         raise ValueError("matrix request must deny official benchmark authority")
     if matrix_guardrail.benchmark_truth_posture != "not_benchmark_truth":
         raise ValueError("matrix guardrail must deny benchmark truth")
+
+
+def validate_pb_matrix_0b_projection_bundle(
+    *,
+    matrix_request: ProgrambenchLocalCaseMatrixRequest,
+    inclusion_manifest: ProgrambenchLocalCaseInclusionManifest,
+    lineage_eligibility_review: ProgrambenchLocalCaseLineageEligibilityReview,
+    matrix_control_contract: ProgrambenchLocalCaseMatrixControlContract,
+    matrix_guardrail: ProgrambenchLocalCaseMatrixNonAuthorityGuardrail,
+    result_projection: ProgrambenchLocalCaseMatrixResultProjection,
+    observation_ledger: ProgrambenchLocalCaseMatrixObservationLedger,
+    coverage_register: ProgrambenchLocalCaseMatrixCoverageRegister,
+    contamination_register: ProgrambenchLocalCaseMatrixContaminationRegister,
+) -> None:
+    if result_projection.case_matrix_ref != matrix_request.case_matrix_ref:
+        raise ValueError("result projection must reference matrix request")
+    if result_projection.matrix_request_ref != matrix_request.matrix_request_ref:
+        raise ValueError("result projection must reference released A request")
+    if result_projection.case_inclusion_manifest_ref != (
+        inclusion_manifest.case_inclusion_manifest_ref
+    ):
+        raise ValueError("result projection must reference released A inclusion manifest")
+    if result_projection.case_lineage_eligibility_review_ref != (
+        lineage_eligibility_review.case_lineage_eligibility_review_ref
+    ):
+        raise ValueError("result projection must reference released A eligibility review")
+    if result_projection.matrix_control_contract_ref != (
+        matrix_control_contract.matrix_control_contract_ref
+    ):
+        raise ValueError("result projection must reference released A control contract")
+    if result_projection.matrix_guardrail_ref != matrix_guardrail.matrix_guardrail_ref:
+        raise ValueError("result projection must reference released A guardrail")
+    for artifact in (observation_ledger, coverage_register, contamination_register):
+        if artifact.case_matrix_ref != matrix_request.case_matrix_ref:
+            raise ValueError("PB-MATRIX-0-B artifacts must share one case_matrix_ref")
+
+    included = set(inclusion_manifest.included_case_refs)
+    if set(result_projection.included_case_refs) != included:
+        raise ValueError("result projection included cases must match A included cases")
+    if set(lineage_eligibility_review.eligible_case_refs) != included:
+        raise ValueError("B projection requires released eligible A cases")
+    projection_case_refs = {row.case_ref for row in result_projection.projection_case_rows}
+    if projection_case_refs != included:
+        raise ValueError("result projection rows must cover all A-included cases")
+    if result_projection.projection_authority_posture != (
+        "no_new_outcome_truth_created_by_pb_matrix_0b"
+    ):
+        raise ValueError("result projection cannot create new outcome truth")
+
+    a_candidate_by_case = {row.case_ref: row for row in inclusion_manifest.case_candidate_rows}
+    for projection_row in result_projection.projection_case_rows:
+        candidate = a_candidate_by_case[projection_row.case_ref]
+        if candidate.case_lineage_kind == "trial_with_retry_settlement":
+            if projection_row.source_result_ref != candidate.retry_settlement_ref:
+                raise ValueError(
+                    "retry-settlement matrix projections must match A-admitted settlement"
+                )
+            if (
+                projection_row.source_result_ref
+                not in result_projection.source_retry_settlement_refs
+            ):
+                raise ValueError(
+                    "retry-settlement matrix projections must cite retry settlement refs"
+                )
+            if projection_row.retry_remand_pressure_posture == "not_applicable":
+                raise ValueError(
+                    "retry-settlement matrix projections must preserve remand pressure"
+                )
+        else:
+            if projection_row.source_result_ref not in result_projection.source_trial_outcome_refs:
+                raise ValueError("trial-only matrix projections must cite trial outcome refs")
+            if projection_row.retry_remand_pressure_posture != "not_applicable":
+                raise ValueError("trial-only matrix projections cannot carry retry remand posture")
+
+    projection_row_refs = {
+        row.projection_case_row_ref for row in result_projection.projection_case_rows
+    }
+    observation_case_refs = {row.case_ref for row in observation_ledger.observation_rows}
+    if observation_case_refs - included:
+        raise ValueError("observation rows may reference only A-included cases")
+    _ensure_refs_resolve(
+        [row.source_projection_case_row_ref for row in observation_ledger.observation_rows],
+        projection_row_refs,
+        field_name="observation source projection refs",
+    )
+
+    coverage_case_refs = {row.case_ref for row in coverage_register.coverage_rows}
+    if coverage_case_refs != included:
+        raise ValueError("coverage register rows must cover all A-included cases")
+    if coverage_register.hidden_test_coverage_posture != "no_hidden_test_coverage_claimed":
+        raise ValueError("coverage register cannot claim hidden-test coverage")
+    if coverage_register.coverage_denominator_posture != "declared_local_matrix_cases_only":
+        raise ValueError("coverage denominator must be local matrix cases only")
+
+    contamination_case_refs = {row.case_ref for row in contamination_register.contamination_rows}
+    if contamination_case_refs != included:
+        raise ValueError("contamination register rows must cover all A-included cases")
+    if contamination_register.contamination_status != "clean":
+        raise ValueError("PB-MATRIX-0-B reference bundle requires clean contamination status")
+
+    if matrix_control_contract.matrix_non_ranking_posture != (
+        "no_model_ranking_claimed_by_pb_matrix_0a"
+    ):
+        raise ValueError("B requires A non-ranking controls")
+    if matrix_guardrail.batch_execution_posture != (
+        "no_batch_execution_authority_granted_by_pb_matrix_0a"
+    ):
+        raise ValueError("B requires A batch-execution denial")

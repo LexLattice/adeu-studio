@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixObservationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked_observation_reason": {
+          "enum": [
+            "not_applicable",
+            "projection_gap",
+            "contamination_blocked"
+          ],
+          "title": "Blocked Observation Reason",
+          "type": "string"
+        },
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "observation_kind": {
+          "enum": [
+            "local_blocker_observed",
+            "local_gap_observed",
+            "local_projection_observed",
+            "local_remand_observed"
+          ],
+          "title": "Observation Kind",
+          "type": "string"
+        },
+        "observation_ref": {
+          "title": "Observation Ref",
+          "type": "string"
+        },
+        "observation_scope_posture": {
+          "const": "local_matrix_observation_only_not_ranking",
+          "title": "Observation Scope Posture",
+          "type": "string"
+        },
+        "observation_text": {
+          "title": "Observation Text",
+          "type": "string"
+        },
+        "source_projection_case_row_ref": {
+          "title": "Source Projection Case Row Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_ref",
+        "case_ref",
+        "source_projection_case_row_ref",
+        "observation_kind",
+        "observation_text",
+        "observation_scope_posture",
+        "blocked_observation_reason",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixObservationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "blocked_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Observation Refs",
+      "type": "array"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_observation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Observation Refs",
+      "type": "array"
+    },
+    "matrix_observation_ledger_ref": {
+      "title": "Matrix Observation Ledger Ref",
+      "type": "string"
+    },
+    "non_ranking_posture": {
+      "const": "local_observations_only_no_model_ranking",
+      "title": "Non Ranking Posture",
+      "type": "string"
+    },
+    "observation_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixObservationRow"
+      },
+      "minItems": 1,
+      "title": "Observation Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_observation_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "soft_scoring_language_posture": {
+      "const": "soft_scoring_language_rejected",
+      "title": "Soft Scoring Language Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_observation_ledger_ref",
+    "case_matrix_ref",
+    "observation_rows",
+    "local_observation_refs",
+    "non_ranking_posture",
+    "benchmark_truth_posture",
+    "soft_scoring_language_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixObservationLedger",
+  "type": "object"
+}

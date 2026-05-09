@@ -1,0 +1,346 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixProjectionBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_kind": {
+          "enum": [
+            "released_local_retry_settlement",
+            "released_local_trial_outcome",
+            "projection_gap_basis"
+          ],
+          "title": "Basis Kind",
+          "type": "string"
+        },
+        "basis_scope_posture": {
+          "const": "local_matrix_projection_basis_only_not_new_truth",
+          "title": "Basis Scope Posture",
+          "type": "string"
+        },
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "projection_basis_ref": {
+          "title": "Projection Basis Ref",
+          "type": "string"
+        },
+        "projection_rule_ref": {
+          "title": "Projection Rule Ref",
+          "type": "string"
+        },
+        "source_family_closeout_ref": {
+          "title": "Source Family Closeout Ref",
+          "type": "string"
+        },
+        "source_result_hash": {
+          "title": "Source Result Hash",
+          "type": "string"
+        },
+        "source_result_ref": {
+          "title": "Source Result Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_basis_ref",
+        "case_ref",
+        "source_result_ref",
+        "source_result_hash",
+        "source_family_closeout_ref",
+        "projection_rule_ref",
+        "basis_kind",
+        "basis_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixProjectionBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseMatrixProjectionCaseRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_ref": {
+          "title": "Case Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "projected_result_posture": {
+          "enum": [
+            "local_case_blocked",
+            "local_case_inconclusive",
+            "local_case_remanded",
+            "local_case_resolved",
+            "projection_gap"
+          ],
+          "title": "Projected Result Posture",
+          "type": "string"
+        },
+        "projection_basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Projection Basis Refs",
+          "type": "array"
+        },
+        "projection_case_row_ref": {
+          "title": "Projection Case Row Ref",
+          "type": "string"
+        },
+        "projection_currentness": {
+          "enum": [
+            "current_projection",
+            "projection_gap_declared"
+          ],
+          "title": "Projection Currentness",
+          "type": "string"
+        },
+        "projection_gap_reason": {
+          "enum": [
+            "not_applicable",
+            "missing_current_result",
+            "source_result_unreleased",
+            "blocked_by_contamination"
+          ],
+          "title": "Projection Gap Reason",
+          "type": "string"
+        },
+        "projection_gap_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projection Gap Ref"
+        },
+        "projection_is_not_new_truth_posture": {
+          "const": "derived_local_projection_not_new_truth",
+          "title": "Projection Is Not New Truth Posture",
+          "type": "string"
+        },
+        "projection_rule_ref": {
+          "title": "Projection Rule Ref",
+          "type": "string"
+        },
+        "retry_remand_pressure_posture": {
+          "enum": [
+            "not_applicable",
+            "unresolved_remand_pressure_preserved",
+            "settled_remand_preserved"
+          ],
+          "title": "Retry Remand Pressure Posture",
+          "type": "string"
+        },
+        "source_family_closeout_ref": {
+          "title": "Source Family Closeout Ref",
+          "type": "string"
+        },
+        "source_result_hash": {
+          "title": "Source Result Hash",
+          "type": "string"
+        },
+        "source_result_ref": {
+          "title": "Source Result Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_case_row_ref",
+        "case_ref",
+        "source_result_ref",
+        "source_result_hash",
+        "source_family_closeout_ref",
+        "projection_rule_ref",
+        "projection_basis_refs",
+        "projection_currentness",
+        "projected_result_posture",
+        "projection_gap_reason",
+        "retry_remand_pressure_posture",
+        "projection_is_not_new_truth_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixProjectionCaseRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_inclusion_manifest_ref": {
+      "title": "Case Inclusion Manifest Ref",
+      "type": "string"
+    },
+    "case_lineage_eligibility_review_ref": {
+      "title": "Case Lineage Eligibility Review Ref",
+      "type": "string"
+    },
+    "case_matrix_ref": {
+      "title": "Case Matrix Ref",
+      "type": "string"
+    },
+    "included_case_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Included Case Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_control_contract_ref": {
+      "title": "Matrix Control Contract Ref",
+      "type": "string"
+    },
+    "matrix_guardrail_ref": {
+      "title": "Matrix Guardrail Ref",
+      "type": "string"
+    },
+    "matrix_request_ref": {
+      "title": "Matrix Request Ref",
+      "type": "string"
+    },
+    "matrix_result_projection_ref": {
+      "title": "Matrix Result Projection Ref",
+      "type": "string"
+    },
+    "projected_case_result_rows": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Projected Case Result Rows",
+      "type": "array"
+    },
+    "projection_authority_posture": {
+      "const": "no_new_outcome_truth_created_by_pb_matrix_0b",
+      "title": "Projection Authority Posture",
+      "type": "string"
+    },
+    "projection_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixProjectionBasisRow"
+      },
+      "minItems": 1,
+      "title": "Projection Basis Rows",
+      "type": "array"
+    },
+    "projection_case_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixProjectionCaseRow"
+      },
+      "minItems": 1,
+      "title": "Projection Case Rows",
+      "type": "array"
+    },
+    "projection_currentness": {
+      "enum": [
+        "all_included_cases_current_or_gap_declared",
+        "projection_gap_declared"
+      ],
+      "title": "Projection Currentness",
+      "type": "string"
+    },
+    "projection_gap_reason": {
+      "enum": [
+        "not_applicable",
+        "missing_current_result",
+        "source_result_unreleased",
+        "blocked_by_contamination"
+      ],
+      "title": "Projection Gap Reason",
+      "type": "string"
+    },
+    "projection_gap_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Projection Gap Refs",
+      "type": "array"
+    },
+    "projection_is_not_new_truth_posture": {
+      "const": "derived_local_projection_not_new_truth",
+      "title": "Projection Is Not New Truth Posture",
+      "type": "string"
+    },
+    "projection_rule_ref": {
+      "title": "Projection Rule Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_result_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_family_closeout_ref": {
+      "title": "Source Family Closeout Ref",
+      "type": "string"
+    },
+    "source_result_hash": {
+      "title": "Source Result Hash",
+      "type": "string"
+    },
+    "source_result_ref": {
+      "title": "Source Result Ref",
+      "type": "string"
+    },
+    "source_retry_outcome_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Retry Outcome Refs",
+      "type": "array"
+    },
+    "source_retry_settlement_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Retry Settlement Refs",
+      "type": "array"
+    },
+    "source_trial_outcome_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Trial Outcome Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_result_projection_ref",
+    "case_matrix_ref",
+    "matrix_request_ref",
+    "case_inclusion_manifest_ref",
+    "case_lineage_eligibility_review_ref",
+    "matrix_control_contract_ref",
+    "matrix_guardrail_ref",
+    "projection_case_rows",
+    "included_case_refs",
+    "source_result_ref",
+    "source_result_hash",
+    "source_family_closeout_ref",
+    "projection_rule_ref",
+    "projection_basis_rows",
+    "projection_currentness",
+    "projection_gap_reason",
+    "projection_is_not_new_truth_posture",
+    "projected_case_result_rows",
+    "projection_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixResultProjection",
+  "type": "object"
+}

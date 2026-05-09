@@ -1,0 +1,99 @@
+{
+  "case_inclusion_manifest_ref": "matrix-inclusion:pb-matrix-0a:reference",
+  "case_lineage_eligibility_review_ref": "matrix-eligibility:pb-matrix-0a:reference",
+  "case_matrix_ref": "case-matrix:pb-matrix-0a:reference",
+  "included_case_refs": [
+    "matrix-case:pb-matrix-0a:retry",
+    "matrix-case:pb-matrix-0a:trial"
+  ],
+  "limitation_note": "Reference projection is a local accounting view only and creates no new result truth.",
+  "matrix_control_contract_ref": "matrix-control:pb-matrix-0a:reference",
+  "matrix_guardrail_ref": "matrix-guardrail:pb-matrix-0a:reference",
+  "matrix_request_ref": "matrix-request:pb-matrix-0a:reference",
+  "matrix_result_projection_ref": "matrix-result-projection:pb-matrix-0b:reference",
+  "projected_case_result_rows": [
+    "matrix-projection-row:pb-matrix-0b:retry",
+    "matrix-projection-row:pb-matrix-0b:trial"
+  ],
+  "projection_authority_posture": "no_new_outcome_truth_created_by_pb_matrix_0b",
+  "projection_basis_rows": [
+    {
+      "basis_kind": "released_local_retry_settlement",
+      "basis_scope_posture": "local_matrix_projection_basis_only_not_new_truth",
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "limitation_note": "Retry settlement basis is local-only projection support.",
+      "projection_basis_ref": "matrix-projection-basis:pb-matrix-0b:retry",
+      "projection_rule_ref": "matrix-projection-rule:pb-matrix-0b:local-posture",
+      "source_family_closeout_ref": "retry-family-closeout:pb-retry-0c:reference",
+      "source_result_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "source_result_ref": "retry-remand-settlement:pb-retry-0c:reference"
+    },
+    {
+      "basis_kind": "released_local_trial_outcome",
+      "basis_scope_posture": "local_matrix_projection_basis_only_not_new_truth",
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "limitation_note": "Trial outcome basis is local-only projection support.",
+      "projection_basis_ref": "matrix-projection-basis:pb-matrix-0b:trial",
+      "projection_rule_ref": "matrix-projection-rule:pb-matrix-0b:local-posture",
+      "source_family_closeout_ref": "family-closeout:pb-trial-0c:reference",
+      "source_result_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "source_result_ref": "trial-outcome-audit:pb-trial-0c:reference"
+    }
+  ],
+  "projection_case_rows": [
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:retry",
+      "limitation_note": "Retry case projects resolved local remand settlement without new truth.",
+      "projected_result_posture": "local_case_resolved",
+      "projection_basis_refs": [
+        "matrix-projection-basis:pb-matrix-0b:retry"
+      ],
+      "projection_case_row_ref": "matrix-projection-row:pb-matrix-0b:retry",
+      "projection_currentness": "current_projection",
+      "projection_gap_reason": "not_applicable",
+      "projection_gap_ref": null,
+      "projection_is_not_new_truth_posture": "derived_local_projection_not_new_truth",
+      "projection_rule_ref": "matrix-projection-rule:pb-matrix-0b:local-posture",
+      "retry_remand_pressure_posture": "settled_remand_preserved",
+      "source_family_closeout_ref": "retry-family-closeout:pb-retry-0c:reference",
+      "source_result_hash": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "source_result_ref": "retry-remand-settlement:pb-retry-0c:reference"
+    },
+    {
+      "case_ref": "matrix-case:pb-matrix-0a:trial",
+      "limitation_note": "Trial case projects local remand posture without new truth.",
+      "projected_result_posture": "local_case_remanded",
+      "projection_basis_refs": [
+        "matrix-projection-basis:pb-matrix-0b:trial"
+      ],
+      "projection_case_row_ref": "matrix-projection-row:pb-matrix-0b:trial",
+      "projection_currentness": "current_projection",
+      "projection_gap_reason": "not_applicable",
+      "projection_gap_ref": null,
+      "projection_is_not_new_truth_posture": "derived_local_projection_not_new_truth",
+      "projection_rule_ref": "matrix-projection-rule:pb-matrix-0b:local-posture",
+      "retry_remand_pressure_posture": "not_applicable",
+      "source_family_closeout_ref": "family-closeout:pb-trial-0c:reference",
+      "source_result_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "source_result_ref": "trial-outcome-audit:pb-trial-0c:reference"
+    }
+  ],
+  "projection_currentness": "all_included_cases_current_or_gap_declared",
+  "projection_gap_reason": "not_applicable",
+  "projection_gap_refs": [],
+  "projection_is_not_new_truth_posture": "derived_local_projection_not_new_truth",
+  "projection_rule_ref": "matrix-projection-rule:pb-matrix-0b:local-posture",
+  "schema": "programbench_local_case_matrix_result_projection@1",
+  "source_family_closeout_ref": "family-closeout:pb-matrix-source:local",
+  "source_result_hash": "sha256:abababababababababababababababababababababababababababababababab",
+  "source_result_ref": "matrix-source-result:pb-matrix-0b:reference",
+  "source_retry_outcome_refs": [
+    "retry-outcome-audit:pb-retry-0c:reference"
+  ],
+  "source_retry_settlement_refs": [
+    "retry-remand-settlement:pb-retry-0c:reference"
+  ],
+  "source_trial_outcome_refs": [
+    "trial-outcome-audit:pb-trial-0c:reference"
+  ]
+}
