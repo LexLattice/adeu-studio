@@ -1,0 +1,357 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseCandidateIdeaRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_case_idea_hash": {
+          "title": "Candidate Case Idea Hash",
+          "type": "string"
+        },
+        "candidate_case_idea_ref": {
+          "title": "Candidate Case Idea Ref",
+          "type": "string"
+        },
+        "candidate_scope_posture": {
+          "enum": [
+            "case_idea_only_not_blueprint",
+            "case_idea_support_only",
+            "case_idea_blocked"
+          ],
+          "title": "Candidate Scope Posture",
+          "type": "string"
+        },
+        "case_expansion_ref": {
+          "title": "Case Expansion Ref",
+          "type": "string"
+        },
+        "case_idea_label": {
+          "title": "Case Idea Label",
+          "type": "string"
+        },
+        "case_origin_posture": {
+          "enum": [
+            "cleanroom_visible_source_witnessed",
+            "support_only",
+            "hidden_or_forbidden_derived"
+          ],
+          "title": "Case Origin Posture",
+          "type": "string"
+        },
+        "case_visibility_posture": {
+          "enum": [
+            "blueprint_deferred_cleanroom_visible",
+            "blocked_by_forbidden_source",
+            "support_only_context"
+          ],
+          "title": "Case Visibility Posture",
+          "type": "string"
+        },
+        "dedupe_against_existing_case_lineages": {
+          "title": "Dedupe Against Existing Case Lineages",
+          "type": "boolean"
+        },
+        "eligibility_claim": {
+          "enum": [
+            "blocked",
+            "eligible_for_later_blueprint_review",
+            "support_only_not_eligible"
+          ],
+          "title": "Eligibility Claim",
+          "type": "string"
+        },
+        "existing_case_lineage_overlap_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Existing Case Lineage Overlap Refs",
+          "type": "array"
+        },
+        "expected_blueprint_deferred_posture": {
+          "const": "blueprint_deferred_to_pb_case_expansion_0b",
+          "title": "Expected Blueprint Deferred Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "nearest_existing_case_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Nearest Existing Case Refs",
+          "type": "array"
+        },
+        "novelty_or_duplication_posture": {
+          "enum": [
+            "duplicate_allowed_for_regression_or_smoke",
+            "duplicate_blocked",
+            "novel_local_case_idea",
+            "overlap_requires_review"
+          ],
+          "title": "Novelty Or Duplication Posture",
+          "type": "string"
+        },
+        "source_pool_subset_hash": {
+          "title": "Source Pool Subset Hash",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_case_idea_ref",
+        "case_expansion_ref",
+        "source_refs",
+        "candidate_case_idea_hash",
+        "source_pool_subset_hash",
+        "dedupe_against_existing_case_lineages",
+        "novelty_or_duplication_posture",
+        "case_idea_label",
+        "case_origin_posture",
+        "case_visibility_posture",
+        "candidate_scope_posture",
+        "expected_blueprint_deferred_posture",
+        "eligibility_claim",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseCandidateIdeaRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseSourcePoolRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_for_expansion": {
+          "title": "Allowed For Expansion",
+          "type": "boolean"
+        },
+        "derived_summary_policy": {
+          "enum": [
+            "no_derived_summary_allowed",
+            "redacted_category_count_reason_only",
+            "visible_summary_allowed_cleanroom_only"
+          ],
+          "title": "Derived Summary Policy",
+          "type": "string"
+        },
+        "exclusion_reason": {
+          "enum": [
+            "not_applicable",
+            "blocked_decompilation_source",
+            "blocked_external_repo_source",
+            "blocked_hidden_test_source",
+            "blocked_internet_lookup_source",
+            "blocked_official_evaluator_source",
+            "blocked_original_source",
+            "blocked_postmortem_only_source",
+            "support_only_not_sufficient"
+          ],
+          "title": "Exclusion Reason",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "source_identity_hash": {
+          "title": "Source Identity Hash",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "cleanroom_usage_doc",
+            "cleanroom_visible_input_artifact",
+            "local_matrix_handoff_pressure",
+            "local_probe_observation",
+            "support_context",
+            "decompilation_source",
+            "external_repo_source",
+            "hidden_test",
+            "internet_lookup_source",
+            "official_evaluator_source",
+            "original_source",
+            "postmortem_only"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_origin_posture": {
+          "enum": [
+            "cleanroom_visible",
+            "support_only",
+            "decompilation_derived",
+            "external_repo_derived",
+            "hidden",
+            "internet_derived",
+            "official_evaluator_derived",
+            "original_source_derived",
+            "postmortem_only"
+          ],
+          "title": "Source Origin Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_visibility_posture": {
+          "enum": [
+            "auditor_only",
+            "blocked_for_expansion",
+            "blueprint_visible_later_if_selected",
+            "cleanroom_visible",
+            "support_only"
+          ],
+          "title": "Source Visibility Posture",
+          "type": "string"
+        },
+        "store_presence_posture": {
+          "enum": [
+            "known_available_cleanroom_store",
+            "known_forbidden_store_unmounted",
+            "known_hidden_store_unmounted",
+            "known_support_store"
+          ],
+          "title": "Store Presence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_kind",
+        "source_identity_hash",
+        "source_origin_posture",
+        "source_visibility_posture",
+        "store_presence_posture",
+        "derived_summary_policy",
+        "allowed_for_expansion",
+        "exclusion_reason",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseSourcePoolRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowed Source Refs",
+      "type": "array"
+    },
+    "auditor_only_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Auditor Only Source Refs",
+      "type": "array"
+    },
+    "blocked_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Source Refs",
+      "type": "array"
+    },
+    "blueprint_visible_policy": {
+      "const": "blueprint_visibility_deferred_to_pb_case_expansion_0b",
+      "title": "Blueprint Visible Policy",
+      "type": "string"
+    },
+    "candidate_case_idea_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseCandidateIdeaRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Case Idea Rows",
+      "type": "array"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "derived_summary_policy": {
+      "const": "no_derived_summary_laundering",
+      "title": "Derived Summary Policy",
+      "type": "string"
+    },
+    "forbidden_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Source Refs",
+      "type": "array"
+    },
+    "forbidden_source_set_hash": {
+      "title": "Forbidden Source Set Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_source_pool_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_pool_manifest_ref": {
+      "title": "Source Pool Manifest Ref",
+      "type": "string"
+    },
+    "source_pool_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseSourcePoolRow"
+      },
+      "minItems": 1,
+      "title": "Source Pool Rows",
+      "type": "array"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "support_only_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Support Only Source Refs",
+      "type": "array"
+    },
+    "visible_source_set_hash": {
+      "title": "Visible Source Set Hash",
+      "type": "string"
+    },
+    "worker_visible_policy": {
+      "const": "cleanroom_visible_sources_only",
+      "title": "Worker Visible Policy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "source_pool_manifest_ref",
+    "case_expansion_ref",
+    "source_pool_rows",
+    "candidate_case_idea_rows",
+    "allowed_source_refs",
+    "source_set_hash",
+    "visible_source_set_hash",
+    "forbidden_source_set_hash",
+    "derived_summary_policy",
+    "worker_visible_policy",
+    "blueprint_visible_policy",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseSourcePoolManifest",
+  "type": "object"
+}

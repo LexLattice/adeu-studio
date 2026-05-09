@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseExpansionForbiddenAuthorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_kind": {
+          "enum": [
+            "baseline_comparison",
+            "batch_execution",
+            "benchmark_score",
+            "benchmark_truth",
+            "case_blueprint",
+            "case_lineage_registration",
+            "future_family_selection",
+            "hidden_test_inference",
+            "local_trial_execution",
+            "matrix_inclusion",
+            "model_ranking",
+            "official_programbench_participation",
+            "official_submission",
+            "retry_chain",
+            "second_retry"
+          ],
+          "title": "Authority Kind",
+          "type": "string"
+        },
+        "forbiddance_posture": {
+          "const": "forbidden_by_pb_case_expansion_0a",
+          "title": "Forbiddance Posture",
+          "type": "string"
+        },
+        "forbidden_authority_ref": {
+          "title": "Forbidden Authority Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "forbidden_authority_ref",
+        "authority_kind",
+        "forbiddance_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionForbiddenAuthorityRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_comparison_posture": {
+      "const": "no_baseline_comparison_authority_granted_by_0a",
+      "title": "Baseline Comparison Posture",
+      "type": "string"
+    },
+    "batch_execution_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_case_expansion_0a",
+      "title": "Batch Execution Posture",
+      "type": "string"
+    },
+    "benchmark_score_posture": {
+      "const": "no_benchmark_score_authority_granted_by_0a",
+      "title": "Benchmark Score Posture",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_expansion_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Expansion Refs",
+      "type": "array"
+    },
+    "expansion_guardrail_ref": {
+      "title": "Expansion Guardrail Ref",
+      "type": "string"
+    },
+    "forbidden_future_artifact_kinds": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Forbidden Future Artifact Kinds",
+      "type": "array"
+    },
+    "future_family_posture": {
+      "const": "no_future_family_selected_by_pb_case_expansion_0a",
+      "title": "Future Family Posture",
+      "type": "string"
+    },
+    "guardrail_source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Source Refs",
+      "type": "array"
+    },
+    "hidden_test_posture": {
+      "const": "hidden_tests_not_visible_not_inference_evidence",
+      "title": "Hidden Test Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_claimed_by_pb_case_expansion_0a",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "non_authority_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionForbiddenAuthorityRow"
+      },
+      "minItems": 1,
+      "title": "Non Authority Rows",
+      "type": "array"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_case_expansion_0a",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "trial_execution_posture": {
+      "const": "no_local_trial_execution_authority_granted_by_0a",
+      "title": "Trial Execution Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "expansion_guardrail_ref",
+    "case_expansion_refs",
+    "guardrail_source_refs",
+    "non_authority_rows",
+    "forbidden_future_artifact_kinds",
+    "official_programbench_posture",
+    "hidden_test_posture",
+    "benchmark_truth_posture",
+    "benchmark_score_posture",
+    "baseline_comparison_posture",
+    "model_ranking_posture",
+    "batch_execution_posture",
+    "trial_execution_posture",
+    "future_family_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionNonAuthorityGuardrail",
+  "type": "object"
+}
