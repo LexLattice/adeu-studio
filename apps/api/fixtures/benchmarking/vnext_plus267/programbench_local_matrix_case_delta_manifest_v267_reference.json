@@ -1,0 +1,22 @@
+{
+  "case_delta_rows": [
+    {
+      "case_delta_kind": "added_to_revision_candidate",
+      "case_delta_ref": "matrix-case-delta:pb-matrix-inclusion-0b:diagnostic",
+      "case_lineage_hash": "sha256:1717171717171717171717171717171717171717171717171717171717171717",
+      "case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "decision_basis_posture": "governance_accounting_reason_only_not_performance_selection",
+      "dedupe_status": "no_duplicate_detected",
+      "delta_reason": "lineage_eligible",
+      "limitation_note": "Delta records planned membership only.",
+      "new_matrix_membership_candidate_status": "planned_added",
+      "prior_matrix_membership_status": "absent_from_base_matrix"
+    }
+  ],
+  "delta_manifest_hash": "sha256:2525252525252525252525252525252525252525252525252525252525252525",
+  "limitation_note": "Manifest accounts for the A-eligible candidate exactly once.",
+  "local_accounting_scope_posture": "local_matrix_membership_accounting_only",
+  "matrix_amendment_plan_ref": "matrix-amendment-plan:pb-matrix-inclusion-0b:reference",
+  "matrix_case_delta_manifest_ref": "matrix-case-delta-manifest:pb-matrix-inclusion-0b:reference",
+  "schema": "programbench_local_matrix_case_delta_manifest@1"
+}

@@ -122,6 +122,21 @@ _SOFT_SCORING_LANGUAGE_MARKERS = (
     "solve rate",
     "success rate",
 )
+_FORBIDDEN_CONTENT_LANGUAGE_MARKERS = (
+    "decompilation",
+    "external repo",
+    "external-repo",
+    "hidden test",
+    "hidden-test",
+    "official evaluator",
+    "official-evaluator",
+    "original source",
+    "original-source",
+    "postmortem only",
+    "postmortem-only",
+    "source lookup",
+    "source-lookup",
+)
 
 
 def _ensure_non_empty_trimmed(values: list[str], *, field_name: str) -> None:
@@ -171,6 +186,23 @@ def _ensure_no_soft_scoring_language(value: str, *, field_name: str) -> None:
         raise ValueError(
             f"{field_name} contains benchmark-like scoring or ranking language: {leaked}"
         )
+
+
+def _ensure_no_forbidden_content_language(value: str, *, field_name: str) -> None:
+    lowered = value.lower()
+    leaked = [
+        marker for marker in _FORBIDDEN_CONTENT_LANGUAGE_MARKERS if marker in lowered
+    ]
+    if leaked:
+        raise ValueError(
+            f"{field_name} contains hidden, forbidden, or source-derived content markers: "
+            f"{leaked}"
+        )
+
+
+def _ensure_no_soft_or_forbidden_language(value: str, *, field_name: str) -> None:
+    _ensure_no_soft_scoring_language(value, field_name=field_name)
+    _ensure_no_forbidden_content_language(value, field_name=field_name)
 
 
 class _MatrixInclusionBase(BaseModel):
@@ -738,6 +770,535 @@ class ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail(_MatrixInclusionBase
         return self
 
 
+class ProgrambenchLocalMatrixCaseDeltaRow(_MatrixInclusionBase):
+    case_delta_ref: str
+    case_delta_kind: Literal[
+        "added_to_revision_candidate",
+        "deferred_from_revision_candidate",
+        "rejected_from_revision_candidate",
+    ]
+    case_lineage_ref: str
+    case_lineage_hash: str
+    prior_matrix_membership_status: Literal[
+        "absent_from_base_matrix",
+        "present_in_base_matrix",
+    ]
+    new_matrix_membership_candidate_status: Literal[
+        "planned_added",
+        "planned_deferred",
+        "planned_rejected",
+    ]
+    dedupe_status: Literal[
+        "no_duplicate_detected",
+        "duplicate_allowed_for_regression_or_smoke",
+        "duplicate_blocked_existing_member",
+        "replacement_or_update_explicit",
+    ]
+    delta_reason: Literal[
+        "lineage_eligible",
+        "dedupe_blocked",
+        "contamination_blocked",
+        "comparability_blocked",
+        "matrix_capacity_deferred",
+        "horizon_mismatch_deferred",
+        "missing_readiness_refs_blocked",
+    ]
+    decision_basis_posture: Literal[
+        "governance_accounting_reason_only_not_performance_selection"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_delta_row(self) -> "ProgrambenchLocalMatrixCaseDeltaRow":
+        _ensure_hash(self.case_lineage_hash, field_name="case_lineage_hash")
+        _ensure_no_forbidden_refs(
+            [self.case_delta_ref, self.case_lineage_ref],
+            field_name="case_delta_row_refs",
+        )
+        expected_status_by_kind = {
+            "added_to_revision_candidate": "planned_added",
+            "deferred_from_revision_candidate": "planned_deferred",
+            "rejected_from_revision_candidate": "planned_rejected",
+        }
+        if self.new_matrix_membership_candidate_status != expected_status_by_kind[
+            self.case_delta_kind
+        ]:
+            raise ValueError("case delta kind must match candidate membership status")
+        if self.case_delta_kind == "added_to_revision_candidate":
+            if self.delta_reason != "lineage_eligible":
+                raise ValueError("added matrix deltas must use lineage_eligible reason")
+            if self.dedupe_status == "duplicate_blocked_existing_member":
+                raise ValueError("added matrix deltas cannot carry blocked dedupe status")
+        elif self.delta_reason == "lineage_eligible":
+            raise ValueError("non-added matrix deltas cannot use lineage_eligible reason")
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixAmendmentPlan(_MatrixInclusionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_MATRIX_AMENDMENT_PLAN_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_amendment_plan_ref: str
+    matrix_inclusion_request_ref: str
+    matrix_inclusion_control_contract_ref: str
+    target_matrix_ref: str
+    target_matrix_revision_candidate_ref: str
+    planned_added_case_lineage_refs: list[str] = Field(default_factory=list)
+    planned_deferred_case_lineage_refs: list[str] = Field(default_factory=list)
+    planned_rejected_case_lineage_refs: list[str] = Field(default_factory=list)
+    amendment_scope_posture: Literal[
+        "local_matrix_membership_accounting_only_not_revision_registration"
+    ]
+    execution_authority_posture: Literal[
+        "no_execution_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    result_projection_authority_posture: Literal[
+        "no_result_projection_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    benchmark_score_authority_posture: Literal[
+        "no_benchmark_score_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_amendment_plan(self) -> "ProgrambenchLocalMatrixAmendmentPlan":
+        lineage_sets = []
+        for field_name in (
+            "planned_added_case_lineage_refs",
+            "planned_deferred_case_lineage_refs",
+            "planned_rejected_case_lineage_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+            lineage_sets.append(set(values))
+        if not set().union(*lineage_sets):
+            raise ValueError("matrix amendment plan requires at least one planned case")
+        if sum(len(values) for values in lineage_sets) != len(set().union(*lineage_sets)):
+            raise ValueError("planned added, deferred, and rejected case refs must be disjoint")
+        _ensure_no_forbidden_refs(
+            [
+                self.matrix_amendment_plan_ref,
+                self.matrix_inclusion_request_ref,
+                self.matrix_inclusion_control_contract_ref,
+                self.target_matrix_ref,
+                self.target_matrix_revision_candidate_ref,
+            ],
+            field_name="matrix_amendment_plan_refs",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixCaseDeltaManifest(_MatrixInclusionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_MATRIX_CASE_DELTA_MANIFEST_SCHEMA] = Field(
+        alias="schema"
+    )
+    matrix_case_delta_manifest_ref: str
+    matrix_amendment_plan_ref: str
+    case_delta_rows: list[ProgrambenchLocalMatrixCaseDeltaRow] = Field(min_length=1)
+    delta_manifest_hash: str
+    local_accounting_scope_posture: Literal["local_matrix_membership_accounting_only"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_delta_manifest(
+        self,
+    ) -> "ProgrambenchLocalMatrixCaseDeltaManifest":
+        _ensure_hash(self.delta_manifest_hash, field_name="delta_manifest_hash")
+        row_refs = [row.case_delta_ref for row in self.case_delta_rows]
+        _ensure_sorted_unique(row_refs, field_name="case_delta_rows")
+        lineage_refs = [row.case_lineage_ref for row in self.case_delta_rows]
+        _ensure_sorted_unique(lineage_refs, field_name="case_delta_lineage_refs")
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixComparabilityDeltaReview(_MatrixInclusionBase):
+    schema_id: Literal[
+        PROGRAMBENCH_LOCAL_MATRIX_COMPARABILITY_DELTA_REVIEW_SCHEMA
+    ] = Field(alias="schema")
+    matrix_comparability_delta_review_ref: str
+    matrix_amendment_plan_ref: str
+    matrix_case_delta_manifest_ref: str
+    base_worker_profile_hash: str
+    candidate_worker_profile_hash: str
+    base_model_profile_hash: str
+    candidate_model_profile_hash: str
+    base_tool_policy_hash: str
+    candidate_tool_policy_hash: str
+    base_probe_basis_hash: str
+    candidate_probe_basis_hash: str
+    base_source_visibility_hash: str
+    candidate_source_visibility_hash: str
+    base_sandbox_write_scope_hash: str
+    candidate_sandbox_write_scope_hash: str
+    comparability_delta_hash: str
+    worker_profile_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    model_profile_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    tool_policy_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    probe_basis_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    sandbox_write_scope_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    source_visibility_delta_posture: Literal[
+        "unchanged",
+        "changed_non_comparable_local_accounting_only",
+    ]
+    comparability_accounting_posture: Literal[
+        "local_accounting_only_no_model_or_baseline_comparison"
+    ]
+    non_comparable_local_accounting_posture: Literal[
+        "not_applicable_all_controls_unchanged",
+        "changed_controls_non_comparable_local_accounting_only",
+    ]
+    model_ranking_authority_posture: Literal["no_model_ranking_authority"]
+    baseline_comparison_authority_posture: Literal[
+        "no_baseline_comparison_authority"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_comparability(
+        self,
+    ) -> "ProgrambenchLocalMatrixComparabilityDeltaReview":
+        for field_name in (
+            "base_worker_profile_hash",
+            "candidate_worker_profile_hash",
+            "base_model_profile_hash",
+            "candidate_model_profile_hash",
+            "base_tool_policy_hash",
+            "candidate_tool_policy_hash",
+            "base_probe_basis_hash",
+            "candidate_probe_basis_hash",
+            "base_source_visibility_hash",
+            "candidate_source_visibility_hash",
+            "base_sandbox_write_scope_hash",
+            "candidate_sandbox_write_scope_hash",
+            "comparability_delta_hash",
+        ):
+            _ensure_hash(getattr(self, field_name), field_name=field_name)
+        delta_fields = (
+            "worker_profile_delta_posture",
+            "model_profile_delta_posture",
+            "tool_policy_delta_posture",
+            "probe_basis_delta_posture",
+            "sandbox_write_scope_delta_posture",
+            "source_visibility_delta_posture",
+        )
+        changed = [field for field in delta_fields if getattr(self, field) != "unchanged"]
+        hash_pairs_by_delta_field = {
+            "worker_profile_delta_posture": (
+                self.base_worker_profile_hash,
+                self.candidate_worker_profile_hash,
+            ),
+            "model_profile_delta_posture": (
+                self.base_model_profile_hash,
+                self.candidate_model_profile_hash,
+            ),
+            "tool_policy_delta_posture": (
+                self.base_tool_policy_hash,
+                self.candidate_tool_policy_hash,
+            ),
+            "probe_basis_delta_posture": (
+                self.base_probe_basis_hash,
+                self.candidate_probe_basis_hash,
+            ),
+            "sandbox_write_scope_delta_posture": (
+                self.base_sandbox_write_scope_hash,
+                self.candidate_sandbox_write_scope_hash,
+            ),
+            "source_visibility_delta_posture": (
+                self.base_source_visibility_hash,
+                self.candidate_source_visibility_hash,
+            ),
+        }
+        for field_name, (base_hash, candidate_hash) in hash_pairs_by_delta_field.items():
+            delta_posture = getattr(self, field_name)
+            if delta_posture == "unchanged" and base_hash != candidate_hash:
+                raise ValueError(
+                    f"{field_name} cannot be unchanged when base and candidate hashes differ"
+                )
+            if (
+                delta_posture == "changed_non_comparable_local_accounting_only"
+                and base_hash == candidate_hash
+            ):
+                raise ValueError(
+                    f"{field_name} cannot be changed when base and candidate hashes match"
+                )
+        if changed:
+            if self.non_comparable_local_accounting_posture != (
+                "changed_controls_non_comparable_local_accounting_only"
+            ):
+                raise ValueError(
+                    "changed comparability controls require non-comparable local "
+                    "accounting posture"
+                )
+        elif self.non_comparable_local_accounting_posture != (
+            "not_applicable_all_controls_unchanged"
+        ):
+            raise ValueError(
+                "unchanged comparability controls require not-applicable posture"
+            )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixContaminationDeltaRow(_MatrixInclusionBase):
+    contamination_delta_ref: str
+    case_lineage_ref: str
+    contamination_source_kind: Literal[
+        "clean_candidate",
+        "hidden_or_forbidden_exposure",
+        "postmortem_only_exposure",
+        "official_evaluator_derived_exposure",
+        "source_derived_exposure",
+        "decompilation_derived_exposure",
+        "internet_derived_exposure",
+        "external_repo_derived_exposure",
+    ]
+    contamination_delta_status: Literal["clean", "blocked"]
+    redaction_posture: Literal["category_count_reason_only_no_content_detail"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_delta_row(
+        self,
+    ) -> "ProgrambenchLocalMatrixContaminationDeltaRow":
+        _ensure_no_forbidden_refs(
+            [self.contamination_delta_ref, self.case_lineage_ref],
+            field_name="contamination_delta_row_refs",
+        )
+        if self.contamination_source_kind == "clean_candidate":
+            if self.contamination_delta_status != "clean":
+                raise ValueError("clean contamination rows must have clean status")
+        elif self.contamination_delta_status != "blocked":
+            raise ValueError("contaminating source kinds must be blocked")
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixContaminationDeltaReview(_MatrixInclusionBase):
+    schema_id: Literal[
+        PROGRAMBENCH_LOCAL_MATRIX_CONTAMINATION_DELTA_REVIEW_SCHEMA
+    ] = Field(alias="schema")
+    matrix_contamination_delta_review_ref: str
+    matrix_amendment_plan_ref: str
+    matrix_case_delta_manifest_ref: str
+    contamination_delta_rows: list[ProgrambenchLocalMatrixContaminationDeltaRow] = Field(
+        min_length=1
+    )
+    contamination_transfer_status: Literal["clean", "blocked"]
+    contamination_redaction_policy: Literal["category_count_reason_only"]
+    contamination_detail_posture: Literal[
+        "no_content_bearing_hidden_or_forbidden_detail"
+    ]
+    hidden_or_forbidden_exposure_refs: list[str] = Field(default_factory=list)
+    cleanroom_boundary_status: Literal["clean", "blocked"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_contamination_review(
+        self,
+    ) -> "ProgrambenchLocalMatrixContaminationDeltaReview":
+        row_refs = [row.contamination_delta_ref for row in self.contamination_delta_rows]
+        _ensure_sorted_unique(row_refs, field_name="contamination_delta_rows")
+        lineage_refs = [row.case_lineage_ref for row in self.contamination_delta_rows]
+        _ensure_sorted_unique(lineage_refs, field_name="contamination_delta_lineage_refs")
+        _ensure_sorted_unique_allow_empty(
+            self.hidden_or_forbidden_exposure_refs,
+            field_name="hidden_or_forbidden_exposure_refs",
+        )
+        has_blocked_row = any(
+            row.contamination_delta_status == "blocked"
+            for row in self.contamination_delta_rows
+        )
+        if self.contamination_transfer_status == "clean":
+            if has_blocked_row:
+                raise ValueError("clean contamination transfer cannot include blocked rows")
+            if self.hidden_or_forbidden_exposure_refs:
+                raise ValueError("clean contamination transfer cannot carry exposure refs")
+            if self.cleanroom_boundary_status != "clean":
+                raise ValueError("clean contamination transfer requires clean boundary")
+        else:
+            if self.cleanroom_boundary_status != "blocked":
+                raise ValueError("blocked contamination transfer requires blocked boundary")
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixInclusionDecisionBasisRow(_MatrixInclusionBase):
+    decision_basis_ref: str
+    case_lineage_ref: str
+    decision_basis_kind: Literal[
+        "lineage_eligible",
+        "dedupe_blocked",
+        "contamination_blocked",
+        "comparability_blocked",
+        "matrix_capacity_deferred",
+        "horizon_mismatch_deferred",
+        "missing_readiness_refs_blocked",
+    ]
+    decision_basis_posture: Literal[
+        "governance_accounting_reason_only_not_performance_selection"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_decision_basis(
+        self,
+    ) -> "ProgrambenchLocalMatrixInclusionDecisionBasisRow":
+        _ensure_no_forbidden_refs(
+            [self.decision_basis_ref, self.case_lineage_ref],
+            field_name="decision_basis_refs",
+        )
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
+class ProgrambenchLocalMatrixInclusionDecisionRecord(_MatrixInclusionBase):
+    schema_id: Literal[PROGRAMBENCH_LOCAL_MATRIX_INCLUSION_DECISION_RECORD_SCHEMA] = (
+        Field(alias="schema")
+    )
+    matrix_inclusion_decision_ref: str
+    matrix_amendment_plan_ref: str
+    matrix_case_delta_manifest_ref: str
+    matrix_comparability_delta_review_ref: str
+    matrix_contamination_delta_review_ref: str
+    included_case_lineage_refs: list[str] = Field(default_factory=list)
+    deferred_case_lineage_refs: list[str] = Field(default_factory=list)
+    rejected_case_lineage_refs: list[str] = Field(default_factory=list)
+    inclusion_decision_status: Literal[
+        "local_accounting_membership_decision_recorded",
+        "blocked_by_contamination",
+        "open_with_deferred_candidates",
+    ]
+    decision_basis_posture: Literal[
+        "governance_accounting_only_not_result_or_quality_selection"
+    ]
+    decision_basis_rows: list[ProgrambenchLocalMatrixInclusionDecisionBasisRow] = Field(
+        min_length=1
+    )
+    decision_is_not_result_posture: Literal["decision_is_not_result_projection"]
+    decision_is_not_quality_score_posture: Literal["decision_is_not_quality_score"]
+    decision_is_not_benchmark_selection_posture: Literal[
+        "decision_is_not_benchmark_selection"
+    ]
+    local_accounting_scope_posture: Literal["local_matrix_membership_accounting_only"]
+    result_projection_authority_posture: Literal[
+        "no_result_projection_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    execution_authority_posture: Literal[
+        "no_execution_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0b"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_decision_record(
+        self,
+    ) -> "ProgrambenchLocalMatrixInclusionDecisionRecord":
+        lineage_sets = []
+        for field_name in (
+            "included_case_lineage_refs",
+            "deferred_case_lineage_refs",
+            "rejected_case_lineage_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+            lineage_sets.append(set(values))
+        decided = set().union(*lineage_sets)
+        if not decided:
+            raise ValueError("inclusion decision requires at least one lineage decision")
+        if sum(len(values) for values in lineage_sets) != len(decided):
+            raise ValueError("included, deferred, and rejected lineage refs must be disjoint")
+        basis_refs = [row.decision_basis_ref for row in self.decision_basis_rows]
+        _ensure_sorted_unique(basis_refs, field_name="decision_basis_rows")
+        basis_lineages = {row.case_lineage_ref for row in self.decision_basis_rows}
+        if basis_lineages != decided:
+            raise ValueError("decision basis rows must cover all decided lineage refs")
+        basis_by_lineage = {
+            row.case_lineage_ref: row.decision_basis_kind
+            for row in self.decision_basis_rows
+        }
+        for case_lineage_ref in self.included_case_lineage_refs:
+            if basis_by_lineage[case_lineage_ref] != "lineage_eligible":
+                raise ValueError("included lineage refs require lineage_eligible basis")
+        deferred_basis_kinds = {
+            "horizon_mismatch_deferred",
+            "matrix_capacity_deferred",
+        }
+        for case_lineage_ref in self.deferred_case_lineage_refs:
+            if basis_by_lineage[case_lineage_ref] not in deferred_basis_kinds:
+                raise ValueError("deferred lineage refs require deferred decision basis")
+        rejected_basis_kinds = {
+            "comparability_blocked",
+            "contamination_blocked",
+            "dedupe_blocked",
+            "missing_readiness_refs_blocked",
+        }
+        for case_lineage_ref in self.rejected_case_lineage_refs:
+            if basis_by_lineage[case_lineage_ref] not in rejected_basis_kinds:
+                raise ValueError("rejected lineage refs require blocked decision basis")
+        if self.inclusion_decision_status == "local_accounting_membership_decision_recorded":
+            if self.deferred_case_lineage_refs:
+                raise ValueError("deferred cases require open_with_deferred status")
+        elif self.inclusion_decision_status == "blocked_by_contamination":
+            if self.included_case_lineage_refs:
+                raise ValueError("contamination-blocked decisions cannot include cases")
+            if not self.rejected_case_lineage_refs:
+                raise ValueError("contamination-blocked decisions require rejected cases")
+        elif not self.deferred_case_lineage_refs:
+            raise ValueError("open-with-deferred decisions require deferred cases")
+        _ensure_no_soft_or_forbidden_language(
+            self.limitation_note,
+            field_name="limitation_note",
+        )
+        return self
+
+
 def validate_pb_matrix_inclusion_0a_bundle(
     *,
     matrix_family_closeout: ProgrambenchLocalCaseMatrixFamilyCloseoutAlignment,
@@ -903,3 +1464,183 @@ def validate_pb_matrix_inclusion_0a_bundle(
         "no_baseline_comparison_authority"
     ):
         raise ValueError("control contract must deny baseline comparison authority")
+
+
+def validate_pb_matrix_inclusion_0b_bundle(
+    *,
+    inclusion_request: ProgrambenchLocalMatrixInclusionRequest,
+    candidate_intake: ProgrambenchLocalMatrixCandidateIntake,
+    eligibility_review: ProgrambenchLocalMatrixInclusionEligibilityReview,
+    control_contract: ProgrambenchLocalMatrixInclusionControlContract,
+    non_authority_guardrail: ProgrambenchLocalMatrixInclusionNonAuthorityGuardrail,
+    amendment_plan: ProgrambenchLocalMatrixAmendmentPlan,
+    case_delta_manifest: ProgrambenchLocalMatrixCaseDeltaManifest,
+    comparability_delta_review: ProgrambenchLocalMatrixComparabilityDeltaReview,
+    contamination_delta_review: ProgrambenchLocalMatrixContaminationDeltaReview,
+    inclusion_decision_record: ProgrambenchLocalMatrixInclusionDecisionRecord,
+) -> None:
+    """Validate the PB-MATRIX-INCLUSION-0-B local accounting chain."""
+
+    if not eligibility_review.eligible_case_lineage_refs:
+        raise ValueError("PB-MATRIX-INCLUSION-0-B requires released A-eligible refs")
+    if eligibility_review.eligibility_status != (
+        "eligible_for_later_matrix_amendment_review"
+    ):
+        raise ValueError("PB-MATRIX-INCLUSION-0-B cannot consume non-eligible A review")
+    if non_authority_guardrail.matrix_amendment_deferred_posture != (
+        "matrix_amendment_deferred_to_pb_matrix_inclusion_0b"
+    ):
+        raise ValueError("A guardrail must defer amendment planning to B")
+
+    if amendment_plan.matrix_inclusion_request_ref != (
+        inclusion_request.matrix_inclusion_request_ref
+    ):
+        raise ValueError("amendment plan must reference released A request")
+    if amendment_plan.matrix_inclusion_control_contract_ref != (
+        control_contract.matrix_inclusion_control_contract_ref
+    ):
+        raise ValueError("amendment plan must reference released A control contract")
+    if amendment_plan.target_matrix_ref != inclusion_request.base_matrix_ref:
+        raise ValueError("amendment plan must preserve target matrix ref")
+    if amendment_plan.target_matrix_revision_candidate_ref != (
+        inclusion_request.target_matrix_revision_candidate_ref
+    ):
+        raise ValueError("amendment plan must preserve target revision candidate ref")
+
+    planned_by_kind = {
+        "added_to_revision_candidate": set(amendment_plan.planned_added_case_lineage_refs),
+        "deferred_from_revision_candidate": set(
+            amendment_plan.planned_deferred_case_lineage_refs
+        ),
+        "rejected_from_revision_candidate": set(
+            amendment_plan.planned_rejected_case_lineage_refs
+        ),
+    }
+    planned_refs = set().union(*planned_by_kind.values())
+    eligible_refs = set(eligibility_review.eligible_case_lineage_refs)
+    if planned_refs != eligible_refs:
+        raise ValueError(
+            "amendment plan must account for every A-eligible candidate exactly once"
+        )
+
+    if case_delta_manifest.matrix_amendment_plan_ref != (
+        amendment_plan.matrix_amendment_plan_ref
+    ):
+        raise ValueError("case delta manifest must reference amendment plan")
+    candidate_rows = {
+        row.candidate_case_lineage_ref: row for row in candidate_intake.candidate_case_rows
+    }
+    manifest_refs = {row.case_lineage_ref for row in case_delta_manifest.case_delta_rows}
+    if manifest_refs != planned_refs:
+        raise ValueError("case delta manifest must match planned lineage refs")
+    for row in case_delta_manifest.case_delta_rows:
+        if row.case_lineage_ref not in candidate_rows:
+            raise ValueError("case delta rows must bind to released A candidate rows")
+        candidate_row = candidate_rows[row.case_lineage_ref]
+        if row.case_lineage_hash != candidate_row.case_lineage_hash:
+            raise ValueError("case delta row lineage hash must match A candidate row")
+        if row.prior_matrix_membership_status != (
+            candidate_row.prior_matrix_membership_status
+        ):
+            raise ValueError("case delta row must preserve prior membership status")
+        if row.dedupe_status != candidate_row.dedupe_status:
+            raise ValueError("case delta row must preserve A dedupe status")
+        if row.case_lineage_ref not in planned_by_kind[row.case_delta_kind]:
+            raise ValueError("case delta kind must match amendment plan membership sets")
+
+    if comparability_delta_review.matrix_amendment_plan_ref != (
+        amendment_plan.matrix_amendment_plan_ref
+    ):
+        raise ValueError("comparability review must reference amendment plan")
+    if comparability_delta_review.matrix_case_delta_manifest_ref != (
+        case_delta_manifest.matrix_case_delta_manifest_ref
+    ):
+        raise ValueError("comparability review must reference case delta manifest")
+    continuity_pairs = (
+        (
+            control_contract.worker_profile_continuity_posture,
+            comparability_delta_review.worker_profile_delta_posture,
+        ),
+        (
+            control_contract.model_profile_continuity_posture,
+            comparability_delta_review.model_profile_delta_posture,
+        ),
+        (
+            control_contract.tool_policy_continuity_posture,
+            comparability_delta_review.tool_policy_delta_posture,
+        ),
+        (
+            control_contract.probe_basis_continuity_posture,
+            comparability_delta_review.probe_basis_delta_posture,
+        ),
+        (
+            control_contract.sandbox_write_scope_continuity_posture,
+            comparability_delta_review.sandbox_write_scope_delta_posture,
+        ),
+        (
+            control_contract.source_visibility_continuity_posture,
+            comparability_delta_review.source_visibility_delta_posture,
+        ),
+    )
+    for control_posture, review_posture in continuity_pairs:
+        expected = (
+            "unchanged"
+            if control_posture == "unchanged"
+            else "changed_non_comparable_local_accounting_only"
+        )
+        if review_posture != expected:
+            raise ValueError("comparability review must mirror A control continuity")
+
+    if contamination_delta_review.matrix_amendment_plan_ref != (
+        amendment_plan.matrix_amendment_plan_ref
+    ):
+        raise ValueError("contamination review must reference amendment plan")
+    if contamination_delta_review.matrix_case_delta_manifest_ref != (
+        case_delta_manifest.matrix_case_delta_manifest_ref
+    ):
+        raise ValueError("contamination review must reference case delta manifest")
+    contamination_refs = {
+        row.case_lineage_ref for row in contamination_delta_review.contamination_delta_rows
+    }
+    if contamination_refs != planned_refs:
+        raise ValueError("contamination delta rows must cover planned lineage refs")
+
+    if inclusion_decision_record.matrix_amendment_plan_ref != (
+        amendment_plan.matrix_amendment_plan_ref
+    ):
+        raise ValueError("inclusion decision must reference amendment plan")
+    if inclusion_decision_record.matrix_case_delta_manifest_ref != (
+        case_delta_manifest.matrix_case_delta_manifest_ref
+    ):
+        raise ValueError("inclusion decision must reference case delta manifest")
+    if inclusion_decision_record.matrix_comparability_delta_review_ref != (
+        comparability_delta_review.matrix_comparability_delta_review_ref
+    ):
+        raise ValueError("inclusion decision must reference comparability review")
+    if inclusion_decision_record.matrix_contamination_delta_review_ref != (
+        contamination_delta_review.matrix_contamination_delta_review_ref
+    ):
+        raise ValueError("inclusion decision must reference contamination review")
+    if contamination_delta_review.contamination_transfer_status != "clean":
+        if inclusion_decision_record.included_case_lineage_refs:
+            raise ValueError("inclusion decision cannot include contaminated transfers")
+    decision_sets = {
+        "included": set(inclusion_decision_record.included_case_lineage_refs),
+        "deferred": set(inclusion_decision_record.deferred_case_lineage_refs),
+        "rejected": set(inclusion_decision_record.rejected_case_lineage_refs),
+    }
+    if decision_sets["included"] != set(amendment_plan.planned_added_case_lineage_refs):
+        raise ValueError("included decision refs must match planned added refs")
+    if decision_sets["deferred"] != set(amendment_plan.planned_deferred_case_lineage_refs):
+        raise ValueError("deferred decision refs must match planned deferred refs")
+    if decision_sets["rejected"] != set(amendment_plan.planned_rejected_case_lineage_refs):
+        raise ValueError("rejected decision refs must match planned rejected refs")
+    delta_reason_by_lineage = {
+        row.case_lineage_ref: row.delta_reason for row in case_delta_manifest.case_delta_rows
+    }
+    decision_basis_by_lineage = {
+        row.case_lineage_ref: row.decision_basis_kind
+        for row in inclusion_decision_record.decision_basis_rows
+    }
+    if decision_basis_by_lineage != delta_reason_by_lineage:
+        raise ValueError("decision basis kinds must match case delta reasons")

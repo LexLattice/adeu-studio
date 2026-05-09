@@ -1,0 +1,181 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "base_model_profile_hash": {
+      "title": "Base Model Profile Hash",
+      "type": "string"
+    },
+    "base_probe_basis_hash": {
+      "title": "Base Probe Basis Hash",
+      "type": "string"
+    },
+    "base_sandbox_write_scope_hash": {
+      "title": "Base Sandbox Write Scope Hash",
+      "type": "string"
+    },
+    "base_source_visibility_hash": {
+      "title": "Base Source Visibility Hash",
+      "type": "string"
+    },
+    "base_tool_policy_hash": {
+      "title": "Base Tool Policy Hash",
+      "type": "string"
+    },
+    "base_worker_profile_hash": {
+      "title": "Base Worker Profile Hash",
+      "type": "string"
+    },
+    "baseline_comparison_authority_posture": {
+      "const": "no_baseline_comparison_authority",
+      "title": "Baseline Comparison Authority Posture",
+      "type": "string"
+    },
+    "candidate_model_profile_hash": {
+      "title": "Candidate Model Profile Hash",
+      "type": "string"
+    },
+    "candidate_probe_basis_hash": {
+      "title": "Candidate Probe Basis Hash",
+      "type": "string"
+    },
+    "candidate_sandbox_write_scope_hash": {
+      "title": "Candidate Sandbox Write Scope Hash",
+      "type": "string"
+    },
+    "candidate_source_visibility_hash": {
+      "title": "Candidate Source Visibility Hash",
+      "type": "string"
+    },
+    "candidate_tool_policy_hash": {
+      "title": "Candidate Tool Policy Hash",
+      "type": "string"
+    },
+    "candidate_worker_profile_hash": {
+      "title": "Candidate Worker Profile Hash",
+      "type": "string"
+    },
+    "comparability_accounting_posture": {
+      "const": "local_accounting_only_no_model_or_baseline_comparison",
+      "title": "Comparability Accounting Posture",
+      "type": "string"
+    },
+    "comparability_delta_hash": {
+      "title": "Comparability Delta Hash",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_amendment_plan_ref": {
+      "title": "Matrix Amendment Plan Ref",
+      "type": "string"
+    },
+    "matrix_case_delta_manifest_ref": {
+      "title": "Matrix Case Delta Manifest Ref",
+      "type": "string"
+    },
+    "matrix_comparability_delta_review_ref": {
+      "title": "Matrix Comparability Delta Review Ref",
+      "type": "string"
+    },
+    "model_profile_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Model Profile Delta Posture",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "non_comparable_local_accounting_posture": {
+      "enum": [
+        "not_applicable_all_controls_unchanged",
+        "changed_controls_non_comparable_local_accounting_only"
+      ],
+      "title": "Non Comparable Local Accounting Posture",
+      "type": "string"
+    },
+    "probe_basis_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Probe Basis Delta Posture",
+      "type": "string"
+    },
+    "sandbox_write_scope_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Sandbox Write Scope Delta Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_comparability_delta_review@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_visibility_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Source Visibility Delta Posture",
+      "type": "string"
+    },
+    "tool_policy_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Tool Policy Delta Posture",
+      "type": "string"
+    },
+    "worker_profile_delta_posture": {
+      "enum": [
+        "unchanged",
+        "changed_non_comparable_local_accounting_only"
+      ],
+      "title": "Worker Profile Delta Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_comparability_delta_review_ref",
+    "matrix_amendment_plan_ref",
+    "matrix_case_delta_manifest_ref",
+    "base_worker_profile_hash",
+    "candidate_worker_profile_hash",
+    "base_model_profile_hash",
+    "candidate_model_profile_hash",
+    "base_tool_policy_hash",
+    "candidate_tool_policy_hash",
+    "base_probe_basis_hash",
+    "candidate_probe_basis_hash",
+    "base_source_visibility_hash",
+    "candidate_source_visibility_hash",
+    "base_sandbox_write_scope_hash",
+    "candidate_sandbox_write_scope_hash",
+    "comparability_delta_hash",
+    "worker_profile_delta_posture",
+    "model_profile_delta_posture",
+    "tool_policy_delta_posture",
+    "probe_basis_delta_posture",
+    "sandbox_write_scope_delta_posture",
+    "source_visibility_delta_posture",
+    "comparability_accounting_posture",
+    "non_comparable_local_accounting_posture",
+    "model_ranking_authority_posture",
+    "baseline_comparison_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixComparabilityDeltaReview",
+  "type": "object"
+}

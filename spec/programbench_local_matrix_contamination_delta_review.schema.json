@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixContaminationDeltaRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_lineage_ref": {
+          "title": "Case Lineage Ref",
+          "type": "string"
+        },
+        "contamination_delta_ref": {
+          "title": "Contamination Delta Ref",
+          "type": "string"
+        },
+        "contamination_delta_status": {
+          "enum": [
+            "clean",
+            "blocked"
+          ],
+          "title": "Contamination Delta Status",
+          "type": "string"
+        },
+        "contamination_source_kind": {
+          "enum": [
+            "clean_candidate",
+            "hidden_or_forbidden_exposure",
+            "postmortem_only_exposure",
+            "official_evaluator_derived_exposure",
+            "source_derived_exposure",
+            "decompilation_derived_exposure",
+            "internet_derived_exposure",
+            "external_repo_derived_exposure"
+          ],
+          "title": "Contamination Source Kind",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "redaction_posture": {
+          "const": "category_count_reason_only_no_content_detail",
+          "title": "Redaction Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contamination_delta_ref",
+        "case_lineage_ref",
+        "contamination_source_kind",
+        "contamination_delta_status",
+        "redaction_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixContaminationDeltaRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cleanroom_boundary_status": {
+      "enum": [
+        "clean",
+        "blocked"
+      ],
+      "title": "Cleanroom Boundary Status",
+      "type": "string"
+    },
+    "contamination_delta_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixContaminationDeltaRow"
+      },
+      "minItems": 1,
+      "title": "Contamination Delta Rows",
+      "type": "array"
+    },
+    "contamination_detail_posture": {
+      "const": "no_content_bearing_hidden_or_forbidden_detail",
+      "title": "Contamination Detail Posture",
+      "type": "string"
+    },
+    "contamination_redaction_policy": {
+      "const": "category_count_reason_only",
+      "title": "Contamination Redaction Policy",
+      "type": "string"
+    },
+    "contamination_transfer_status": {
+      "enum": [
+        "clean",
+        "blocked"
+      ],
+      "title": "Contamination Transfer Status",
+      "type": "string"
+    },
+    "hidden_or_forbidden_exposure_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Hidden Or Forbidden Exposure Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_amendment_plan_ref": {
+      "title": "Matrix Amendment Plan Ref",
+      "type": "string"
+    },
+    "matrix_case_delta_manifest_ref": {
+      "title": "Matrix Case Delta Manifest Ref",
+      "type": "string"
+    },
+    "matrix_contamination_delta_review_ref": {
+      "title": "Matrix Contamination Delta Review Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_contamination_delta_review@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_contamination_delta_review_ref",
+    "matrix_amendment_plan_ref",
+    "matrix_case_delta_manifest_ref",
+    "contamination_delta_rows",
+    "contamination_transfer_status",
+    "contamination_redaction_policy",
+    "contamination_detail_posture",
+    "cleanroom_boundary_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixContaminationDeltaReview",
+  "type": "object"
+}
