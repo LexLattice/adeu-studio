@@ -1,6 +1,7 @@
 {
   "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
   "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "contamination_screen_hash": "sha256:1515151515151515151515151515151515151515151515151515151515151515",
   "contamination_rows": [
     {
       "contamination_kind": "clean",

@@ -79,6 +79,7 @@
     }
   ],
   "probe_contract_ref": "case-probe-contract:pb-case-expansion-0b:diagnostic",
+  "probe_contract_hash": "sha256:1616161616161616161616161616161616161616161616161616161616161616",
   "probe_execution_deferred_posture": "probe_execution_deferred_to_later_trial",
   "probe_template_rows": [
     {

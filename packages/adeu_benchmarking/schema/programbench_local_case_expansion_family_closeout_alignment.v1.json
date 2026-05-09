@@ -1,0 +1,229 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_blueprint_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Blueprint Refs",
+      "type": "array"
+    },
+    "case_expansion_family_closeout_ref": {
+      "title": "Case Expansion Family Closeout Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_expansion_request_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Case Expansion Request Refs",
+      "type": "array"
+    },
+    "cleanroom_evidence_pack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Cleanroom Evidence Pack Refs",
+      "type": "array"
+    },
+    "closed_family_ref": {
+      "const": "PB-CASE-EXPANSION-0",
+      "title": "Closed Family Ref",
+      "type": "string"
+    },
+    "closed_slice_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 3,
+      "title": "Closed Slice Refs",
+      "type": "array"
+    },
+    "contamination_screen_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Contamination Screen Refs",
+      "type": "array"
+    },
+    "control_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Control Contract Refs",
+      "type": "array"
+    },
+    "eligibility_review_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Eligibility Review Refs",
+      "type": "array"
+    },
+    "future_family_authority_posture": {
+      "const": "no_future_family_selection_authority_granted_by_0c",
+      "title": "Future Family Authority Posture",
+      "type": "string"
+    },
+    "guardrail_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Guardrail Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "lineage_registration_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Lineage Registration Refs",
+      "type": "array"
+    },
+    "matrix_candidate_handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Matrix Candidate Handoff Refs",
+      "type": "array"
+    },
+    "model_ranking_posture": {
+      "const": "no_model_ranking_authority_granted_by_0c",
+      "title": "Model Ranking Posture",
+      "type": "string"
+    },
+    "official_programbench_posture": {
+      "const": "no_official_programbench_authority_granted_by_0c",
+      "title": "Official Programbench Posture",
+      "type": "string"
+    },
+    "oracle_boundary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Oracle Boundary Refs",
+      "type": "array"
+    },
+    "probe_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Probe Contract Refs",
+      "type": "array"
+    },
+    "readiness_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Readiness Summary Refs",
+      "type": "array"
+    },
+    "registered_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Registered Case Lineage Refs",
+      "type": "array"
+    },
+    "released_a_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 5,
+      "title": "Released A Refs",
+      "type": "array"
+    },
+    "released_b_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 5,
+      "title": "Released B Refs",
+      "type": "array"
+    },
+    "released_c_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 4,
+      "title": "Released C Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shipped_record_shapes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 14,
+      "title": "Shipped Record Shapes",
+      "type": "array"
+    },
+    "source_pool_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Pool Manifest Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "case_expansion_family_closeout_ref",
+    "closed_family_ref",
+    "closed_slice_refs",
+    "shipped_record_shapes",
+    "case_expansion_ref",
+    "case_expansion_request_refs",
+    "source_pool_manifest_refs",
+    "eligibility_review_refs",
+    "control_contract_refs",
+    "guardrail_refs",
+    "case_blueprint_refs",
+    "cleanroom_evidence_pack_refs",
+    "probe_contract_refs",
+    "oracle_boundary_refs",
+    "contamination_screen_refs",
+    "lineage_registration_refs",
+    "readiness_summary_refs",
+    "matrix_candidate_handoff_refs",
+    "released_a_refs",
+    "released_b_refs",
+    "released_c_refs",
+    "official_programbench_posture",
+    "benchmark_truth_posture",
+    "model_ranking_posture",
+    "future_family_authority_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment",
+  "type": "object"
+}

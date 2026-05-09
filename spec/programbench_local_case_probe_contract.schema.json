@@ -361,6 +361,10 @@
       "title": "Probe Command Shape Rows",
       "type": "array"
     },
+    "probe_contract_hash": {
+      "title": "Probe Contract Hash",
+      "type": "string"
+    },
     "probe_contract_ref": {
       "title": "Probe Contract Ref",
       "type": "string"
@@ -401,6 +405,7 @@
     "positive_probe_requirement_rows",
     "negative_probe_requirement_rows",
     "exit_code_expectation_rows",
+    "probe_contract_hash",
     "command_execution_posture",
     "probe_execution_deferred_posture",
     "limitation_note"

@@ -1,0 +1,76 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "blocked_blueprint_refs": [],
+  "blocked_case_lineage_refs": [],
+  "carried_blocker_refs": [],
+  "carried_warning_refs": [],
+  "case_expansion_readiness_summary_ref": "case-expansion-readiness:pb-case-expansion-0c:missing-probe",
+  "case_expansion_ref": "case-expansion:pb-case-expansion-0a:reference",
+  "contamination_summary_rows": [
+    {
+      "contamination_detail_posture": "redacted_category_count_reason_only",
+      "contamination_screen_ref": "case-contamination-screen:pb-case-expansion-0b:diagnostic",
+      "contamination_status": "clean",
+      "contamination_summary_ref": "contamination-summary:pb-case-expansion-0c:diagnostic",
+      "limitation_note": "Clean category only; no excluded material is described.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "screen_verdict": "passed_cleanroom_screen"
+    }
+  ],
+  "coverage_summary_rows": [
+    {
+      "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+      "coverage_kind": "blueprint_complete",
+      "coverage_status": "complete",
+      "coverage_summary_ref": "coverage-summary:pb-case-expansion-0c:blueprint",
+      "limitation_note": "Blueprint row is complete for local lineage registration.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    },
+    {
+      "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+      "coverage_kind": "contamination_screen_complete",
+      "coverage_status": "complete",
+      "coverage_summary_ref": "coverage-summary:pb-case-expansion-0c:contamination",
+      "limitation_note": "Contamination screen is complete and clean for this local lineage.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    },
+    {
+      "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+      "coverage_kind": "cleanroom_evidence_complete",
+      "coverage_status": "complete",
+      "coverage_summary_ref": "coverage-summary:pb-case-expansion-0c:evidence",
+      "limitation_note": "Evidence pack rows are complete for local lineage registration.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    },
+    {
+      "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+      "coverage_kind": "oracle_boundary_complete",
+      "coverage_status": "complete",
+      "coverage_summary_ref": "coverage-summary:pb-case-expansion-0c:oracle",
+      "limitation_note": "Oracle boundary is complete for local lineage registration.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    },
+    {
+      "case_blueprint_ref": "case-blueprint:pb-case-expansion-0b:diagnostic",
+      "coverage_kind": "source_identity_complete",
+      "coverage_status": "complete",
+      "coverage_summary_ref": "coverage-summary:pb-case-expansion-0c:source",
+      "limitation_note": "Source identity hashes remain complete for local lineage registration.",
+      "registered_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic"
+    }
+  ],
+  "deferred_case_lineage_refs": [],
+  "limitation_note": "Readiness is missing the plan-only probe contract coverage row.",
+  "local_case_count_posture": "local_inventory_accounting_only",
+  "readiness_denominator_posture": "expansion_request_denominator_only_not_benchmark_denominator",
+  "readiness_posture": "ready_for_later_matrix_candidate_handoff",
+  "ready_blueprint_refs": [
+    "case-blueprint:pb-case-expansion-0b:diagnostic"
+  ],
+  "ready_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "ready_count_posture": "inventory_count_only_not_success_rate",
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "schema": "programbench_local_case_expansion_readiness_summary@1"
+}

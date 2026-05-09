@@ -1,0 +1,246 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseExpansionContaminationSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "contamination_detail_posture": {
+          "const": "redacted_category_count_reason_only",
+          "title": "Contamination Detail Posture",
+          "type": "string"
+        },
+        "contamination_screen_ref": {
+          "title": "Contamination Screen Ref",
+          "type": "string"
+        },
+        "contamination_status": {
+          "enum": [
+            "blocked_by_contamination",
+            "clean",
+            "inconclusive_requires_review"
+          ],
+          "title": "Contamination Status",
+          "type": "string"
+        },
+        "contamination_summary_ref": {
+          "title": "Contamination Summary Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "registered_case_lineage_ref": {
+          "title": "Registered Case Lineage Ref",
+          "type": "string"
+        },
+        "screen_verdict": {
+          "enum": [
+            "blocked_contamination_detected",
+            "inconclusive_requires_review",
+            "passed_cleanroom_screen"
+          ],
+          "title": "Screen Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "contamination_summary_ref",
+        "registered_case_lineage_ref",
+        "contamination_screen_ref",
+        "contamination_status",
+        "screen_verdict",
+        "contamination_detail_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionContaminationSummaryRow",
+      "type": "object"
+    },
+    "ProgrambenchLocalCaseExpansionCoverageSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "case_blueprint_ref": {
+          "title": "Case Blueprint Ref",
+          "type": "string"
+        },
+        "coverage_kind": {
+          "enum": [
+            "blueprint_complete",
+            "cleanroom_evidence_complete",
+            "contamination_screen_complete",
+            "oracle_boundary_complete",
+            "probe_contract_complete",
+            "source_identity_complete"
+          ],
+          "title": "Coverage Kind",
+          "type": "string"
+        },
+        "coverage_status": {
+          "enum": [
+            "blocked",
+            "complete",
+            "deferred"
+          ],
+          "title": "Coverage Status",
+          "type": "string"
+        },
+        "coverage_summary_ref": {
+          "title": "Coverage Summary Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "registered_case_lineage_ref": {
+          "title": "Registered Case Lineage Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "coverage_summary_ref",
+        "registered_case_lineage_ref",
+        "case_blueprint_ref",
+        "coverage_kind",
+        "coverage_status",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseExpansionCoverageSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "blocked_blueprint_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Blueprint Refs",
+      "type": "array"
+    },
+    "blocked_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Case Lineage Refs",
+      "type": "array"
+    },
+    "carried_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Blocker Refs",
+      "type": "array"
+    },
+    "carried_warning_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Carried Warning Refs",
+      "type": "array"
+    },
+    "case_expansion_readiness_summary_ref": {
+      "title": "Case Expansion Readiness Summary Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "contamination_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionContaminationSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Contamination Summary Rows",
+      "type": "array"
+    },
+    "coverage_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseExpansionCoverageSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Coverage Summary Rows",
+      "type": "array"
+    },
+    "deferred_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Case Lineage Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_case_count_posture": {
+      "const": "local_inventory_accounting_only",
+      "title": "Local Case Count Posture",
+      "type": "string"
+    },
+    "readiness_denominator_posture": {
+      "const": "expansion_request_denominator_only_not_benchmark_denominator",
+      "title": "Readiness Denominator Posture",
+      "type": "string"
+    },
+    "readiness_posture": {
+      "enum": [
+        "blocked_by_contamination",
+        "open_with_deferred_cases",
+        "ready_for_later_matrix_candidate_handoff"
+      ],
+      "title": "Readiness Posture",
+      "type": "string"
+    },
+    "ready_blueprint_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ready Blueprint Refs",
+      "type": "array"
+    },
+    "ready_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ready Case Lineage Refs",
+      "type": "array"
+    },
+    "ready_count_posture": {
+      "const": "inventory_count_only_not_success_rate",
+      "title": "Ready Count Posture",
+      "type": "string"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_case_expansion_readiness_summary@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_expansion_readiness_summary_ref",
+    "case_expansion_ref",
+    "coverage_summary_rows",
+    "contamination_summary_rows",
+    "readiness_posture",
+    "ready_count_posture",
+    "readiness_denominator_posture",
+    "representativeness_posture",
+    "local_case_count_posture",
+    "benchmark_truth_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseExpansionReadinessSummary",
+  "type": "object"
+}

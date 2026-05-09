@@ -137,8 +137,12 @@ from .programbench_cleanroom_case_expansion import (
     PROGRAMBENCH_LOCAL_CASE_CONTAMINATION_SCREEN_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_CONTROL_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_ELIGIBILITY_REVIEW_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_EXPANSION_READINESS_SUMMARY_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_EXPANSION_REQUEST_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_LINEAGE_REGISTRATION_SCHEMA,
+    PROGRAMBENCH_LOCAL_CASE_MATRIX_CANDIDATE_HANDOFF_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_ORACLE_BOUNDARY_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_PROBE_CONTRACT_SCHEMA,
     PROGRAMBENCH_LOCAL_CASE_SOURCE_POOL_MANIFEST_SCHEMA,
@@ -147,8 +151,12 @@ from .programbench_cleanroom_case_expansion import (
     ProgrambenchLocalCaseContaminationScreen,
     ProgrambenchLocalCaseExpansionControlContract,
     ProgrambenchLocalCaseExpansionEligibilityReview,
+    ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment,
     ProgrambenchLocalCaseExpansionNonAuthorityGuardrail,
+    ProgrambenchLocalCaseExpansionReadinessSummary,
     ProgrambenchLocalCaseExpansionRequest,
+    ProgrambenchLocalCaseLineageRegistration,
+    ProgrambenchLocalCaseMatrixCandidateHandoff,
     ProgrambenchLocalCaseOracleBoundary,
     ProgrambenchLocalCaseProbeContract,
     ProgrambenchLocalCaseSourcePoolManifest,
@@ -1556,6 +1564,50 @@ def main() -> None:
             / "schema"
             / "programbench_local_case_contamination_screen.v1.json",
             root / "spec" / "programbench_local_case_contamination_screen.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseLineageRegistration,
+            PROGRAMBENCH_LOCAL_CASE_LINEAGE_REGISTRATION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_lineage_registration.v1.json",
+            root / "spec" / "programbench_local_case_lineage_registration.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionReadinessSummary,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_READINESS_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_readiness_summary.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_expansion_readiness_summary.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseMatrixCandidateHandoff,
+            PROGRAMBENCH_LOCAL_CASE_MATRIX_CANDIDATE_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_matrix_candidate_handoff.v1.json",
+            root / "spec" / "programbench_local_case_matrix_candidate_handoff.schema.json",
+        ),
+        (
+            ProgrambenchLocalCaseExpansionFamilyCloseoutAlignment,
+            PROGRAMBENCH_LOCAL_CASE_EXPANSION_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_local_case_expansion_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_local_case_expansion_family_closeout_alignment.schema.json",
         ),
     ]
 

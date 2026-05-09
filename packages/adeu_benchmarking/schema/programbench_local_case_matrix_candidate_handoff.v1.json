@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "ProgrambenchLocalCaseMatrixHandoffPressureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "handoff_pressure_kind": {
+          "enum": [
+            "future_local_matrix_inclusion_review",
+            "future_family_only"
+          ],
+          "title": "Handoff Pressure Kind",
+          "type": "string"
+        },
+        "handoff_pressure_posture": {
+          "const": "pressure_only_not_selection",
+          "title": "Handoff Pressure Posture",
+          "type": "string"
+        },
+        "handoff_pressure_ref": {
+          "title": "Handoff Pressure Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "registered_case_lineage_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Registered Case Lineage Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "handoff_pressure_ref",
+        "registered_case_lineage_refs",
+        "handoff_pressure_kind",
+        "handoff_pressure_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalCaseMatrixHandoffPressureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_0c",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "benchmark_score_authority_posture": {
+      "const": "no_benchmark_score_authority_granted_by_0c",
+      "title": "Benchmark Score Authority Posture",
+      "type": "string"
+    },
+    "case_expansion_readiness_summary_ref": {
+      "title": "Case Expansion Readiness Summary Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_matrix_candidate_handoff_ref": {
+      "title": "Case Matrix Candidate Handoff Ref",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_non_selection_posture": {
+      "const": "pressure_only_no_matrix_inclusion_selected",
+      "title": "Handoff Non Selection Posture",
+      "type": "string"
+    },
+    "handoff_pressure_kind": {
+      "enum": [
+        "future_local_matrix_inclusion_review",
+        "future_family_only"
+      ],
+      "title": "Handoff Pressure Kind",
+      "type": "string"
+    },
+    "handoff_pressure_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalCaseMatrixHandoffPressureRow"
+      },
+      "minItems": 1,
+      "title": "Handoff Pressure Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_inclusion_authority_posture": {
+      "const": "no_direct_matrix_inclusion_authority_granted_by_0c",
+      "title": "Matrix Inclusion Authority Posture",
+      "type": "string"
+    },
+    "ready_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ready Case Lineage Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_local_case_matrix_candidate_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "case_matrix_candidate_handoff_ref",
+    "case_expansion_ref",
+    "case_expansion_readiness_summary_ref",
+    "handoff_pressure_rows",
+    "handoff_pressure_kind",
+    "handoff_non_selection_posture",
+    "matrix_inclusion_authority_posture",
+    "batch_execution_authority_posture",
+    "benchmark_score_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalCaseMatrixCandidateHandoff",
+  "type": "object"
+}
