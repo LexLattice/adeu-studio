@@ -1,0 +1,22 @@
+{
+  "aggregate_count_posture": "local_membership_accounting_only",
+  "baseline_comparison_authority_posture": "no_baseline_comparison_authority",
+  "benchmark_denominator_posture": "not_benchmark_denominator",
+  "inventory_count_posture": "local_membership_accounting_only",
+  "limitation_note": "Contract keeps the revision local and non-ranking.",
+  "matrix_horizon": "local_matrix_membership_revision",
+  "matrix_inclusion_control_contract_ref": "matrix-inclusion-control:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "matrix_revision_scope_posture": "local_accounting_revision_only",
+  "model_profile_continuity_posture": "unchanged",
+  "multi_profile_matrix_posture": "single_profile_matrix",
+  "non_ranking_posture": "no_model_ranking_authority",
+  "non_scoring_posture": "no_benchmark_scoring_authority",
+  "probe_basis_continuity_posture": "unchanged",
+  "representativeness_posture": "not_representative_benchmark_sample",
+  "sandbox_write_scope_continuity_posture": "unchanged",
+  "schema": "programbench_local_matrix_inclusion_control_contract@1",
+  "source_visibility_continuity_posture": "unchanged",
+  "tool_policy_continuity_posture": "unchanged",
+  "worker_profile_continuity_posture": "unchanged"
+}

@@ -1,0 +1,216 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixInclusionCandidateRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_case_lineage_ref": {
+          "title": "Candidate Case Lineage Ref",
+          "type": "string"
+        },
+        "candidate_intake_status": {
+          "enum": [
+            "blocked",
+            "recorded_for_eligibility_review"
+          ],
+          "title": "Candidate Intake Status",
+          "type": "string"
+        },
+        "candidate_origin_posture": {
+          "const": "released_case_expansion_lineage",
+          "title": "Candidate Origin Posture",
+          "type": "string"
+        },
+        "case_lineage_hash": {
+          "title": "Case Lineage Hash",
+          "type": "string"
+        },
+        "case_readiness_posture": {
+          "enum": [
+            "blocked",
+            "deferred",
+            "ready_for_later_matrix_candidate_handoff"
+          ],
+          "title": "Case Readiness Posture",
+          "type": "string"
+        },
+        "contamination_posture": {
+          "enum": [
+            "clean",
+            "contaminated"
+          ],
+          "title": "Contamination Posture",
+          "type": "string"
+        },
+        "contamination_screen_hash": {
+          "title": "Contamination Screen Hash",
+          "type": "string"
+        },
+        "dedupe_basis_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dedupe Basis Refs",
+          "type": "array"
+        },
+        "dedupe_status": {
+          "enum": [
+            "no_duplicate_detected",
+            "duplicate_allowed_for_regression_or_smoke",
+            "duplicate_blocked_existing_member",
+            "replacement_or_update_explicit"
+          ],
+          "title": "Dedupe Status",
+          "type": "string"
+        },
+        "duplicate_allowed_posture": {
+          "enum": [
+            "not_applicable_no_duplicate",
+            "duplicate_allowed_for_regression_or_smoke",
+            "duplicate_blocked_without_replacement_or_update",
+            "replacement_or_update_declared"
+          ],
+          "title": "Duplicate Allowed Posture",
+          "type": "string"
+        },
+        "duplicate_case_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Duplicate Case Refs",
+          "type": "array"
+        },
+        "duplicate_of_case_lineage_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Duplicate Of Case Lineage Refs",
+          "type": "array"
+        },
+        "expansion_family_closeout_ref": {
+          "title": "Expansion Family Closeout Ref",
+          "type": "string"
+        },
+        "handoff_pressure_ref": {
+          "title": "Handoff Pressure Ref",
+          "type": "string"
+        },
+        "intake_blocker_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Intake Blocker Refs",
+          "type": "array"
+        },
+        "intake_warning_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Intake Warning Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "lineage_registration_ref": {
+          "title": "Lineage Registration Ref",
+          "type": "string"
+        },
+        "matrix_candidate_status": {
+          "enum": [
+            "blocked_by_contamination",
+            "blocked_by_duplicate_existing_member",
+            "eligible_for_later_matrix_amendment_review",
+            "ineligible_not_ready"
+          ],
+          "title": "Matrix Candidate Status",
+          "type": "string"
+        },
+        "oracle_boundary_hash": {
+          "title": "Oracle Boundary Hash",
+          "type": "string"
+        },
+        "prior_matrix_membership_status": {
+          "enum": [
+            "absent_from_base_matrix",
+            "present_in_base_matrix"
+          ],
+          "title": "Prior Matrix Membership Status",
+          "type": "string"
+        },
+        "probe_contract_hash": {
+          "title": "Probe Contract Hash",
+          "type": "string"
+        },
+        "readiness_summary_ref": {
+          "title": "Readiness Summary Ref",
+          "type": "string"
+        },
+        "source_boundary_hash": {
+          "title": "Source Boundary Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_case_lineage_ref",
+        "lineage_registration_ref",
+        "readiness_summary_ref",
+        "handoff_pressure_ref",
+        "case_lineage_hash",
+        "source_boundary_hash",
+        "probe_contract_hash",
+        "oracle_boundary_hash",
+        "contamination_screen_hash",
+        "expansion_family_closeout_ref",
+        "prior_matrix_membership_status",
+        "dedupe_status",
+        "duplicate_allowed_posture",
+        "candidate_origin_posture",
+        "case_readiness_posture",
+        "contamination_posture",
+        "matrix_candidate_status",
+        "candidate_intake_status",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixInclusionCandidateRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_case_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixInclusionCandidateRow"
+      },
+      "minItems": 1,
+      "title": "Candidate Case Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_candidate_intake_ref": {
+      "title": "Matrix Candidate Intake Ref",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_candidate_intake@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_candidate_intake_ref",
+    "matrix_inclusion_request_ref",
+    "candidate_case_rows",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixCandidateIntake",
+  "type": "object"
+}

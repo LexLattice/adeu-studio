@@ -1,0 +1,33 @@
+{
+  "blocked_case_lineage_refs": [],
+  "blocker_refs": [],
+  "cleanroom_boundary_status": "clean",
+  "contamination_status": "clean",
+  "dedupe_status": "all_candidates_unique_or_allowed",
+  "deferred_case_lineage_refs": [],
+  "eligibility_row_refs": [
+    "matrix-inclusion-eligibility-row:pb-matrix-inclusion-0a:diagnostic"
+  ],
+  "eligibility_rows": [
+    {
+      "blocker_refs": [],
+      "candidate_case_lineage_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "eligibility_posture": "eligible_for_later_matrix_amendment_review",
+      "eligibility_row_ref": "matrix-inclusion-eligibility-row:pb-matrix-inclusion-0a:diagnostic",
+      "limitation_note": "Eligibility is for later amendment review only.",
+      "source_candidate_row_ref": "case-lineage:pb-case-expansion-0c:diagnostic",
+      "warning_refs": []
+    }
+  ],
+  "eligibility_status": "eligible_for_later_matrix_amendment_review",
+  "eligible_case_lineage_refs": [
+    "case-lineage:pb-case-expansion-0c:diagnostic"
+  ],
+  "limitation_note": "Review admits the candidate only to later local amendment planning.",
+  "matrix_candidate_intake_ref": "matrix-candidate-intake:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_eligibility_review_ref": "matrix-inclusion-eligibility:pb-matrix-inclusion-0a:reference",
+  "matrix_inclusion_request_ref": "matrix-inclusion-request:pb-matrix-inclusion-0a:reference",
+  "probe_oracle_coverage_status": "complete",
+  "schema": "programbench_local_matrix_inclusion_eligibility_review@1",
+  "warning_refs": []
+}

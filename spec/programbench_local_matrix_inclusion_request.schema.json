@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "ProgrambenchLocalMatrixInclusionSelectionRationaleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_case_lineage_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Candidate Case Lineage Refs",
+          "type": "array"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "rationale_kind": {
+          "enum": [
+            "eligible_lineage_ready",
+            "local_matrix_membership_accounting",
+            "local_regression_membership_update",
+            "local_smoke_membership_update"
+          ],
+          "title": "Rationale Kind",
+          "type": "string"
+        },
+        "rationale_scope_posture": {
+          "const": "local_matrix_inclusion_only_not_quality_selection",
+          "title": "Rationale Scope Posture",
+          "type": "string"
+        },
+        "selection_rationale_ref": {
+          "title": "Selection Rationale Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selection_rationale_ref",
+        "rationale_kind",
+        "candidate_case_lineage_refs",
+        "rationale_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchLocalMatrixInclusionSelectionRationaleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "base_matrix_ref": {
+      "title": "Base Matrix Ref",
+      "type": "string"
+    },
+    "base_matrix_revision_hash": {
+      "title": "Base Matrix Revision Hash",
+      "type": "string"
+    },
+    "base_matrix_revision_ref": {
+      "title": "Base Matrix Revision Ref",
+      "type": "string"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "case_expansion_readiness_summary_ref": {
+      "title": "Case Expansion Readiness Summary Ref",
+      "type": "string"
+    },
+    "case_expansion_ref": {
+      "title": "Case Expansion Ref",
+      "type": "string"
+    },
+    "case_matrix_candidate_handoff_ref": {
+      "title": "Case Matrix Candidate Handoff Ref",
+      "type": "string"
+    },
+    "execution_authority_posture": {
+      "const": "no_execution_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "matrix_inclusion_horizon": {
+      "enum": [
+        "local_matrix_membership_revision",
+        "local_regression_matrix_membership_update",
+        "local_smoke_matrix_membership_update"
+      ],
+      "title": "Matrix Inclusion Horizon",
+      "type": "string"
+    },
+    "matrix_inclusion_request_ref": {
+      "title": "Matrix Inclusion Request Ref",
+      "type": "string"
+    },
+    "matrix_max_added_case_count": {
+      "minimum": 1,
+      "title": "Matrix Max Added Case Count",
+      "type": "integer"
+    },
+    "matrix_revision_horizon": {
+      "const": "local_accounting_revision_only",
+      "title": "Matrix Revision Horizon",
+      "type": "string"
+    },
+    "prior_membership_manifest_hash": {
+      "title": "Prior Membership Manifest Hash",
+      "type": "string"
+    },
+    "proposed_membership_manifest_hash": {
+      "title": "Proposed Membership Manifest Hash",
+      "type": "string"
+    },
+    "representativeness_posture": {
+      "const": "not_representative_benchmark_sample",
+      "title": "Representativeness Posture",
+      "type": "string"
+    },
+    "requested_case_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Requested Case Lineage Refs",
+      "type": "array"
+    },
+    "result_projection_authority_posture": {
+      "const": "no_result_projection_authority_granted_by_pb_matrix_inclusion_0a",
+      "title": "Result Projection Authority Posture",
+      "type": "string"
+    },
+    "revision_delta_hash": {
+      "title": "Revision Delta Hash",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_local_matrix_inclusion_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selection_rationale_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchLocalMatrixInclusionSelectionRationaleRow"
+      },
+      "minItems": 1,
+      "title": "Selection Rationale Rows",
+      "type": "array"
+    },
+    "target_matrix_revision_candidate_hash": {
+      "title": "Target Matrix Revision Candidate Hash",
+      "type": "string"
+    },
+    "target_matrix_revision_candidate_ref": {
+      "title": "Target Matrix Revision Candidate Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "matrix_inclusion_request_ref",
+    "base_matrix_ref",
+    "base_matrix_revision_ref",
+    "base_matrix_revision_hash",
+    "target_matrix_revision_candidate_ref",
+    "target_matrix_revision_candidate_hash",
+    "prior_membership_manifest_hash",
+    "proposed_membership_manifest_hash",
+    "revision_delta_hash",
+    "case_expansion_ref",
+    "case_expansion_readiness_summary_ref",
+    "case_matrix_candidate_handoff_ref",
+    "requested_case_lineage_refs",
+    "matrix_inclusion_horizon",
+    "matrix_revision_horizon",
+    "matrix_max_added_case_count",
+    "selection_rationale_rows",
+    "representativeness_posture",
+    "benchmark_truth_posture",
+    "execution_authority_posture",
+    "result_projection_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchLocalMatrixInclusionRequest",
+  "type": "object"
+}
