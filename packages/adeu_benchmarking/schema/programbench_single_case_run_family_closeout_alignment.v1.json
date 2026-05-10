@@ -1,0 +1,121 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "closed_slices": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Closed Slices",
+      "type": "array"
+    },
+    "family_ref": {
+      "const": "PB-SINGLE-CASE-RUN-0",
+      "title": "Family Ref",
+      "type": "string"
+    },
+    "family_scope_posture": {
+      "const": "pb_single_case_run_0_closed_local_single_case_only",
+      "title": "Family Scope Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Handoff Refs",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_outcome_audit_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Outcome Audit Refs",
+      "type": "array"
+    },
+    "observation_summary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Observation Summary Refs",
+      "type": "array"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_single_case_run_0c",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "remand_or_acceptance_decision_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Remand Or Acceptance Decision Refs",
+      "type": "array"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_single_case_run_0c",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_run_family_closeout_alignment_ref": {
+      "title": "Single Case Run Family Closeout Alignment Ref",
+      "type": "string"
+    },
+    "slice_a_closeout_ref": {
+      "title": "Slice A Closeout Ref",
+      "type": "string"
+    },
+    "slice_b_closeout_ref": {
+      "title": "Slice B Closeout Ref",
+      "type": "string"
+    },
+    "slice_c_closeout_ref": {
+      "title": "Slice C Closeout Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_family_closeout_alignment_ref",
+    "family_ref",
+    "closed_slices",
+    "slice_a_closeout_ref",
+    "slice_b_closeout_ref",
+    "slice_c_closeout_ref",
+    "local_outcome_audit_refs",
+    "observation_summary_refs",
+    "remand_or_acceptance_decision_refs",
+    "handoff_refs",
+    "family_scope_posture",
+    "official_programbench_authority_posture",
+    "benchmark_truth_posture",
+    "retry_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunFamilyCloseoutAlignment",
+  "type": "object"
+}

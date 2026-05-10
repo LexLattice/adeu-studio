@@ -19,9 +19,7 @@ MODEL_CONFIG = ConfigDict(
 )
 
 PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA = "programbench_single_case_run_request@1"
-PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA = (
-    "programbench_single_case_target_selection@1"
-)
+PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA = "programbench_single_case_target_selection@1"
 PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA = (
     "programbench_single_case_execution_preflight@1"
 )
@@ -35,9 +33,7 @@ PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA = (
 PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA = (
     "programbench_single_case_worker_dispatch_specimen@1"
 )
-PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA = (
-    "programbench_single_case_execution_trace@1"
-)
+PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA = "programbench_single_case_execution_trace@1"
 PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA = (
     "programbench_single_case_probe_observation_bundle@1"
 )
@@ -139,9 +135,12 @@ _REQUIRED_PREFLIGHT_CHECK_KINDS = (
     "tool_manifest_closed",
     "write_scope_bounded",
 )
-_PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF = (
-    "docs/LOCKED_CONTINUATION_vNEXT_PLUS270.md"
-)
+_PB_SINGLE_CASE_RUN_0B_DISPATCH_AUTHORITY_REF = "docs/LOCKED_CONTINUATION_vNEXT_PLUS270.md"
+_PB_SINGLE_CASE_RUN_CLOSED_SLICES = [
+    "PB-SINGLE-CASE-RUN-0-A",
+    "PB-SINGLE-CASE-RUN-0-B",
+    "PB-SINGLE-CASE-RUN-0-C",
+]
 _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT = "passed"
 _RAW_SHELL_MARKERS = ("&&", "||", ";", "|", "$(", "`", ">", "<", "&", "\n", "\r")
 _RAW_SHELL_EXECUTABLES = {
@@ -195,9 +194,7 @@ def _ensure_hash(value: str, *, field_name: str) -> None:
 
 def _ensure_no_forbidden_refs(values: list[str], *, field_name: str) -> None:
     leaked = sorted(
-        ref
-        for ref in values
-        if any(marker in ref.lower() for marker in _FORBIDDEN_REF_MARKERS)
+        ref for ref in values if any(marker in ref.lower() for marker in _FORBIDDEN_REF_MARKERS)
     )
     if leaked:
         raise ValueError(f"{field_name} contains forbidden single-case-run refs: {leaked}")
@@ -223,11 +220,7 @@ def _ensure_argv_shaped(argv: list[str], *, field_name: str) -> None:
     executable = _argv_executable_name(argv[0])
     if executable in _RAW_SHELL_EXECUTABLES:
         raise ValueError(f"{field_name} must not invoke a shell executable")
-    shell_like = [
-        token
-        for token in argv
-        if any(marker in token for marker in _RAW_SHELL_MARKERS)
-    ]
+    shell_like = [token for token in argv if any(marker in token for marker in _RAW_SHELL_MARKERS)]
     if shell_like:
         raise ValueError(f"{field_name} must not contain raw shell markers")
 
@@ -244,9 +237,7 @@ class ProgrambenchSingleCaseRunRationaleRow(_SingleCaseRunBase):
         "direct_adapter_case_exception",
     ]
     selected_case_lineage_ref: str
-    rationale_scope_posture: Literal[
-        "local_single_case_run_selection_only_not_benchmark_result"
-    ]
+    rationale_scope_posture: Literal["local_single_case_run_selection_only_not_benchmark_result"]
     limitation_note: str
 
     @model_validator(mode="after")
@@ -325,9 +316,7 @@ class ProgrambenchSingleCaseForbiddenAuthorityRow(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseRunRequest(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA] = Field(alias="schema")
     single_case_run_request_ref: str
     requested_case_lineage_ref: str
     requested_case_lineage_hash: str
@@ -350,9 +339,7 @@ class ProgrambenchSingleCaseRunRequest(_SingleCaseRunBase):
         "direct_adapter_case_exception_declared_with_non_matrix_lineage_warning",
     ]
     run_horizon: Literal["local_single_case_cleanroom_specimen_preflight_only"]
-    run_rationale_rows: list[ProgrambenchSingleCaseRunRationaleRow] = Field(
-        min_length=1
-    )
+    run_rationale_rows: list[ProgrambenchSingleCaseRunRationaleRow] = Field(min_length=1)
     single_case_only_posture: Literal["exactly_one_case_lineage_selected"]
     official_programbench_posture: Literal[
         "no_official_programbench_authority_granted_by_pb_single_case_run_0a"
@@ -393,9 +380,7 @@ class ProgrambenchSingleCaseRunRequest(_SingleCaseRunBase):
             raise ValueError("target origin route must match prior lifecycle relation")
         expected_exception_posture = {
             "matrix_member": "not_applicable_matrix_member_route",
-            "ready_expanded_case_lineage": (
-                "not_applicable_ready_expanded_case_lineage_route"
-            ),
+            "ready_expanded_case_lineage": ("not_applicable_ready_expanded_case_lineage_route"),
             "direct_adapter_case_exception": (
                 "direct_adapter_case_exception_declared_with_non_matrix_lineage_warning"
             ),
@@ -418,9 +403,7 @@ class ProgrambenchSingleCaseRunRequest(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseTargetSelection(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA] = Field(alias="schema")
     single_case_target_selection_ref: str
     single_case_run_request_ref: str
     selected_case_lineage_ref: str
@@ -526,9 +509,7 @@ class ProgrambenchSingleCaseTargetSelection(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA] = Field(alias="schema")
     single_case_execution_preflight_ref: str
     single_case_run_request_ref: str
     single_case_target_selection_ref: str
@@ -551,9 +532,7 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
     decompilation_posture: Literal["disabled"]
     docker_socket_posture: Literal["absent"]
     host_secret_posture: Literal["absent"]
-    preflight_check_rows: list[ProgrambenchSingleCasePreflightCheckRow] = Field(
-        min_length=1
-    )
+    preflight_check_rows: list[ProgrambenchSingleCasePreflightCheckRow] = Field(min_length=1)
     preflight_status: Literal[
         "ready_for_later_local_single_case_execution_review",
         "blocked",
@@ -579,9 +558,7 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
             values = getattr(self, field_name)
             _ensure_sorted_unique(values, field_name=field_name)
         if self.sandbox_witness_requirement_refs != list(_REQUIRED_B_WITNESS_REFS):
-            raise ValueError(
-                "sandbox_witness_requirement_refs must match B witness requirements"
-            )
+            raise ValueError("sandbox_witness_requirement_refs must match B witness requirements")
         if self.required_b_witness_refs != list(_REQUIRED_B_WITNESS_REFS):
             raise ValueError("required_b_witness_refs must match B witness requirements")
         row_refs = [row.preflight_check_ref for row in self.preflight_check_rows]
@@ -603,11 +580,7 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
             ],
             field_name="single_case_execution_preflight_refs",
         )
-        blocked_rows = [
-            row
-            for row in self.preflight_check_rows
-            if row.check_status == "blocked"
-        ]
+        blocked_rows = [row for row in self.preflight_check_rows if row.check_status == "blocked"]
         if self.preflight_status == "ready_for_later_local_single_case_execution_review":
             missing_check_kinds = sorted(set(_REQUIRED_PREFLIGHT_CHECK_KINDS) - set(check_kinds))
             unexpected_check_kinds = sorted(set(check_kinds) - set(_REQUIRED_PREFLIGHT_CHECK_KINDS))
@@ -625,9 +598,7 @@ class ProgrambenchSingleCaseExecutionPreflight(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseRunControlContract(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA] = Field(alias="schema")
     single_case_run_control_contract_ref: str
     single_case_run_request_ref: str
     worker_visible_packet_hash: str
@@ -641,9 +612,7 @@ class ProgrambenchSingleCaseRunControlContract(_SingleCaseRunBase):
     timeout_policy: Literal["bounded_timeout_required"]
     resource_limit_policy: Literal["bounded_resources_required"]
     artifact_capture_policy: Literal["deferred_to_pb_single_case_run_0b"]
-    forbidden_content_screen_policy: Literal[
-        "required_before_candidate_artifact_capture"
-    ]
+    forbidden_content_screen_policy: Literal["required_before_candidate_artifact_capture"]
     single_dispatch_limit_posture: Literal[
         "one_dispatch_specimen_only_if_pb_single_case_run_0b_authorized"
     ]
@@ -676,8 +645,8 @@ class ProgrambenchSingleCaseRunControlContract(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseRunNonAuthorityGuardrail(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA] = (
-        Field(alias="schema")
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA] = Field(
+        alias="schema"
     )
     single_case_run_guardrail_ref: str
     single_case_run_request_ref: str
@@ -685,9 +654,7 @@ class ProgrambenchSingleCaseRunNonAuthorityGuardrail(_SingleCaseRunBase):
         min_length=1
     )
     forbidden_future_artifact_kinds: list[str] = Field(min_length=1)
-    worker_dispatch_deferred_posture: Literal[
-        "worker_dispatch_deferred_to_pb_single_case_run_0b"
-    ]
+    worker_dispatch_deferred_posture: Literal["worker_dispatch_deferred_to_pb_single_case_run_0b"]
     command_execution_deferred_posture: Literal[
         "command_execution_deferred_to_pb_single_case_run_0b"
     ]
@@ -786,9 +753,7 @@ class ProgrambenchSingleCaseCommandArgvRow(_SingleCaseRunBase):
 
     @model_validator(mode="after")
     def _validate_row(self) -> "ProgrambenchSingleCaseCommandArgvRow":
-        _ensure_no_forbidden_refs(
-            [self.command_argv_ref], field_name="command_argv_refs"
-        )
+        _ensure_no_forbidden_refs([self.command_argv_ref], field_name="command_argv_refs")
         _ensure_argv_shaped(self.argv, field_name="argv")
         _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
         return self
@@ -854,9 +819,110 @@ class ProgrambenchSingleCaseArtifactHashRow(_SingleCaseRunBase):
         return self
 
 
+class ProgrambenchSingleCaseLocalProbeSummaryRow(_SingleCaseRunBase):
+    local_probe_summary_ref: str
+    local_probe_ref: str
+    probe_kind: Literal["positive", "negative"]
+    probe_result_status: Literal["passed", "not_applicable"]
+    local_only_posture: Literal["declared_local_probe_only_not_hidden_test"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseLocalProbeSummaryRow":
+        _ensure_no_forbidden_refs(
+            [self.local_probe_summary_ref, self.local_probe_ref],
+            field_name="local_probe_summary_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseDecisionBasisRow(_SingleCaseRunBase):
+    decision_basis_ref: str
+    basis_kind: Literal[
+        "artifact_capture_inside_write_scope",
+        "declared_local_probes_satisfied",
+        "local_evidence_inconclusive",
+        "output_capture_satisfied",
+        "projection_validated",
+        "sandbox_satisfied",
+    ]
+    basis_status: Literal["supports_local_acceptance", "supports_remand_pressure"]
+    local_only_posture: Literal["local_single_case_only_not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseDecisionBasisRow":
+        _ensure_no_forbidden_refs([self.decision_basis_ref], field_name="decision_basis_refs")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRemandReasonRow(_SingleCaseRunBase):
+    remand_reason_ref: str
+    remand_source_kind: Literal[
+        "artifact_capture_gap",
+        "filesystem_expectation_gap",
+        "lifecycle_projection_gap",
+        "local_evidence_inconclusive",
+        "local_probe_gap",
+        "output_capture_gap",
+        "sandbox_violation",
+        "worker_declared_uncertainty",
+    ]
+    remand_scope_posture: Literal["pressure_only_requires_later_retry_or_trial_governance"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseRemandReasonRow":
+        _ensure_no_forbidden_refs([self.remand_reason_ref], field_name="remand_reason_refs")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseAcceptanceBasisRow(_SingleCaseRunBase):
+    acceptance_basis_ref: str
+    acceptance_basis_kind: Literal[
+        "artifact_capture_inside_write_scope",
+        "declared_local_probes_satisfied",
+        "filesystem_expectations_satisfied",
+        "lifecycle_projection_validated",
+        "output_capture_satisfied",
+        "sandbox_satisfied",
+        "stdio_exit_expectations_satisfied",
+    ]
+    acceptance_scope_posture: Literal["local_acceptance_only_not_benchmark_truth"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseAcceptanceBasisRow":
+        _ensure_no_forbidden_refs([self.acceptance_basis_ref], field_name="acceptance_basis_refs")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRunHandoffPressureRow(_SingleCaseRunBase):
+    handoff_pressure_ref: str
+    pressure_kind: Literal[
+        "future_batch_execution_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_local_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_retry_governance_review",
+    ]
+    pressure_scope_posture: Literal["pressure_only_no_authority_granted"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_row(self) -> "ProgrambenchSingleCaseRunHandoffPressureRow":
+        _ensure_no_forbidden_refs([self.handoff_pressure_ref], field_name="handoff_pressure_refs")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 class ProgrambenchSingleCaseWorkerDispatchSpecimen(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA] = (
-        Field(alias="schema")
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA] = Field(
+        alias="schema"
     )
     single_case_worker_dispatch_specimen_ref: str
     single_case_run_request_ref: str
@@ -866,9 +932,7 @@ class ProgrambenchSingleCaseWorkerDispatchSpecimen(_SingleCaseRunBase):
     b_slice_dispatch_authority_ref: str
     dispatch_authority_kind: Literal["b_slice_lock_local_single_specimen_only"]
     dispatch_specimen_index: Literal[1]
-    single_case_dispatch_cardinality_posture: Literal[
-        "exactly_one_dispatch_specimen"
-    ]
+    single_case_dispatch_cardinality_posture: Literal["exactly_one_dispatch_specimen"]
     worker_profile_ref: str
     input_packet_materialization_hash: str
     worker_visible_context_materialization_hash: str
@@ -939,14 +1003,10 @@ class ProgrambenchSingleCaseWorkerDispatchSpecimen(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseExecutionTrace(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA] = Field(alias="schema")
     single_case_execution_trace_ref: str
     single_case_worker_dispatch_specimen_ref: str
-    command_argv_rows: list[ProgrambenchSingleCaseCommandArgvRow] = Field(
-        min_length=1
-    )
+    command_argv_rows: list[ProgrambenchSingleCaseCommandArgvRow] = Field(min_length=1)
     execution_trace_kind: Literal[
         "worker_dispatch_trace",
         "candidate_local_probe_trace",
@@ -954,9 +1014,7 @@ class ProgrambenchSingleCaseExecutionTrace(_SingleCaseRunBase):
         "harness_capture_trace",
     ]
     command_rows_must_be_argv_shaped: Literal[True]
-    raw_shell_string_posture: Literal[
-        "raw_shell_strings_forbidden_unless_later_explicit_authority"
-    ]
+    raw_shell_string_posture: Literal["raw_shell_strings_forbidden_unless_later_explicit_authority"]
     command_allowlist_match_ref: str
     working_directory_ref: str
     environment_policy_hash: str
@@ -1021,16 +1079,14 @@ class ProgrambenchSingleCaseExecutionTrace(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseProbeObservationBundle(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA] = (
-        Field(alias="schema")
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA] = Field(
+        alias="schema"
     )
     single_case_probe_observation_bundle_ref: str
     single_case_execution_trace_ref: str
     local_probe_basis_ref: str
     local_probe_basis_hash: str
-    probe_observation_rows: list[ProgrambenchSingleCaseProbeObservationRow] = Field(
-        min_length=1
-    )
+    probe_observation_rows: list[ProgrambenchSingleCaseProbeObservationRow] = Field(min_length=1)
     positive_probe_result_refs: list[str] = Field(default_factory=list)
     negative_probe_result_refs: list[str] = Field(default_factory=list)
     missing_probe_refs: list[str] = Field(default_factory=list)
@@ -1075,8 +1131,8 @@ class ProgrambenchSingleCaseProbeObservationBundle(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_CANDIDATE_ARTIFACT_CAPTURE_SCHEMA] = (
-        Field(alias="schema")
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_CANDIDATE_ARTIFACT_CAPTURE_SCHEMA] = Field(
+        alias="schema"
     )
     single_case_candidate_artifact_capture_ref: str
     single_case_execution_trace_ref: str
@@ -1085,12 +1141,8 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
     write_scope_hash: str
     materialization_input_hash: str
     materialization_output_manifest_hash: str
-    generated_artifact_rows: list[ProgrambenchSingleCaseGeneratedArtifactRow] = Field(
-        min_length=1
-    )
-    artifact_hash_rows: list[ProgrambenchSingleCaseArtifactHashRow] = Field(
-        min_length=1
-    )
+    generated_artifact_rows: list[ProgrambenchSingleCaseGeneratedArtifactRow] = Field(min_length=1)
+    artifact_hash_rows: list[ProgrambenchSingleCaseArtifactHashRow] = Field(min_length=1)
     inside_write_scope_posture: Literal["inside_released_write_scope"]
     forbidden_content_screen_verdict: Literal["passed"]
     official_submission_posture: Literal["not_official_submission"]
@@ -1106,15 +1158,12 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
             "materialization_output_manifest_hash",
         ):
             _ensure_hash(getattr(self, field_name), field_name=field_name)
-        generated_refs = [
-            row.generated_artifact_ref for row in self.generated_artifact_rows
-        ]
+        generated_refs = [row.generated_artifact_ref for row in self.generated_artifact_rows]
         _ensure_sorted_unique(generated_refs, field_name="generated_artifact_rows")
         artifact_hash_refs = [row.artifact_hash_ref for row in self.artifact_hash_rows]
         _ensure_sorted_unique(artifact_hash_refs, field_name="artifact_hash_rows")
         generated_hashes_by_ref = {
-            row.generated_artifact_ref: row.artifact_hash
-            for row in self.generated_artifact_rows
+            row.generated_artifact_ref: row.artifact_hash for row in self.generated_artifact_rows
         }
         hash_rows_by_artifact_ref = {
             row.artifact_ref: row.artifact_hash for row in self.artifact_hash_rows
@@ -1130,8 +1179,7 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
         )
         if mismatched_artifacts:
             raise ValueError(
-                "generated artifact hashes must match artifact hash rows: "
-                f"{mismatched_artifacts}"
+                f"generated artifact hashes must match artifact hash rows: {mismatched_artifacts}"
             )
         _ensure_no_forbidden_refs(
             [
@@ -1147,9 +1195,7 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
 
 
 class ProgrambenchSingleCaseLifecycleProjection(_SingleCaseRunBase):
-    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA] = Field(
-        alias="schema"
-    )
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA] = Field(alias="schema")
     single_case_lifecycle_projection_ref: str
     single_case_worker_dispatch_specimen_ref: str
     single_case_execution_trace_ref: str
@@ -1196,6 +1242,353 @@ class ProgrambenchSingleCaseLifecycleProjection(_SingleCaseRunBase):
         return self
 
 
+class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_LOCAL_OUTCOME_AUDIT_SCHEMA] = Field(alias="schema")
+    single_case_local_outcome_audit_ref: str
+    single_case_run_request_ref: str
+    single_case_target_selection_ref: str
+    single_case_worker_dispatch_specimen_ref: str
+    single_case_execution_trace_ref: str
+    single_case_probe_observation_bundle_ref: str
+    single_case_candidate_artifact_capture_ref: str
+    single_case_lifecycle_projection_ref: str
+    contamination_audit_status: Literal["clean", "blocked_by_contamination"]
+    contamination_blocker_refs: list[str] = Field(default_factory=list)
+    sandbox_audit_status: Literal["clean", "blocked_by_sandbox"]
+    sandbox_blocker_refs: list[str] = Field(default_factory=list)
+    lifecycle_projection_status: Literal["validated", "blocked_by_projection_gap"]
+    lifecycle_projection_blocker_refs: list[str] = Field(default_factory=list)
+    output_capture_status: Literal["captured", "blocked_by_output_gap"]
+    output_capture_blocker_refs: list[str] = Field(default_factory=list)
+    candidate_artifact_capture_status: Literal[
+        "captured_inside_write_scope",
+        "missing",
+        "outside_write_scope",
+        "screening_not_passed",
+    ]
+    candidate_artifact_inside_write_scope_posture: Literal[
+        "inside_released_write_scope",
+        "outside_released_write_scope",
+        "not_applicable_missing_capture",
+    ]
+    positive_probe_status: Literal["passed", "failed", "missing", "inconclusive"]
+    negative_probe_status: Literal[
+        "passed",
+        "failed",
+        "missing",
+        "inconclusive",
+        "not_applicable_with_reason",
+    ]
+    stdout_expectation_status: Literal["satisfied", "failed", "not_applicable_with_reason"]
+    stderr_expectation_status: Literal["satisfied", "failed", "not_applicable_with_reason"]
+    exit_code_expectation_status: Literal["satisfied", "failed", "not_applicable_with_reason"]
+    filesystem_expectation_status: Literal[
+        "satisfied",
+        "failed",
+        "not_applicable_with_reason",
+    ]
+    hidden_test_equivalence_posture: Literal["not_hidden_test_equivalence"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    local_outcome_posture: Literal[
+        "single_case_blocked_by_artifact_capture_gap",
+        "single_case_blocked_by_contamination",
+        "single_case_blocked_by_lifecycle_projection_gap",
+        "single_case_blocked_by_output_capture_gap",
+        "single_case_blocked_by_sandbox",
+        "single_case_inconclusive_local_only",
+        "single_case_locally_accepted",
+        "single_case_remand_recommended",
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_outcome_audit(self) -> "ProgrambenchSingleCaseLocalOutcomeAudit":
+        for field_name in (
+            "contamination_blocker_refs",
+            "sandbox_blocker_refs",
+            "lifecycle_projection_blocker_refs",
+            "output_capture_blocker_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique_allow_empty(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_local_outcome_audit_ref,
+                self.single_case_run_request_ref,
+                self.single_case_target_selection_ref,
+                self.single_case_worker_dispatch_specimen_ref,
+                self.single_case_execution_trace_ref,
+                self.single_case_probe_observation_bundle_ref,
+                self.single_case_candidate_artifact_capture_ref,
+                self.single_case_lifecycle_projection_ref,
+            ],
+            field_name="single_case_local_outcome_audit_refs",
+        )
+        blockers = (
+            self.contamination_blocker_refs
+            + self.sandbox_blocker_refs
+            + self.lifecycle_projection_blocker_refs
+            + self.output_capture_blocker_refs
+        )
+        if self.local_outcome_posture == "single_case_locally_accepted":
+            if blockers:
+                raise ValueError("local acceptance cannot carry blockers")
+            expected_statuses = {
+                "contamination_audit_status": "clean",
+                "sandbox_audit_status": "clean",
+                "lifecycle_projection_status": "validated",
+                "output_capture_status": "captured",
+                "candidate_artifact_capture_status": "captured_inside_write_scope",
+                "candidate_artifact_inside_write_scope_posture": ("inside_released_write_scope"),
+                "positive_probe_status": "passed",
+                "stdout_expectation_status": "satisfied",
+                "stderr_expectation_status": "satisfied",
+                "exit_code_expectation_status": "satisfied",
+                "filesystem_expectation_status": "satisfied",
+            }
+            for field_name, expected in expected_statuses.items():
+                if getattr(self, field_name) != expected:
+                    raise ValueError(
+                        f"local acceptance requires satisfied audit status: {field_name}"
+                    )
+            if self.negative_probe_status not in {
+                "passed",
+                "not_applicable_with_reason",
+            }:
+                raise ValueError(
+                    "local acceptance requires negative probes to pass or be not applicable"
+                )
+        elif not blockers and self.local_outcome_posture not in {
+            "single_case_inconclusive_local_only",
+            "single_case_remand_recommended",
+        }:
+            raise ValueError("blocked local outcomes require blocker refs")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRunObservationSummary(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_OBSERVATION_SUMMARY_SCHEMA] = Field(
+        alias="schema"
+    )
+    single_case_run_observation_summary_ref: str
+    single_case_local_outcome_audit_ref: str
+    single_case_local_scope_statement: Literal[
+        "local_only_against_declared_probes_and_oracle_not_programbench_truth"
+    ]
+    local_probe_summary_rows: list[ProgrambenchSingleCaseLocalProbeSummaryRow] = Field(min_length=1)
+    local_outcome_posture: Literal[
+        "single_case_blocked_by_artifact_capture_gap",
+        "single_case_blocked_by_contamination",
+        "single_case_blocked_by_lifecycle_projection_gap",
+        "single_case_blocked_by_output_capture_gap",
+        "single_case_blocked_by_sandbox",
+        "single_case_inconclusive_local_only",
+        "single_case_locally_accepted",
+        "single_case_remand_recommended",
+    ]
+    stdout_summary_posture: Literal["local_stdout_expectation_satisfied"]
+    stderr_summary_posture: Literal["local_stderr_expectation_satisfied"]
+    exit_code_summary_posture: Literal["local_exit_code_expectation_satisfied"]
+    filesystem_summary_posture: Literal["local_filesystem_expectation_satisfied"]
+    artifact_summary_posture: Literal["local_artifact_capture_inside_write_scope"]
+    single_specimen_scope_posture: Literal["single_local_specimen_only_no_comparison"]
+    benchmark_score_language_posture: Literal["benchmark_score_language_absent"]
+    baseline_comparison_language_posture: Literal["baseline_comparison_language_absent"]
+    model_ranking_language_posture: Literal["model_ranking_language_absent"]
+    soft_benchmark_language_screen_status: Literal["passed"]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_observation_summary(
+        self,
+    ) -> "ProgrambenchSingleCaseRunObservationSummary":
+        row_refs = [row.local_probe_summary_ref for row in self.local_probe_summary_rows]
+        _ensure_sorted_unique(row_refs, field_name="local_probe_summary_rows")
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_run_observation_summary_ref,
+                self.single_case_local_outcome_audit_ref,
+            ],
+            field_name="single_case_run_observation_summary_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRemandOrAcceptanceDecision(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_REMAND_OR_ACCEPTANCE_DECISION_SCHEMA] = Field(
+        alias="schema"
+    )
+    single_case_remand_or_acceptance_decision_ref: str
+    single_case_local_outcome_audit_ref: str
+    single_case_run_observation_summary_ref: str
+    decision_posture: Literal[
+        "local_acceptance_recorded",
+        "local_inconclusive_pressure_recorded",
+        "local_remand_pressure_recorded",
+    ]
+    decision_basis_rows: list[ProgrambenchSingleCaseDecisionBasisRow] = Field(min_length=1)
+    remand_reason_rows: list[ProgrambenchSingleCaseRemandReasonRow] = Field(default_factory=list)
+    acceptance_basis_rows: list[ProgrambenchSingleCaseAcceptanceBasisRow] = Field(
+        default_factory=list
+    )
+    retry_authority_posture: Literal["no_retry_authority_granted_by_pb_single_case_run_0c"]
+    remand_pressure_posture: Literal["pressure_only_requires_later_retry_or_trial_governance"]
+    official_submission_authority_posture: Literal["no_official_submission_authority"]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_single_case_run_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_decision(self) -> "ProgrambenchSingleCaseRemandOrAcceptanceDecision":
+        for field_name, attr in (
+            ("decision_basis_rows", "decision_basis_ref"),
+            ("remand_reason_rows", "remand_reason_ref"),
+            ("acceptance_basis_rows", "acceptance_basis_ref"),
+        ):
+            rows = getattr(self, field_name)
+            refs = [getattr(row, attr) for row in rows]
+            _ensure_sorted_unique_allow_empty(refs, field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_remand_or_acceptance_decision_ref,
+                self.single_case_local_outcome_audit_ref,
+                self.single_case_run_observation_summary_ref,
+            ],
+            field_name="single_case_remand_or_acceptance_decision_refs",
+        )
+        if self.decision_posture == "local_acceptance_recorded":
+            if self.remand_reason_rows:
+                raise ValueError("local acceptance cannot carry remand reasons")
+            if not self.acceptance_basis_rows:
+                raise ValueError("local acceptance requires acceptance basis rows")
+            if any(
+                row.basis_status != "supports_local_acceptance" for row in self.decision_basis_rows
+            ):
+                raise ValueError(
+                    "local acceptance decision basis rows must support local acceptance"
+                )
+        else:
+            if not self.remand_reason_rows:
+                raise ValueError("non-acceptance decisions require remand reasons")
+            if self.acceptance_basis_rows:
+                raise ValueError("non-acceptance decisions cannot carry acceptance basis")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRunHandoff(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_HANDOFF_SCHEMA] = Field(alias="schema")
+    single_case_run_handoff_ref: str
+    single_case_remand_or_acceptance_decision_ref: str
+    handoff_pressure_rows: list[ProgrambenchSingleCaseRunHandoffPressureRow] = Field(
+        default_factory=list
+    )
+    handoff_pressure_kind: Literal[
+        "future_batch_execution_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_local_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_retry_governance_review",
+        "none_local_acceptance_recorded",
+    ]
+    handoff_non_selection_posture: Literal[
+        "pressure_only_no_future_family_selected_by_pb_single_case_run_0c"
+    ]
+    retry_authority_posture: Literal["no_retry_authority_granted_by_pb_single_case_run_0c"]
+    batch_execution_authority_posture: Literal[
+        "no_batch_execution_authority_granted_by_pb_single_case_run_0c"
+    ]
+    official_programbench_authority_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_single_case_run_0c"
+    ]
+    model_ranking_authority_posture: Literal[
+        "no_model_ranking_authority_granted_by_pb_single_case_run_0c"
+    ]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_single_case_run_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_handoff(self) -> "ProgrambenchSingleCaseRunHandoff":
+        row_refs = [row.handoff_pressure_ref for row in self.handoff_pressure_rows]
+        _ensure_sorted_unique_allow_empty(row_refs, field_name="handoff_pressure_rows")
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_run_handoff_ref,
+                self.single_case_remand_or_acceptance_decision_ref,
+            ],
+            field_name="single_case_run_handoff_refs",
+        )
+        if self.handoff_pressure_kind == "none_local_acceptance_recorded":
+            if self.handoff_pressure_rows:
+                raise ValueError("no-pressure handoff cannot carry pressure rows")
+        elif not any(
+            row.pressure_kind == self.handoff_pressure_kind for row in self.handoff_pressure_rows
+        ):
+            raise ValueError("handoff pressure kind must be represented by a row")
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
+class ProgrambenchSingleCaseRunFamilyCloseoutAlignment(_SingleCaseRunBase):
+    schema_id: Literal[PROGRAMBENCH_SINGLE_CASE_RUN_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA] = Field(
+        alias="schema"
+    )
+    single_case_run_family_closeout_alignment_ref: str
+    family_ref: Literal["PB-SINGLE-CASE-RUN-0"]
+    closed_slices: list[str] = Field(min_length=1)
+    slice_a_closeout_ref: str
+    slice_b_closeout_ref: str
+    slice_c_closeout_ref: str
+    local_outcome_audit_refs: list[str] = Field(min_length=1)
+    observation_summary_refs: list[str] = Field(min_length=1)
+    remand_or_acceptance_decision_refs: list[str] = Field(min_length=1)
+    handoff_refs: list[str] = Field(min_length=1)
+    family_scope_posture: Literal["pb_single_case_run_0_closed_local_single_case_only"]
+    official_programbench_authority_posture: Literal[
+        "no_official_programbench_authority_granted_by_pb_single_case_run_0c"
+    ]
+    benchmark_truth_posture: Literal["not_benchmark_truth"]
+    retry_authority_posture: Literal["no_retry_authority_granted_by_pb_single_case_run_0c"]
+    future_family_selection_posture: Literal[
+        "no_future_family_selection_authority_granted_by_pb_single_case_run_0c"
+    ]
+    limitation_note: str
+
+    @model_validator(mode="after")
+    def _validate_closeout(
+        self,
+    ) -> "ProgrambenchSingleCaseRunFamilyCloseoutAlignment":
+        if self.closed_slices != _PB_SINGLE_CASE_RUN_CLOSED_SLICES:
+            raise ValueError("PB-SINGLE-CASE-RUN-0 closeout must close exactly A, B, and C")
+        for field_name in (
+            "local_outcome_audit_refs",
+            "observation_summary_refs",
+            "remand_or_acceptance_decision_refs",
+            "handoff_refs",
+        ):
+            values = getattr(self, field_name)
+            _ensure_sorted_unique(values, field_name=field_name)
+            _ensure_no_forbidden_refs(values, field_name=field_name)
+        _ensure_no_forbidden_refs(
+            [
+                self.single_case_run_family_closeout_alignment_ref,
+                self.slice_a_closeout_ref,
+                self.slice_b_closeout_ref,
+                self.slice_c_closeout_ref,
+            ],
+            field_name="single_case_run_family_closeout_refs",
+        )
+        _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
+        return self
+
+
 def validate_pb_single_case_run_0a_bundle(
     *,
     matrix_inclusion_family_closeout: ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
@@ -1221,10 +1614,7 @@ def validate_pb_single_case_run_0a_bundle(
         raise ValueError("target selection must be selected for later local run preflight")
     if target_selection.target_selection_blocker_refs:
         raise ValueError("target selection must not carry blockers")
-    if (
-        target_selection.source_matrix_ref
-        != matrix_revision_registration.target_matrix_ref
-    ):
+    if target_selection.source_matrix_ref != matrix_revision_registration.target_matrix_ref:
         raise ValueError("target source matrix must match revision registration")
     if (
         target_selection.source_matrix_revision_ref
@@ -1261,10 +1651,7 @@ def validate_pb_single_case_run_0a_bundle(
         != target_selection.single_case_target_selection_ref
     ):
         raise ValueError("preflight must reference target selection")
-    if (
-        run_control_contract.single_case_run_request_ref
-        != run_request.single_case_run_request_ref
-    ):
+    if run_control_contract.single_case_run_request_ref != run_request.single_case_run_request_ref:
         raise ValueError("control contract must reference run request")
     if (
         non_authority_guardrail.single_case_run_request_ref
@@ -1276,10 +1663,7 @@ def validate_pb_single_case_run_0a_bundle(
         != target_selection.worker_visible_packet_hash
     ):
         raise ValueError("control contract worker packet hash must match target")
-    if (
-        run_control_contract.local_probe_basis_hash
-        != target_selection.local_probe_basis_hash
-    ):
+    if run_control_contract.local_probe_basis_hash != target_selection.local_probe_basis_hash:
         raise ValueError("control contract local probe basis hash must match target")
     if run_control_contract.runbook_hash != execution_preflight.runbook_hash:
         raise ValueError("control contract runbook_hash must match preflight")
@@ -1401,10 +1785,7 @@ def validate_pb_single_case_run_0b_bundle(
         raise ValueError("probe observation bundle must reference execution trace")
     if probe_observation_bundle.local_probe_basis_ref != target_selection.local_probe_basis_ref:
         raise ValueError("probe observation bundle must use selected local probe basis")
-    if (
-        probe_observation_bundle.local_probe_basis_hash
-        != target_selection.local_probe_basis_hash
-    ):
+    if probe_observation_bundle.local_probe_basis_hash != target_selection.local_probe_basis_hash:
         raise ValueError("probe observation bundle hash must match selected probe basis")
     if probe_observation_bundle.missing_probe_refs:
         raise ValueError("reference B probe bundle cannot carry missing probes")
@@ -1452,9 +1833,190 @@ def validate_pb_single_case_run_0b_bundle(
         raise ValueError("lifecycle projection must reference candidate artifact capture")
     if lifecycle_projection.projection_gap_refs:
         raise ValueError("reference B lifecycle projection cannot carry projection gaps")
-    if lifecycle_projection.projection_is_not_new_truth_posture != (
-        "projection_is_not_new_truth"
-    ):
+    if lifecycle_projection.projection_is_not_new_truth_posture != ("projection_is_not_new_truth"):
         raise ValueError("lifecycle projection cannot create new truth")
     if lifecycle_projection.benchmark_truth_posture != "not_benchmark_truth":
         raise ValueError("lifecycle projection cannot claim benchmark truth")
+
+
+def validate_pb_single_case_run_0c_bundle(
+    *,
+    matrix_inclusion_family_closeout: ProgrambenchLocalMatrixInclusionFamilyCloseoutAlignment,
+    matrix_revision_registration: ProgrambenchLocalMatrixRevisionRegistration,
+    matrix_revision_readiness_summary: ProgrambenchLocalMatrixRevisionReadinessSummary,
+    run_request: ProgrambenchSingleCaseRunRequest,
+    target_selection: ProgrambenchSingleCaseTargetSelection,
+    execution_preflight: ProgrambenchSingleCaseExecutionPreflight,
+    run_control_contract: ProgrambenchSingleCaseRunControlContract,
+    non_authority_guardrail: ProgrambenchSingleCaseRunNonAuthorityGuardrail,
+    worker_dispatch_specimen: ProgrambenchSingleCaseWorkerDispatchSpecimen,
+    execution_trace: ProgrambenchSingleCaseExecutionTrace,
+    probe_observation_bundle: ProgrambenchSingleCaseProbeObservationBundle,
+    candidate_artifact_capture: ProgrambenchSingleCaseCandidateArtifactCapture,
+    lifecycle_projection: ProgrambenchSingleCaseLifecycleProjection,
+    local_outcome_audit: ProgrambenchSingleCaseLocalOutcomeAudit,
+    observation_summary: ProgrambenchSingleCaseRunObservationSummary,
+    remand_or_acceptance_decision: ProgrambenchSingleCaseRemandOrAcceptanceDecision,
+    handoff: ProgrambenchSingleCaseRunHandoff,
+    family_closeout: ProgrambenchSingleCaseRunFamilyCloseoutAlignment,
+) -> None:
+    validate_pb_single_case_run_0b_bundle(
+        matrix_inclusion_family_closeout=matrix_inclusion_family_closeout,
+        matrix_revision_registration=matrix_revision_registration,
+        matrix_revision_readiness_summary=matrix_revision_readiness_summary,
+        run_request=run_request,
+        target_selection=target_selection,
+        execution_preflight=execution_preflight,
+        run_control_contract=run_control_contract,
+        non_authority_guardrail=non_authority_guardrail,
+        worker_dispatch_specimen=worker_dispatch_specimen,
+        execution_trace=execution_trace,
+        probe_observation_bundle=probe_observation_bundle,
+        candidate_artifact_capture=candidate_artifact_capture,
+        lifecycle_projection=lifecycle_projection,
+    )
+
+    if local_outcome_audit.single_case_run_request_ref != run_request.single_case_run_request_ref:
+        raise ValueError("outcome audit must reference run request")
+    if (
+        local_outcome_audit.single_case_target_selection_ref
+        != target_selection.single_case_target_selection_ref
+    ):
+        raise ValueError("outcome audit must reference target selection")
+    if (
+        local_outcome_audit.single_case_worker_dispatch_specimen_ref
+        != worker_dispatch_specimen.single_case_worker_dispatch_specimen_ref
+    ):
+        raise ValueError("outcome audit must reference worker dispatch specimen")
+    if (
+        local_outcome_audit.single_case_execution_trace_ref
+        != execution_trace.single_case_execution_trace_ref
+    ):
+        raise ValueError("outcome audit must reference execution trace")
+    if (
+        local_outcome_audit.single_case_probe_observation_bundle_ref
+        != probe_observation_bundle.single_case_probe_observation_bundle_ref
+    ):
+        raise ValueError("outcome audit must reference probe observation bundle")
+    if (
+        local_outcome_audit.single_case_candidate_artifact_capture_ref
+        != candidate_artifact_capture.single_case_candidate_artifact_capture_ref
+    ):
+        raise ValueError("outcome audit must reference candidate artifact capture")
+    if (
+        local_outcome_audit.single_case_lifecycle_projection_ref
+        != lifecycle_projection.single_case_lifecycle_projection_ref
+    ):
+        raise ValueError("outcome audit must reference lifecycle projection")
+
+    if local_outcome_audit.local_outcome_posture == "single_case_locally_accepted":
+        required_audit_statuses = {
+            "contamination_audit_status": "clean",
+            "sandbox_audit_status": "clean",
+            "lifecycle_projection_status": "validated",
+            "output_capture_status": "captured",
+            "candidate_artifact_capture_status": "captured_inside_write_scope",
+            "candidate_artifact_inside_write_scope_posture": "inside_released_write_scope",
+            "positive_probe_status": "passed",
+            "stdout_expectation_status": "satisfied",
+            "stderr_expectation_status": "satisfied",
+            "exit_code_expectation_status": "satisfied",
+            "filesystem_expectation_status": "satisfied",
+        }
+        for field_name, expected_value in required_audit_statuses.items():
+            if getattr(local_outcome_audit, field_name) != expected_value:
+                raise ValueError(f"local acceptance requires satisfied audit status: {field_name}")
+        if local_outcome_audit.negative_probe_status not in {
+            "passed",
+            "not_applicable_with_reason",
+        }:
+            raise ValueError(
+                "local acceptance requires negative probes to pass or be not applicable"
+            )
+        if execution_trace.sandbox_violation_refs:
+            raise ValueError("local acceptance requires no sandbox violations")
+        if execution_trace.forbidden_content_screen_verdict != "passed":
+            raise ValueError("local acceptance requires passed output screening")
+        if candidate_artifact_capture.forbidden_content_screen_verdict != "passed":
+            raise ValueError("local acceptance requires screened artifact capture")
+        if candidate_artifact_capture.inside_write_scope_posture != ("inside_released_write_scope"):
+            raise ValueError("local acceptance requires artifact inside write scope")
+        if candidate_artifact_capture.write_scope_ref != execution_preflight.write_scope_ref:
+            raise ValueError("local acceptance requires released write scope ref")
+        if candidate_artifact_capture.write_scope_hash != execution_preflight.write_scope_hash:
+            raise ValueError("local acceptance requires released write scope hash")
+        if lifecycle_projection.projection_gap_refs:
+            raise ValueError("local acceptance requires no lifecycle projection gaps")
+        if not lifecycle_projection.projection_validator_binding_refs:
+            raise ValueError("local acceptance requires projection validator bindings")
+        failed_probes = [
+            row.local_probe_ref
+            for row in probe_observation_bundle.probe_observation_rows
+            if row.probe_result_status != "passed"
+        ]
+        if failed_probes:
+            raise ValueError(
+                f"local acceptance requires declared local probes to pass: {failed_probes}"
+            )
+        if probe_observation_bundle.missing_probe_refs:
+            raise ValueError("local acceptance cannot carry missing probes")
+        if probe_observation_bundle.inconclusive_probe_refs:
+            raise ValueError("local acceptance cannot carry inconclusive probes")
+
+    if (
+        observation_summary.single_case_local_outcome_audit_ref
+        != local_outcome_audit.single_case_local_outcome_audit_ref
+    ):
+        raise ValueError("observation summary must reference local outcome audit")
+    if observation_summary.local_outcome_posture != local_outcome_audit.local_outcome_posture:
+        raise ValueError("observation summary posture must match outcome audit")
+    summary_probe_refs = {
+        row.local_probe_ref for row in observation_summary.local_probe_summary_rows
+    }
+    observed_probe_refs = {
+        row.local_probe_ref for row in probe_observation_bundle.probe_observation_rows
+    }
+    if not summary_probe_refs <= observed_probe_refs:
+        raise ValueError("observation summary probe refs must come from probe bundle")
+
+    if (
+        remand_or_acceptance_decision.single_case_local_outcome_audit_ref
+        != local_outcome_audit.single_case_local_outcome_audit_ref
+    ):
+        raise ValueError("decision must reference local outcome audit")
+    if (
+        remand_or_acceptance_decision.single_case_run_observation_summary_ref
+        != observation_summary.single_case_run_observation_summary_ref
+    ):
+        raise ValueError("decision must reference observation summary")
+    if local_outcome_audit.local_outcome_posture == "single_case_locally_accepted":
+        if remand_or_acceptance_decision.decision_posture != "local_acceptance_recorded":
+            raise ValueError("local acceptance requires acceptance decision posture")
+        if remand_or_acceptance_decision.remand_reason_rows:
+            raise ValueError("local acceptance cannot carry remand pressure")
+    elif remand_or_acceptance_decision.decision_posture == "local_acceptance_recorded":
+        raise ValueError("non-accepted local outcomes cannot record acceptance")
+
+    if (
+        handoff.single_case_remand_or_acceptance_decision_ref
+        != remand_or_acceptance_decision.single_case_remand_or_acceptance_decision_ref
+    ):
+        raise ValueError("handoff must reference remand or acceptance decision")
+    if local_outcome_audit.local_outcome_posture == "single_case_locally_accepted":
+        if handoff.handoff_pressure_kind != "none_local_acceptance_recorded":
+            raise ValueError("local acceptance handoff must not carry pressure")
+
+    if family_closeout.local_outcome_audit_refs != [
+        local_outcome_audit.single_case_local_outcome_audit_ref
+    ]:
+        raise ValueError("family closeout must reference local outcome audit")
+    if family_closeout.observation_summary_refs != [
+        observation_summary.single_case_run_observation_summary_ref
+    ]:
+        raise ValueError("family closeout must reference observation summary")
+    if family_closeout.remand_or_acceptance_decision_refs != [
+        remand_or_acceptance_decision.single_case_remand_or_acceptance_decision_ref
+    ]:
+        raise ValueError("family closeout must reference remand/acceptance decision")
+    if family_closeout.handoff_refs != [handoff.single_case_run_handoff_ref]:
+        raise ValueError("family closeout must reference handoff")

@@ -1,0 +1,36 @@
+{
+  "artifact_summary_posture": "local_artifact_capture_inside_write_scope",
+  "baseline_comparison_language_posture": "baseline_comparison_language_absent",
+  "benchmark_score_language_posture": "benchmark_score_language_absent",
+  "exit_code_summary_posture": "local_exit_code_expectation_satisfied",
+  "filesystem_summary_posture": "local_filesystem_expectation_satisfied",
+  "limitation_note": "Summary is local-only against declared observations.",
+  "local_outcome_posture": "single_case_locally_accepted",
+  "local_probe_summary_rows": [
+    {
+      "limitation_note": "Negative local probe is summarized from the local bundle.",
+      "local_only_posture": "declared_local_probe_only_not_hidden_test",
+      "local_probe_ref": "local-probe:pb-single-case-run-0b:negative",
+      "local_probe_summary_ref": "local-probe-summary:pb-single-case-run-0c:001",
+      "probe_kind": "negative",
+      "probe_result_status": "passed"
+    },
+    {
+      "limitation_note": "Positive local probe is summarized from the local bundle.",
+      "local_only_posture": "declared_local_probe_only_not_hidden_test",
+      "local_probe_ref": "local-probe:pb-single-case-run-0b:positive",
+      "local_probe_summary_ref": "local-probe-summary:pb-single-case-run-0c:002",
+      "probe_kind": "positive",
+      "probe_result_status": "passed"
+    }
+  ],
+  "model_ranking_language_posture": "model_ranking_language_absent",
+  "schema": "programbench_single_case_run_observation_summary@1",
+  "single_case_local_outcome_audit_ref": "single-case-outcome-audit:pb-single-case-run-0c:reference",
+  "single_case_local_scope_statement": "local_only_against_declared_probes_and_oracle_not_programbench_truth",
+  "single_case_run_observation_summary_ref": "single-case-observation-summary:pb-single-case-run-0c:reference",
+  "single_specimen_scope_posture": "single_local_specimen_only_no_comparison",
+  "soft_benchmark_language_screen_status": "passed",
+  "stderr_summary_posture": "local_stderr_expectation_satisfied",
+  "stdout_summary_posture": "local_stdout_expectation_satisfied"
+}

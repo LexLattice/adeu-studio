@@ -1,0 +1,31 @@
+{
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "closed_slices": [
+    "PB-SINGLE-CASE-RUN-0-A",
+    "PB-SINGLE-CASE-RUN-0-B",
+    "PB-SINGLE-CASE-RUN-0-C"
+  ],
+  "family_ref": "PB-SINGLE-CASE-RUN-0",
+  "family_scope_posture": "pb_single_case_run_0_closed_local_single_case_only",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+  "handoff_refs": [
+    "single-case-handoff:pb-single-case-run-0c:reference"
+  ],
+  "limitation_note": "Closeout closes only the local single-case run family.",
+  "local_outcome_audit_refs": [
+    "single-case-outcome-audit:pb-single-case-run-0c:reference"
+  ],
+  "observation_summary_refs": [
+    "single-case-observation-summary:pb-single-case-run-0c:reference"
+  ],
+  "official_programbench_authority_posture": "no_official_programbench_authority_granted_by_pb_single_case_run_0c",
+  "remand_or_acceptance_decision_refs": [
+    "single-case-decision:pb-single-case-run-0c:reference"
+  ],
+  "retry_authority_posture": "no_retry_authority_granted_by_pb_single_case_run_0c",
+  "schema": "programbench_single_case_run_family_closeout_alignment@1",
+  "single_case_run_family_closeout_alignment_ref": "single-case-family-closeout:pb-single-case-run-0c:reference",
+  "slice_a_closeout_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS269.md",
+  "slice_b_closeout_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS270.md",
+  "slice_c_closeout_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS271.md"
+}

@@ -1,0 +1,95 @@
+{
+  "acceptance_basis_rows": [
+    {
+      "acceptance_basis_kind": "artifact_capture_inside_write_scope",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:001",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Artifact capture stayed inside the released write scope."
+    },
+    {
+      "acceptance_basis_kind": "declared_local_probes_satisfied",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:002",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Declared local probes satisfied local expectations."
+    },
+    {
+      "acceptance_basis_kind": "filesystem_expectations_satisfied",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:003",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Filesystem expectations satisfied local observations."
+    },
+    {
+      "acceptance_basis_kind": "lifecycle_projection_validated",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:004",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Lifecycle projection retained released vocabulary."
+    },
+    {
+      "acceptance_basis_kind": "output_capture_satisfied",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:005",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Output capture satisfied local observation boundaries."
+    },
+    {
+      "acceptance_basis_kind": "sandbox_satisfied",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:006",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Sandbox evidence satisfied local containment checks."
+    },
+    {
+      "acceptance_basis_kind": "stdio_exit_expectations_satisfied",
+      "acceptance_basis_ref": "acceptance-basis:pb-single-case-run-0c:007",
+      "acceptance_scope_posture": "local_acceptance_only_not_benchmark_truth",
+      "limitation_note": "Stdio and exit-code expectations satisfied local observations."
+    }
+  ],
+  "benchmark_truth_posture": "not_benchmark_truth",
+  "decision_basis_rows": [
+    {
+      "basis_kind": "artifact_capture_inside_write_scope",
+      "basis_status": "supports_local_acceptance",
+      "decision_basis_ref": "decision-basis:pb-single-case-run-0c:001",
+      "limitation_note": "Artifact capture supports the local decision.",
+      "local_only_posture": "local_single_case_only_not_benchmark_truth"
+    },
+    {
+      "basis_kind": "declared_local_probes_satisfied",
+      "basis_status": "supports_local_acceptance",
+      "decision_basis_ref": "decision-basis:pb-single-case-run-0c:002",
+      "limitation_note": "Declared local probes support the local decision.",
+      "local_only_posture": "local_single_case_only_not_benchmark_truth"
+    },
+    {
+      "basis_kind": "output_capture_satisfied",
+      "basis_status": "supports_local_acceptance",
+      "decision_basis_ref": "decision-basis:pb-single-case-run-0c:003",
+      "limitation_note": "Output capture supports the local decision.",
+      "local_only_posture": "local_single_case_only_not_benchmark_truth"
+    },
+    {
+      "basis_kind": "projection_validated",
+      "basis_status": "supports_local_acceptance",
+      "decision_basis_ref": "decision-basis:pb-single-case-run-0c:004",
+      "limitation_note": "Projection evidence supports the local decision.",
+      "local_only_posture": "local_single_case_only_not_benchmark_truth"
+    },
+    {
+      "basis_kind": "sandbox_satisfied",
+      "basis_status": "supports_local_acceptance",
+      "decision_basis_ref": "decision-basis:pb-single-case-run-0c:005",
+      "limitation_note": "Sandbox evidence supports the local decision.",
+      "local_only_posture": "local_single_case_only_not_benchmark_truth"
+    }
+  ],
+  "decision_posture": "local_acceptance_recorded",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+  "limitation_note": "Decision records local acceptance only.",
+  "official_submission_authority_posture": "no_official_submission_authority",
+  "remand_pressure_posture": "pressure_only_requires_later_retry_or_trial_governance",
+  "remand_reason_rows": [],
+  "retry_authority_posture": "no_retry_authority_granted_by_pb_single_case_run_0c",
+  "schema": "programbench_single_case_remand_or_acceptance_decision@1",
+  "single_case_local_outcome_audit_ref": "single-case-outcome-audit:pb-single-case-run-0c:reference",
+  "single_case_remand_or_acceptance_decision_ref": "single-case-decision:pb-single-case-run-0c:reference",
+  "single_case_run_observation_summary_ref": "single-case-observation-summary:pb-single-case-run-0c:reference"
+}

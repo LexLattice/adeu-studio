@@ -1,0 +1,14 @@
+{
+  "batch_execution_authority_posture": "no_batch_execution_authority_granted_by_pb_single_case_run_0c",
+  "future_family_selection_posture": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+  "handoff_non_selection_posture": "pressure_only_no_future_family_selected_by_pb_single_case_run_0c",
+  "handoff_pressure_kind": "none_local_acceptance_recorded",
+  "handoff_pressure_rows": [],
+  "limitation_note": "Handoff records no next-family selection.",
+  "model_ranking_authority_posture": "no_model_ranking_authority_granted_by_pb_single_case_run_0c",
+  "official_programbench_authority_posture": "no_official_programbench_authority_granted_by_pb_single_case_run_0c",
+  "retry_authority_posture": "no_retry_authority_granted_by_pb_single_case_run_0c",
+  "schema": "programbench_single_case_run_handoff@1",
+  "single_case_remand_or_acceptance_decision_ref": "single-case-decision:pb-single-case-run-0c:reference",
+  "single_case_run_handoff_ref": "single-case-handoff:pb-single-case-run-0c:reference"
+}
