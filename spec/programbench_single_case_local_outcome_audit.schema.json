@@ -1,6 +1,13 @@
 {
   "additionalProperties": false,
   "properties": {
+    "artifact_capture_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Capture Blocker Refs",
+      "type": "array"
+    },
     "benchmark_truth_posture": {
       "const": "not_benchmark_truth",
       "title": "Benchmark Truth Posture",

@@ -317,13 +317,52 @@ def test_pb_single_case_run_0c_rejects_projection_gap_for_acceptance() -> None:
         _validate_reference_bundle(lifecycle_projection=projection)
 
 
-def test_pb_single_case_run_0c_rejects_benchmark_language_in_summary() -> None:
+def test_pb_single_case_run_0c_rejects_blocked_posture_without_matching_blocker() -> None:
+    audit = _load_single_case_run_c_rows()[0]
+    payload = audit.model_dump(by_alias=True)
+    payload.update(
+        {
+            "local_outcome_posture": "single_case_blocked_by_contamination",
+            "output_capture_status": "blocked_by_output_gap",
+            "output_capture_blocker_refs": ["output-blocker:pb-single-case-run-0c:001"],
+        }
+    )
+
+    with pytest.raises(ValidationError, match="contamination_audit_status"):
+        ProgrambenchSingleCaseLocalOutcomeAudit.model_validate(payload)
+
+
+def test_pb_single_case_run_0c_rejects_artifact_gap_without_artifact_blocker() -> None:
+    audit = _load_single_case_run_c_rows()[0]
+    payload = audit.model_dump(by_alias=True)
+    payload.update(
+        {
+            "candidate_artifact_capture_status": "missing",
+            "candidate_artifact_inside_write_scope_posture": "not_applicable_missing_capture",
+            "local_outcome_posture": "single_case_blocked_by_artifact_capture_gap",
+        }
+    )
+
+    with pytest.raises(ValidationError, match="artifact_capture_blocker_refs"):
+        ProgrambenchSingleCaseLocalOutcomeAudit.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    "limitation_note",
+    [
+        "This is a success rate statement.",
+        "This is an official-like result statement.",
+        "This claims hidden-test equivalence.",
+    ],
+)
+def test_pb_single_case_run_0c_rejects_benchmark_language_in_summary(
+    limitation_note: str,
+) -> None:
     summary = _load_single_case_run_c_rows()[1]
 
     with pytest.raises(ValidationError, match="benchmark-like"):
         ProgrambenchSingleCaseRunObservationSummary.model_validate(
-            summary.model_dump(by_alias=True)
-            | {"limitation_note": "This is a success rate statement."}
+            summary.model_dump(by_alias=True) | {"limitation_note": limitation_note}
         )
 
 

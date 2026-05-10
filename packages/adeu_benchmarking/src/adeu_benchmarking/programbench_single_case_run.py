@@ -107,6 +107,8 @@ _SOFT_RESULT_LANGUAGE_MARKERS = (
     "leaderboard",
     "model improved",
     "model ranking",
+    "hidden-test equivalence",
+    "official-like result",
     "pass rate",
     "passed programbench",
     "representative result",
@@ -1266,6 +1268,7 @@ class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
         "outside_write_scope",
         "screening_not_passed",
     ]
+    artifact_capture_blocker_refs: list[str] = Field(default_factory=list)
     candidate_artifact_inside_write_scope_posture: Literal[
         "inside_released_write_scope",
         "outside_released_write_scope",
@@ -1308,6 +1311,7 @@ class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
             "sandbox_blocker_refs",
             "lifecycle_projection_blocker_refs",
             "output_capture_blocker_refs",
+            "artifact_capture_blocker_refs",
         ):
             values = getattr(self, field_name)
             _ensure_sorted_unique_allow_empty(values, field_name=field_name)
@@ -1330,6 +1334,7 @@ class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
             + self.sandbox_blocker_refs
             + self.lifecycle_projection_blocker_refs
             + self.output_capture_blocker_refs
+            + self.artifact_capture_blocker_refs
         )
         if self.local_outcome_posture == "single_case_locally_accepted":
             if blockers:
@@ -1359,11 +1364,51 @@ class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
                 raise ValueError(
                     "local acceptance requires negative probes to pass or be not applicable"
                 )
-        elif not blockers and self.local_outcome_posture not in {
-            "single_case_inconclusive_local_only",
-            "single_case_remand_recommended",
-        }:
-            raise ValueError("blocked local outcomes require blocker refs")
+        else:
+            blocked_requirements: dict[str, tuple[str, str | set[str], str]] = {
+                "single_case_blocked_by_artifact_capture_gap": (
+                    "candidate_artifact_capture_status",
+                    {"missing", "outside_write_scope", "screening_not_passed"},
+                    "artifact_capture_blocker_refs",
+                ),
+                "single_case_blocked_by_contamination": (
+                    "contamination_audit_status",
+                    "blocked_by_contamination",
+                    "contamination_blocker_refs",
+                ),
+                "single_case_blocked_by_lifecycle_projection_gap": (
+                    "lifecycle_projection_status",
+                    "blocked_by_projection_gap",
+                    "lifecycle_projection_blocker_refs",
+                ),
+                "single_case_blocked_by_output_capture_gap": (
+                    "output_capture_status",
+                    "blocked_by_output_gap",
+                    "output_capture_blocker_refs",
+                ),
+                "single_case_blocked_by_sandbox": (
+                    "sandbox_audit_status",
+                    "blocked_by_sandbox",
+                    "sandbox_blocker_refs",
+                ),
+            }
+            requirement = blocked_requirements.get(self.local_outcome_posture)
+            if requirement is not None:
+                status_field, expected_status, blocker_field = requirement
+                status = getattr(self, status_field)
+                expected_statuses = (
+                    expected_status if isinstance(expected_status, set) else {expected_status}
+                )
+                if status not in expected_statuses:
+                    raise ValueError(
+                        "blocked local outcome posture requires matching blocked status: "
+                        f"{status_field}"
+                    )
+                if not getattr(self, blocker_field):
+                    raise ValueError(
+                        "blocked local outcome posture requires matching blocker refs: "
+                        f"{blocker_field}"
+                    )
         _ensure_no_result_language(self.limitation_note, field_name="limitation_note")
         return self
 
