@@ -1,8 +1,8 @@
 # Assessment vNext+271 Edges
 
-Status: pre-lock edge assessment for `PB-SINGLE-CASE-RUN-0-C`.
+Status: post-closeout edge assessment for `PB-SINGLE-CASE-RUN-0-C`.
 
-Authority layer: planning / starter scaffold.
+Authority layer: closeout / implementation evidence.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,78 +10,97 @@ Authority layer: planning / starter scaffold.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS271_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edge Review
 
 ### Edge 1: C Could Audit Without Released A/B Lineage
 
-- Risk:
-  outcome rows could be authored without the released target-selection,
-  preflight, dispatch, trace, probe, capture, and projection evidence.
-- Required containment:
-  C must require released A and B refs before local outcome audit validates.
+- Closeout result:
+  contained.
+- Evidence:
+  the bundle validator requires released A request, target selection,
+  execution preflight, run control, and guardrail refs, plus released B worker
+  dispatch, execution trace, probe observation bundle, candidate artifact
+  capture, and lifecycle projection refs.
 
 ### Edge 2: Local Acceptance Could Hide Missing Probe Evidence
 
-- Risk:
-  the local specimen could be accepted despite missing positive or negative
-  probe observations.
-- Required containment:
-  local acceptance requires all required positive probes to pass and all
-  required negative probes to pass or be explicitly not applicable with reason.
+- Closeout result:
+  contained.
+- Evidence:
+  local acceptance requires the audit probe statuses to pass or be explicitly
+  not applicable for negative probes, and bundle validation also rejects failed,
+  missing, or inconclusive declared local probe rows from the B probe bundle.
 
 ### Edge 3: Unsafe Candidate Artifacts Could Be Accepted
 
-- Risk:
-  output could be treated as accepted even when artifact capture is missing,
-  outside write scope, or not safely screened.
-- Required containment:
-  local acceptance requires candidate artifact capture to exist, stay inside
-  released write scope, pass forbidden-content screening, and bind artifact
-  hashes consistently.
+- Closeout result:
+  contained.
+- Evidence:
+  local acceptance requires candidate artifact capture, passed forbidden
+  content screening, inside-released-write-scope posture, matching write-scope
+  refs/hashes, and no capture blockers.
 
 ### Edge 4: Lifecycle Projection Gaps Could Be Ignored
 
-- Risk:
-  a local outcome could be accepted without a valid projection into released
-  attempt/trial/workbench vocabulary.
-- Required containment:
-  C acceptance must block on lifecycle projection gaps and require released
-  validator bindings.
+- Closeout result:
+  contained.
+- Evidence:
+  local acceptance rejects lifecycle projection gaps and requires projection
+  validator bindings from the released B lifecycle projection row.
 
-### Edge 5: Observation Summary Could Become Benchmark Language
+### Edge 5: Blocked Outcome Postures Could Misclassify Evidence
 
-- Risk:
-  local observations could be summarized as ProgramBench pass/fail, score,
-  success rate, baseline win, model improvement, representative result, or
-  hidden-test equivalence.
-- Required containment:
-  observation summaries must carry a local-only scope statement and reject soft
-  benchmark, baseline, ranking, leaderboard, official-like, and hidden-test
-  language.
+- Closeout result:
+  contained, including review hardening.
+- Evidence:
+  Codex and Gemini review identified that blocked outcome postures only
+  required some blocker. The validator now binds each blocked posture to its
+  matching blocked status and matching blocker refs, and adds an
+  `artifact_capture_blocker_refs` channel for artifact-capture gaps.
 
-### Edge 6: Remand Pressure Could Become Retry Authority
+### Edge 6: Observation Summary Could Become Benchmark Language
 
-- Risk:
-  a remand decision could be read as permission to run a retry.
-- Required containment:
-  remand decisions must state pressure-only posture and
-  `no_retry_authority_granted_by_pb_single_case_run_0c`.
+- Closeout result:
+  contained, including review hardening.
+- Evidence:
+  observation summaries require a local-only scope statement and reject
+  pass-rate, solve-rate, success-rate, baseline, leaderboard, model-ranking,
+  official-like-result, and hidden-test-equivalence language.
 
-### Edge 7: Handoff Or Closeout Could Select The Next Family
+### Edge 7: Remand Pressure Could Become Retry Authority
 
-- Risk:
-  family closeout or handoff rows could grant official participation, batch
-  execution, benchmark-result governance, retry governance, or future-family
-  selection.
-- Required containment:
-  handoff rows must be pressure-only and non-selecting; family closeout may
-  close only `PB-SINGLE-CASE-RUN-0`.
+- Closeout result:
+  contained.
+- Evidence:
+  remand/acceptance decisions and handoff rows carry
+  `no_retry_authority_granted_by_pb_single_case_run_0c` and pressure-only
+  posture. Remand rows cannot grant dispatch or retry eligibility.
+
+### Edge 8: Handoff Or Closeout Could Select The Next Family
+
+- Closeout result:
+  contained.
+- Evidence:
+  handoff rows are pressure-only and non-selecting; family closeout alignment
+  closes exactly `PB-SINGLE-CASE-RUN-0-A`, `PB-SINGLE-CASE-RUN-0-B`, and
+  `PB-SINGLE-CASE-RUN-0-C`.
+
+## Review Feedback Integrated
+
+- Codex review:
+  blocked outcome postures now require matching blocker channels, and the
+  language screen now rejects the locked `official-like result` and
+  `hidden-test equivalence` phrases.
+- Gemini review:
+  duplicate blocker-channel feedback was implemented; redundant-check removal
+  comments were intentionally not applied because the explicit bundle gates
+  preserve cross-record fail-closed acceptance semantics.
 
 ## Residual Edges
 
@@ -90,11 +109,11 @@ Authority layer: planning / starter scaffold.
 - Benchmark scoring, baseline comparison, and model ranking remain unselected.
 - Batch execution over a matrix remains unselected.
 - Retry authority remains unselected.
-- Future-family selection remains unselected by this starter.
+- Future-family selection remains unselected by this closeout.
 
 ## Current Judgment
 
-The `PB-SINGLE-CASE-RUN-0-C` starter is bounded enough to proceed to
-implementation after `make arc-start-check ARC=271` passes. It audits one
-captured local specimen and closes this family without creating new execution,
-retry, official benchmark, scoring, ranking, or future-family authority.
+`PB-SINGLE-CASE-RUN-0-C` is closed on `main`. The implementation classifies one
+captured local specimen under declared local probe/oracle boundaries and closes
+the family without creating new execution, retry, official benchmark, scoring,
+ranking, or future-family authority.

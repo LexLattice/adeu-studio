@@ -1,0 +1,48 @@
+{
+  "arc": "vNext+271",
+  "artifact_capture_blocker_channel_added": true,
+  "baseline_comparison_authority_granted": false,
+  "batch_execution_authority_granted": false,
+  "benchmark_truth_authority_granted": false,
+  "blocked_outcome_matching_blocker_enforced": true,
+  "candidate_artifact_capture_required_for_acceptance": true,
+  "closed_slice": "PB-SINGLE-CASE-RUN-0-C",
+  "family": "PB-SINGLE-CASE-RUN-0",
+  "family_closeout_alignment_granted": true,
+  "future_family_selection_granted": false,
+  "hidden_test_equivalence_authority_granted": false,
+  "implementation_commits": [
+    "2d53c80c8ff63ffea964df427d37e3310aa8e7af",
+    "08edfe70f156313b74d81018e3e6071f5ad314aa"
+  ],
+  "implementation_package": "packages/adeu_benchmarking",
+  "local_acceptance_strict_gate_enforced": true,
+  "merge_commit": "7cb3ae5f8bd6f0e21b6e18e2823b9f15d828ee37",
+  "merged_at": "2026-05-10T00:33:41Z",
+  "merged_pr": "#499",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v271/evidence_inputs/metric_key_continuity_assertion_v271.json",
+  "model_ranking_authority_granted": false,
+  "observation_summary_local_only": true,
+  "official_programbench_authority_granted": false,
+  "official_submission_authority_granted": false,
+  "reference_fixture_root": "apps/api/fixtures/benchmarking/vnext_plus271",
+  "remand_pressure_is_not_retry_authority": true,
+  "retry_authority_granted": false,
+  "runtime_event_stream_path": "artifacts/agent_harness/v271/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v271/evidence_inputs/runtime_observability_comparison_v271.json",
+  "schema": "pb_single_case_run_0c_closeout_evidence@1",
+  "selected_record_shapes": [
+    "programbench_single_case_local_outcome_audit@1",
+    "programbench_single_case_run_observation_summary@1",
+    "programbench_single_case_remand_or_acceptance_decision@1",
+    "programbench_single_case_run_handoff@1",
+    "programbench_single_case_run_family_closeout_alignment@1"
+  ],
+  "soft_benchmark_result_language_rejected": true,
+  "test_reference_path": "packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0c.py",
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_benchmarking/tests/test_programbench_single_case_run_pb_single_case_run_0c.py -q",
+    "make check",
+    "make arc-closeout-check ARC=271"
+  ]
+}
