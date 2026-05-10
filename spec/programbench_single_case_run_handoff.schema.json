@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseRunHandoffPressureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "handoff_pressure_ref": {
+          "title": "Handoff Pressure Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "pressure_kind": {
+          "enum": [
+            "future_batch_execution_governance_review",
+            "future_benchmark_result_governance_review",
+            "future_local_case_expansion_review",
+            "future_official_participation_governance_review",
+            "future_retry_governance_review"
+          ],
+          "title": "Pressure Kind",
+          "type": "string"
+        },
+        "pressure_scope_posture": {
+          "const": "pressure_only_no_authority_granted",
+          "title": "Pressure Scope Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "handoff_pressure_ref",
+        "pressure_kind",
+        "pressure_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseRunHandoffPressureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "batch_execution_authority_posture": {
+      "const": "no_batch_execution_authority_granted_by_pb_single_case_run_0c",
+      "title": "Batch Execution Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_non_selection_posture": {
+      "const": "pressure_only_no_future_family_selected_by_pb_single_case_run_0c",
+      "title": "Handoff Non Selection Posture",
+      "type": "string"
+    },
+    "handoff_pressure_kind": {
+      "enum": [
+        "future_batch_execution_governance_review",
+        "future_benchmark_result_governance_review",
+        "future_local_case_expansion_review",
+        "future_official_participation_governance_review",
+        "future_retry_governance_review",
+        "none_local_acceptance_recorded"
+      ],
+      "title": "Handoff Pressure Kind",
+      "type": "string"
+    },
+    "handoff_pressure_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseRunHandoffPressureRow"
+      },
+      "title": "Handoff Pressure Rows",
+      "type": "array"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "model_ranking_authority_posture": {
+      "const": "no_model_ranking_authority_granted_by_pb_single_case_run_0c",
+      "title": "Model Ranking Authority Posture",
+      "type": "string"
+    },
+    "official_programbench_authority_posture": {
+      "const": "no_official_programbench_authority_granted_by_pb_single_case_run_0c",
+      "title": "Official Programbench Authority Posture",
+      "type": "string"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_single_case_run_0c",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_remand_or_acceptance_decision_ref": {
+      "title": "Single Case Remand Or Acceptance Decision Ref",
+      "type": "string"
+    },
+    "single_case_run_handoff_ref": {
+      "title": "Single Case Run Handoff Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_handoff_ref",
+    "single_case_remand_or_acceptance_decision_ref",
+    "handoff_pressure_kind",
+    "handoff_non_selection_posture",
+    "retry_authority_posture",
+    "batch_execution_authority_posture",
+    "official_programbench_authority_posture",
+    "model_ranking_authority_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunHandoff",
+  "type": "object"
+}

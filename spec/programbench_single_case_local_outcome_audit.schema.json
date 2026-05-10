@@ -1,0 +1,242 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_capture_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Capture Blocker Refs",
+      "type": "array"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "candidate_artifact_capture_status": {
+      "enum": [
+        "captured_inside_write_scope",
+        "missing",
+        "outside_write_scope",
+        "screening_not_passed"
+      ],
+      "title": "Candidate Artifact Capture Status",
+      "type": "string"
+    },
+    "candidate_artifact_inside_write_scope_posture": {
+      "enum": [
+        "inside_released_write_scope",
+        "outside_released_write_scope",
+        "not_applicable_missing_capture"
+      ],
+      "title": "Candidate Artifact Inside Write Scope Posture",
+      "type": "string"
+    },
+    "contamination_audit_status": {
+      "enum": [
+        "clean",
+        "blocked_by_contamination"
+      ],
+      "title": "Contamination Audit Status",
+      "type": "string"
+    },
+    "contamination_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Contamination Blocker Refs",
+      "type": "array"
+    },
+    "exit_code_expectation_status": {
+      "enum": [
+        "satisfied",
+        "failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Exit Code Expectation Status",
+      "type": "string"
+    },
+    "filesystem_expectation_status": {
+      "enum": [
+        "satisfied",
+        "failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Filesystem Expectation Status",
+      "type": "string"
+    },
+    "hidden_test_equivalence_posture": {
+      "const": "not_hidden_test_equivalence",
+      "title": "Hidden Test Equivalence Posture",
+      "type": "string"
+    },
+    "lifecycle_projection_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Lifecycle Projection Blocker Refs",
+      "type": "array"
+    },
+    "lifecycle_projection_status": {
+      "enum": [
+        "validated",
+        "blocked_by_projection_gap"
+      ],
+      "title": "Lifecycle Projection Status",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_outcome_posture": {
+      "enum": [
+        "single_case_blocked_by_artifact_capture_gap",
+        "single_case_blocked_by_contamination",
+        "single_case_blocked_by_lifecycle_projection_gap",
+        "single_case_blocked_by_output_capture_gap",
+        "single_case_blocked_by_sandbox",
+        "single_case_inconclusive_local_only",
+        "single_case_locally_accepted",
+        "single_case_remand_recommended"
+      ],
+      "title": "Local Outcome Posture",
+      "type": "string"
+    },
+    "negative_probe_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "missing",
+        "inconclusive",
+        "not_applicable_with_reason"
+      ],
+      "title": "Negative Probe Status",
+      "type": "string"
+    },
+    "output_capture_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Capture Blocker Refs",
+      "type": "array"
+    },
+    "output_capture_status": {
+      "enum": [
+        "captured",
+        "blocked_by_output_gap"
+      ],
+      "title": "Output Capture Status",
+      "type": "string"
+    },
+    "positive_probe_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "missing",
+        "inconclusive"
+      ],
+      "title": "Positive Probe Status",
+      "type": "string"
+    },
+    "sandbox_audit_status": {
+      "enum": [
+        "clean",
+        "blocked_by_sandbox"
+      ],
+      "title": "Sandbox Audit Status",
+      "type": "string"
+    },
+    "sandbox_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sandbox Blocker Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "programbench_single_case_local_outcome_audit@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_candidate_artifact_capture_ref": {
+      "title": "Single Case Candidate Artifact Capture Ref",
+      "type": "string"
+    },
+    "single_case_execution_trace_ref": {
+      "title": "Single Case Execution Trace Ref",
+      "type": "string"
+    },
+    "single_case_lifecycle_projection_ref": {
+      "title": "Single Case Lifecycle Projection Ref",
+      "type": "string"
+    },
+    "single_case_local_outcome_audit_ref": {
+      "title": "Single Case Local Outcome Audit Ref",
+      "type": "string"
+    },
+    "single_case_probe_observation_bundle_ref": {
+      "title": "Single Case Probe Observation Bundle Ref",
+      "type": "string"
+    },
+    "single_case_run_request_ref": {
+      "title": "Single Case Run Request Ref",
+      "type": "string"
+    },
+    "single_case_target_selection_ref": {
+      "title": "Single Case Target Selection Ref",
+      "type": "string"
+    },
+    "single_case_worker_dispatch_specimen_ref": {
+      "title": "Single Case Worker Dispatch Specimen Ref",
+      "type": "string"
+    },
+    "stderr_expectation_status": {
+      "enum": [
+        "satisfied",
+        "failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Stderr Expectation Status",
+      "type": "string"
+    },
+    "stdout_expectation_status": {
+      "enum": [
+        "satisfied",
+        "failed",
+        "not_applicable_with_reason"
+      ],
+      "title": "Stdout Expectation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_local_outcome_audit_ref",
+    "single_case_run_request_ref",
+    "single_case_target_selection_ref",
+    "single_case_worker_dispatch_specimen_ref",
+    "single_case_execution_trace_ref",
+    "single_case_probe_observation_bundle_ref",
+    "single_case_candidate_artifact_capture_ref",
+    "single_case_lifecycle_projection_ref",
+    "contamination_audit_status",
+    "sandbox_audit_status",
+    "lifecycle_projection_status",
+    "output_capture_status",
+    "candidate_artifact_capture_status",
+    "candidate_artifact_inside_write_scope_posture",
+    "positive_probe_status",
+    "negative_probe_status",
+    "stdout_expectation_status",
+    "stderr_expectation_status",
+    "exit_code_expectation_status",
+    "filesystem_expectation_status",
+    "hidden_test_equivalence_posture",
+    "benchmark_truth_posture",
+    "local_outcome_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseLocalOutcomeAudit",
+  "type": "object"
+}

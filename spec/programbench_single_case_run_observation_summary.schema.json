@@ -1,0 +1,170 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseLocalProbeSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_only_posture": {
+          "const": "declared_local_probe_only_not_hidden_test",
+          "title": "Local Only Posture",
+          "type": "string"
+        },
+        "local_probe_ref": {
+          "title": "Local Probe Ref",
+          "type": "string"
+        },
+        "local_probe_summary_ref": {
+          "title": "Local Probe Summary Ref",
+          "type": "string"
+        },
+        "probe_kind": {
+          "enum": [
+            "positive",
+            "negative"
+          ],
+          "title": "Probe Kind",
+          "type": "string"
+        },
+        "probe_result_status": {
+          "enum": [
+            "passed",
+            "not_applicable"
+          ],
+          "title": "Probe Result Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "local_probe_summary_ref",
+        "local_probe_ref",
+        "probe_kind",
+        "probe_result_status",
+        "local_only_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseLocalProbeSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_summary_posture": {
+      "const": "local_artifact_capture_inside_write_scope",
+      "title": "Artifact Summary Posture",
+      "type": "string"
+    },
+    "baseline_comparison_language_posture": {
+      "const": "baseline_comparison_language_absent",
+      "title": "Baseline Comparison Language Posture",
+      "type": "string"
+    },
+    "benchmark_score_language_posture": {
+      "const": "benchmark_score_language_absent",
+      "title": "Benchmark Score Language Posture",
+      "type": "string"
+    },
+    "exit_code_summary_posture": {
+      "const": "local_exit_code_expectation_satisfied",
+      "title": "Exit Code Summary Posture",
+      "type": "string"
+    },
+    "filesystem_summary_posture": {
+      "const": "local_filesystem_expectation_satisfied",
+      "title": "Filesystem Summary Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "local_outcome_posture": {
+      "enum": [
+        "single_case_blocked_by_artifact_capture_gap",
+        "single_case_blocked_by_contamination",
+        "single_case_blocked_by_lifecycle_projection_gap",
+        "single_case_blocked_by_output_capture_gap",
+        "single_case_blocked_by_sandbox",
+        "single_case_inconclusive_local_only",
+        "single_case_locally_accepted",
+        "single_case_remand_recommended"
+      ],
+      "title": "Local Outcome Posture",
+      "type": "string"
+    },
+    "local_probe_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseLocalProbeSummaryRow"
+      },
+      "minItems": 1,
+      "title": "Local Probe Summary Rows",
+      "type": "array"
+    },
+    "model_ranking_language_posture": {
+      "const": "model_ranking_language_absent",
+      "title": "Model Ranking Language Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_run_observation_summary@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_local_outcome_audit_ref": {
+      "title": "Single Case Local Outcome Audit Ref",
+      "type": "string"
+    },
+    "single_case_local_scope_statement": {
+      "const": "local_only_against_declared_probes_and_oracle_not_programbench_truth",
+      "title": "Single Case Local Scope Statement",
+      "type": "string"
+    },
+    "single_case_run_observation_summary_ref": {
+      "title": "Single Case Run Observation Summary Ref",
+      "type": "string"
+    },
+    "single_specimen_scope_posture": {
+      "const": "single_local_specimen_only_no_comparison",
+      "title": "Single Specimen Scope Posture",
+      "type": "string"
+    },
+    "soft_benchmark_language_screen_status": {
+      "const": "passed",
+      "title": "Soft Benchmark Language Screen Status",
+      "type": "string"
+    },
+    "stderr_summary_posture": {
+      "const": "local_stderr_expectation_satisfied",
+      "title": "Stderr Summary Posture",
+      "type": "string"
+    },
+    "stdout_summary_posture": {
+      "const": "local_stdout_expectation_satisfied",
+      "title": "Stdout Summary Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_run_observation_summary_ref",
+    "single_case_local_outcome_audit_ref",
+    "single_case_local_scope_statement",
+    "local_probe_summary_rows",
+    "local_outcome_posture",
+    "stdout_summary_posture",
+    "stderr_summary_posture",
+    "exit_code_summary_posture",
+    "filesystem_summary_posture",
+    "artifact_summary_posture",
+    "single_specimen_scope_posture",
+    "benchmark_score_language_posture",
+    "baseline_comparison_language_posture",
+    "model_ranking_language_posture",
+    "soft_benchmark_language_screen_status",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRunObservationSummary",
+  "type": "object"
+}

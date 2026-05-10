@@ -310,9 +310,14 @@ from .programbench_single_case_run import (
     PROGRAMBENCH_SINGLE_CASE_EXECUTION_PREFLIGHT_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_EXECUTION_TRACE_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_LIFECYCLE_PROJECTION_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_LOCAL_OUTCOME_AUDIT_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_PROBE_OBSERVATION_BUNDLE_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_REMAND_OR_ACCEPTANCE_DECISION_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_CONTROL_CONTRACT_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_HANDOFF_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_NON_AUTHORITY_GUARDRAIL_SCHEMA,
+    PROGRAMBENCH_SINGLE_CASE_RUN_OBSERVATION_SUMMARY_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_RUN_REQUEST_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_TARGET_SELECTION_SCHEMA,
     PROGRAMBENCH_SINGLE_CASE_WORKER_DISPATCH_SPECIMEN_SCHEMA,
@@ -320,9 +325,14 @@ from .programbench_single_case_run import (
     ProgrambenchSingleCaseExecutionPreflight,
     ProgrambenchSingleCaseExecutionTrace,
     ProgrambenchSingleCaseLifecycleProjection,
+    ProgrambenchSingleCaseLocalOutcomeAudit,
     ProgrambenchSingleCaseProbeObservationBundle,
+    ProgrambenchSingleCaseRemandOrAcceptanceDecision,
     ProgrambenchSingleCaseRunControlContract,
+    ProgrambenchSingleCaseRunFamilyCloseoutAlignment,
+    ProgrambenchSingleCaseRunHandoff,
     ProgrambenchSingleCaseRunNonAuthorityGuardrail,
+    ProgrambenchSingleCaseRunObservationSummary,
     ProgrambenchSingleCaseRunRequest,
     ProgrambenchSingleCaseTargetSelection,
     ProgrambenchSingleCaseWorkerDispatchSpecimen,
@@ -1930,6 +1940,64 @@ def main() -> None:
             root
             / "spec"
             / "programbench_single_case_lifecycle_projection.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseLocalOutcomeAudit,
+            PROGRAMBENCH_SINGLE_CASE_LOCAL_OUTCOME_AUDIT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_local_outcome_audit.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_local_outcome_audit.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunObservationSummary,
+            PROGRAMBENCH_SINGLE_CASE_RUN_OBSERVATION_SUMMARY_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_observation_summary.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_run_observation_summary.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRemandOrAcceptanceDecision,
+            PROGRAMBENCH_SINGLE_CASE_REMAND_OR_ACCEPTANCE_DECISION_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_remand_or_acceptance_decision.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_remand_or_acceptance_decision.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunHandoff,
+            PROGRAMBENCH_SINGLE_CASE_RUN_HANDOFF_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_handoff.v1.json",
+            root / "spec" / "programbench_single_case_run_handoff.schema.json",
+        ),
+        (
+            ProgrambenchSingleCaseRunFamilyCloseoutAlignment,
+            PROGRAMBENCH_SINGLE_CASE_RUN_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+            root
+            / "packages"
+            / "adeu_benchmarking"
+            / "schema"
+            / "programbench_single_case_run_family_closeout_alignment.v1.json",
+            root
+            / "spec"
+            / "programbench_single_case_run_family_closeout_alignment.schema.json",
         ),
     ]
 

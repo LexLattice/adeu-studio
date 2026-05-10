@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "ProgrambenchSingleCaseAcceptanceBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_basis_kind": {
+          "enum": [
+            "artifact_capture_inside_write_scope",
+            "declared_local_probes_satisfied",
+            "filesystem_expectations_satisfied",
+            "lifecycle_projection_validated",
+            "output_capture_satisfied",
+            "sandbox_satisfied",
+            "stdio_exit_expectations_satisfied"
+          ],
+          "title": "Acceptance Basis Kind",
+          "type": "string"
+        },
+        "acceptance_basis_ref": {
+          "title": "Acceptance Basis Ref",
+          "type": "string"
+        },
+        "acceptance_scope_posture": {
+          "const": "local_acceptance_only_not_benchmark_truth",
+          "title": "Acceptance Scope Posture",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "acceptance_basis_ref",
+        "acceptance_basis_kind",
+        "acceptance_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseAcceptanceBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchSingleCaseDecisionBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_kind": {
+          "enum": [
+            "artifact_capture_inside_write_scope",
+            "declared_local_probes_satisfied",
+            "local_evidence_inconclusive",
+            "output_capture_satisfied",
+            "projection_validated",
+            "sandbox_satisfied"
+          ],
+          "title": "Basis Kind",
+          "type": "string"
+        },
+        "basis_status": {
+          "enum": [
+            "supports_local_acceptance",
+            "supports_remand_pressure"
+          ],
+          "title": "Basis Status",
+          "type": "string"
+        },
+        "decision_basis_ref": {
+          "title": "Decision Basis Ref",
+          "type": "string"
+        },
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "local_only_posture": {
+          "const": "local_single_case_only_not_benchmark_truth",
+          "title": "Local Only Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_basis_ref",
+        "basis_kind",
+        "basis_status",
+        "local_only_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseDecisionBasisRow",
+      "type": "object"
+    },
+    "ProgrambenchSingleCaseRemandReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "limitation_note": {
+          "title": "Limitation Note",
+          "type": "string"
+        },
+        "remand_reason_ref": {
+          "title": "Remand Reason Ref",
+          "type": "string"
+        },
+        "remand_scope_posture": {
+          "const": "pressure_only_requires_later_retry_or_trial_governance",
+          "title": "Remand Scope Posture",
+          "type": "string"
+        },
+        "remand_source_kind": {
+          "enum": [
+            "artifact_capture_gap",
+            "filesystem_expectation_gap",
+            "lifecycle_projection_gap",
+            "local_evidence_inconclusive",
+            "local_probe_gap",
+            "output_capture_gap",
+            "sandbox_violation",
+            "worker_declared_uncertainty"
+          ],
+          "title": "Remand Source Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "remand_reason_ref",
+        "remand_source_kind",
+        "remand_scope_posture",
+        "limitation_note"
+      ],
+      "title": "ProgrambenchSingleCaseRemandReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseAcceptanceBasisRow"
+      },
+      "title": "Acceptance Basis Rows",
+      "type": "array"
+    },
+    "benchmark_truth_posture": {
+      "const": "not_benchmark_truth",
+      "title": "Benchmark Truth Posture",
+      "type": "string"
+    },
+    "decision_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseDecisionBasisRow"
+      },
+      "minItems": 1,
+      "title": "Decision Basis Rows",
+      "type": "array"
+    },
+    "decision_posture": {
+      "enum": [
+        "local_acceptance_recorded",
+        "local_inconclusive_pressure_recorded",
+        "local_remand_pressure_recorded"
+      ],
+      "title": "Decision Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority_granted_by_pb_single_case_run_0c",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "limitation_note": {
+      "title": "Limitation Note",
+      "type": "string"
+    },
+    "official_submission_authority_posture": {
+      "const": "no_official_submission_authority",
+      "title": "Official Submission Authority Posture",
+      "type": "string"
+    },
+    "remand_pressure_posture": {
+      "const": "pressure_only_requires_later_retry_or_trial_governance",
+      "title": "Remand Pressure Posture",
+      "type": "string"
+    },
+    "remand_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/ProgrambenchSingleCaseRemandReasonRow"
+      },
+      "title": "Remand Reason Rows",
+      "type": "array"
+    },
+    "retry_authority_posture": {
+      "const": "no_retry_authority_granted_by_pb_single_case_run_0c",
+      "title": "Retry Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "programbench_single_case_remand_or_acceptance_decision@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "single_case_local_outcome_audit_ref": {
+      "title": "Single Case Local Outcome Audit Ref",
+      "type": "string"
+    },
+    "single_case_remand_or_acceptance_decision_ref": {
+      "title": "Single Case Remand Or Acceptance Decision Ref",
+      "type": "string"
+    },
+    "single_case_run_observation_summary_ref": {
+      "title": "Single Case Run Observation Summary Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "single_case_remand_or_acceptance_decision_ref",
+    "single_case_local_outcome_audit_ref",
+    "single_case_run_observation_summary_ref",
+    "decision_posture",
+    "decision_basis_rows",
+    "retry_authority_posture",
+    "remand_pressure_posture",
+    "official_submission_authority_posture",
+    "benchmark_truth_posture",
+    "future_family_selection_posture",
+    "limitation_note"
+  ],
+  "title": "ProgrambenchSingleCaseRemandOrAcceptanceDecision",
+  "type": "object"
+}
