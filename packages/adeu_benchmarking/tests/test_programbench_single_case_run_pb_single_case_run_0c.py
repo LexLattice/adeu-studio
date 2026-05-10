@@ -202,12 +202,14 @@ def _load_single_case_run_c_rows() -> tuple[
 
 def _validate_reference_bundle(
     *,
+    execution_trace: ProgrambenchSingleCaseExecutionTrace | None = None,
     local_outcome_audit: ProgrambenchSingleCaseLocalOutcomeAudit | None = None,
     observation_summary: ProgrambenchSingleCaseRunObservationSummary | None = None,
     remand_or_acceptance_decision: ProgrambenchSingleCaseRemandOrAcceptanceDecision | None = None,
     handoff: ProgrambenchSingleCaseRunHandoff | None = None,
     family_closeout: ProgrambenchSingleCaseRunFamilyCloseoutAlignment | None = None,
     probe_observation_bundle: ProgrambenchSingleCaseProbeObservationBundle | None = None,
+    candidate_artifact_capture: ProgrambenchSingleCaseCandidateArtifactCapture | None = None,
     lifecycle_projection: ProgrambenchSingleCaseLifecycleProjection | None = None,
 ) -> None:
     matrix_closeout, matrix_registration, matrix_readiness = _load_matrix_inclusion_c_rows()
@@ -224,9 +226,9 @@ def _validate_reference_bundle(
         run_control_contract=control,
         non_authority_guardrail=guardrail,
         worker_dispatch_specimen=dispatch,
-        execution_trace=trace,
+        execution_trace=execution_trace or trace,
         probe_observation_bundle=probe_observation_bundle or probes,
-        candidate_artifact_capture=capture,
+        candidate_artifact_capture=candidate_artifact_capture or capture,
         lifecycle_projection=lifecycle_projection or projection,
         local_outcome_audit=local_outcome_audit or audit,
         observation_summary=observation_summary or summary,
@@ -345,6 +347,120 @@ def test_pb_single_case_run_0c_rejects_artifact_gap_without_artifact_blocker() -
 
     with pytest.raises(ValidationError, match="artifact_capture_blocker_refs"):
         ProgrambenchSingleCaseLocalOutcomeAudit.model_validate(payload)
+
+
+def test_pb_single_case_run_0c_accepts_missing_artifact_remand_path() -> None:
+    _, trace, probes, capture, _ = _load_single_case_run_b_rows()
+    audit, summary, decision, handoff, _ = _load_single_case_run_c_rows()
+    missing_capture = ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(
+        capture.model_dump(by_alias=True)
+        | {
+            "artifact_capture_blocker_refs": [
+                "artifact-capture-blocker:pb-single-case-run-0c:missing-candidate-artifact"
+            ],
+            "artifact_hash_rows": [],
+            "candidate_artifact_capture_status": "missing",
+            "generated_artifact_rows": [],
+            "inside_write_scope_posture": "not_applicable_missing_capture",
+            "materialization_input_hash": trace.stderr_hash,
+        }
+    )
+    failed_probe_payload = probes.model_dump(by_alias=True)
+    failed_probe_payload["positive_probe_result_refs"] = []
+    failed_probe_payload["probe_observation_rows"] = [
+        failed_probe_payload["probe_observation_rows"][0],
+        failed_probe_payload["probe_observation_rows"][1]
+        | {"probe_result_status": "failed"},
+    ]
+    failed_probes = ProgrambenchSingleCaseProbeObservationBundle.model_validate(
+        failed_probe_payload
+    )
+    artifact_blocker_refs = [
+        "artifact-capture-blocker:pb-single-case-run-0c:missing-candidate-artifact"
+    ]
+    remand_audit = ProgrambenchSingleCaseLocalOutcomeAudit.model_validate(
+        audit.model_dump(by_alias=True)
+        | {
+            "artifact_capture_blocker_refs": artifact_blocker_refs,
+            "candidate_artifact_capture_status": "missing",
+            "candidate_artifact_inside_write_scope_posture": "not_applicable_missing_capture",
+            "exit_code_expectation_status": "failed",
+            "filesystem_expectation_status": "failed",
+            "local_outcome_posture": "single_case_blocked_by_artifact_capture_gap",
+            "positive_probe_status": "failed",
+            "stderr_expectation_status": "failed",
+            "stdout_expectation_status": "not_applicable_with_reason",
+        }
+    )
+    remand_summary = ProgrambenchSingleCaseRunObservationSummary.model_validate(
+        summary.model_dump(by_alias=True)
+        | {
+            "artifact_summary_posture": "local_artifact_capture_missing",
+            "exit_code_summary_posture": "local_exit_code_expectation_failed",
+            "filesystem_summary_posture": "local_filesystem_expectation_failed",
+            "local_outcome_posture": "single_case_blocked_by_artifact_capture_gap",
+            "local_probe_summary_rows": [
+                summary.model_dump(by_alias=True)["local_probe_summary_rows"][0],
+                summary.model_dump(by_alias=True)["local_probe_summary_rows"][1]
+                | {"probe_result_status": "failed"},
+            ],
+            "stderr_summary_posture": "local_stderr_expectation_failed",
+            "stdout_summary_posture": "local_stdout_expectation_not_applicable_with_reason",
+        }
+    )
+    remand_decision = ProgrambenchSingleCaseRemandOrAcceptanceDecision.model_validate(
+        decision.model_dump(by_alias=True)
+        | {
+            "acceptance_basis_rows": [],
+            "decision_basis_rows": [
+                {
+                    "basis_kind": "local_evidence_inconclusive",
+                    "basis_status": "supports_remand_pressure",
+                    "decision_basis_ref": "decision-basis:pb-single-case-run-0c:remand-artifact",
+                    "limitation_note": "Artifact capture gap supports local remand pressure.",
+                    "local_only_posture": "local_single_case_only_not_benchmark_truth",
+                }
+            ],
+            "decision_posture": "local_remand_pressure_recorded",
+            "limitation_note": "Decision records local remand pressure only.",
+            "remand_reason_rows": [
+                {
+                    "limitation_note": "Artifact capture gap creates local pressure only.",
+                    "remand_reason_ref": "remand-reason:pb-single-case-run-0c:artifact-gap",
+                    "remand_scope_posture": (
+                        "pressure_only_requires_later_retry_or_trial_governance"
+                    ),
+                    "remand_source_kind": "artifact_capture_gap",
+                }
+            ],
+        }
+    )
+    remand_handoff = ProgrambenchSingleCaseRunHandoff.model_validate(
+        handoff.model_dump(by_alias=True)
+        | {
+            "handoff_pressure_kind": "future_retry_governance_review",
+            "handoff_pressure_rows": [
+                {
+                    "handoff_pressure_ref": "handoff-pressure:pb-single-case-run-0c:retry-review",
+                    "limitation_note": (
+                        "Retry review pressure is local-only and grants no authority."
+                    ),
+                    "pressure_kind": "future_retry_governance_review",
+                    "pressure_scope_posture": "pressure_only_no_authority_granted",
+                }
+            ],
+            "limitation_note": "Handoff records retry-review pressure only.",
+        }
+    )
+
+    _validate_reference_bundle(
+        probe_observation_bundle=failed_probes,
+        candidate_artifact_capture=missing_capture,
+        local_outcome_audit=remand_audit,
+        observation_summary=remand_summary,
+        remand_or_acceptance_decision=remand_decision,
+        handoff=remand_handoff,
+    )
 
 
 @pytest.mark.parametrize(

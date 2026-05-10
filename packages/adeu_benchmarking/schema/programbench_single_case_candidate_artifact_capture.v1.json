@@ -76,6 +76,13 @@
   },
   "additionalProperties": false,
   "properties": {
+    "artifact_capture_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Capture Blocker Refs",
+      "type": "array"
+    },
     "artifact_capture_policy_ref": {
       "title": "Artifact Capture Policy Ref",
       "type": "string"
@@ -84,12 +91,29 @@
       "items": {
         "$ref": "#/$defs/ProgrambenchSingleCaseArtifactHashRow"
       },
-      "minItems": 1,
       "title": "Artifact Hash Rows",
       "type": "array"
     },
+    "candidate_artifact_capture_status": {
+      "default": "captured_inside_write_scope",
+      "enum": [
+        "captured_inside_write_scope",
+        "missing",
+        "outside_write_scope",
+        "screening_not_passed"
+      ],
+      "title": "Candidate Artifact Capture Status",
+      "type": "string"
+    },
     "forbidden_content_screen_verdict": {
-      "const": "passed",
+      "enum": [
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed"
+      ],
       "title": "Forbidden Content Screen Verdict",
       "type": "string"
     },
@@ -97,12 +121,16 @@
       "items": {
         "$ref": "#/$defs/ProgrambenchSingleCaseGeneratedArtifactRow"
       },
-      "minItems": 1,
       "title": "Generated Artifact Rows",
       "type": "array"
     },
     "inside_write_scope_posture": {
-      "const": "inside_released_write_scope",
+      "enum": [
+        "inside_released_write_scope",
+        "not_applicable_missing_capture",
+        "not_applicable_screening_not_passed",
+        "outside_released_write_scope"
+      ],
       "title": "Inside Write Scope Posture",
       "type": "string"
     },
@@ -154,8 +182,6 @@
     "write_scope_hash",
     "materialization_input_hash",
     "materialization_output_manifest_hash",
-    "generated_artifact_rows",
-    "artifact_hash_rows",
     "inside_write_scope_posture",
     "forbidden_content_screen_verdict",
     "official_submission_posture",

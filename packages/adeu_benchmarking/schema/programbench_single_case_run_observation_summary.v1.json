@@ -30,8 +30,11 @@
         },
         "probe_result_status": {
           "enum": [
-            "passed",
-            "not_applicable"
+            "failed",
+            "inconclusive",
+            "missing",
+            "not_applicable",
+            "passed"
           ],
           "title": "Probe Result Status",
           "type": "string"
@@ -52,7 +55,12 @@
   "additionalProperties": false,
   "properties": {
     "artifact_summary_posture": {
-      "const": "local_artifact_capture_inside_write_scope",
+      "enum": [
+        "local_artifact_capture_inside_write_scope",
+        "local_artifact_capture_missing",
+        "local_artifact_capture_outside_write_scope",
+        "local_artifact_capture_screening_not_passed"
+      ],
       "title": "Artifact Summary Posture",
       "type": "string"
     },
@@ -67,12 +75,20 @@
       "type": "string"
     },
     "exit_code_summary_posture": {
-      "const": "local_exit_code_expectation_satisfied",
+      "enum": [
+        "local_exit_code_expectation_failed",
+        "local_exit_code_expectation_not_applicable_with_reason",
+        "local_exit_code_expectation_satisfied"
+      ],
       "title": "Exit Code Summary Posture",
       "type": "string"
     },
     "filesystem_summary_posture": {
-      "const": "local_filesystem_expectation_satisfied",
+      "enum": [
+        "local_filesystem_expectation_failed",
+        "local_filesystem_expectation_not_applicable_with_reason",
+        "local_filesystem_expectation_satisfied"
+      ],
       "title": "Filesystem Summary Posture",
       "type": "string"
     },
@@ -136,12 +152,20 @@
       "type": "string"
     },
     "stderr_summary_posture": {
-      "const": "local_stderr_expectation_satisfied",
+      "enum": [
+        "local_stderr_expectation_failed",
+        "local_stderr_expectation_not_applicable_with_reason",
+        "local_stderr_expectation_satisfied"
+      ],
       "title": "Stderr Summary Posture",
       "type": "string"
     },
     "stdout_summary_posture": {
-      "const": "local_stdout_expectation_satisfied",
+      "enum": [
+        "local_stdout_expectation_failed",
+        "local_stdout_expectation_not_applicable_with_reason",
+        "local_stdout_expectation_satisfied"
+      ],
       "title": "Stdout Summary Posture",
       "type": "string"
     }

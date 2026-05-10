@@ -825,7 +825,13 @@ class ProgrambenchSingleCaseLocalProbeSummaryRow(_SingleCaseRunBase):
     local_probe_summary_ref: str
     local_probe_ref: str
     probe_kind: Literal["positive", "negative"]
-    probe_result_status: Literal["passed", "not_applicable"]
+    probe_result_status: Literal[
+        "failed",
+        "inconclusive",
+        "missing",
+        "not_applicable",
+        "passed",
+    ]
     local_only_posture: Literal["declared_local_probe_only_not_hidden_test"]
     limitation_note: str
 
@@ -1143,10 +1149,33 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
     write_scope_hash: str
     materialization_input_hash: str
     materialization_output_manifest_hash: str
-    generated_artifact_rows: list[ProgrambenchSingleCaseGeneratedArtifactRow] = Field(min_length=1)
-    artifact_hash_rows: list[ProgrambenchSingleCaseArtifactHashRow] = Field(min_length=1)
-    inside_write_scope_posture: Literal["inside_released_write_scope"]
-    forbidden_content_screen_verdict: Literal["passed"]
+    generated_artifact_rows: list[ProgrambenchSingleCaseGeneratedArtifactRow] = Field(
+        default_factory=list
+    )
+    artifact_hash_rows: list[ProgrambenchSingleCaseArtifactHashRow] = Field(
+        default_factory=list
+    )
+    candidate_artifact_capture_status: Literal[
+        "captured_inside_write_scope",
+        "missing",
+        "outside_write_scope",
+        "screening_not_passed",
+    ] = "captured_inside_write_scope"
+    artifact_capture_blocker_refs: list[str] = Field(default_factory=list)
+    inside_write_scope_posture: Literal[
+        "inside_released_write_scope",
+        "not_applicable_missing_capture",
+        "not_applicable_screening_not_passed",
+        "outside_released_write_scope",
+    ]
+    forbidden_content_screen_verdict: Literal[
+        "blocked_excluded_derived",
+        "blocked_forbidden_source",
+        "blocked_hidden_evidence",
+        "blocked_postmortem_only",
+        "inconclusive_requires_review",
+        "passed",
+    ]
     official_submission_posture: Literal["not_official_submission"]
     limitation_note: str
 
@@ -1160,10 +1189,14 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
             "materialization_output_manifest_hash",
         ):
             _ensure_hash(getattr(self, field_name), field_name=field_name)
+        _ensure_sorted_unique_allow_empty(
+            self.artifact_capture_blocker_refs,
+            field_name="artifact_capture_blocker_refs",
+        )
         generated_refs = [row.generated_artifact_ref for row in self.generated_artifact_rows]
-        _ensure_sorted_unique(generated_refs, field_name="generated_artifact_rows")
+        _ensure_sorted_unique_allow_empty(generated_refs, field_name="generated_artifact_rows")
         artifact_hash_refs = [row.artifact_hash_ref for row in self.artifact_hash_rows]
-        _ensure_sorted_unique(artifact_hash_refs, field_name="artifact_hash_rows")
+        _ensure_sorted_unique_allow_empty(artifact_hash_refs, field_name="artifact_hash_rows")
         generated_hashes_by_ref = {
             row.generated_artifact_ref: row.artifact_hash for row in self.generated_artifact_rows
         }
@@ -1183,12 +1216,42 @@ class ProgrambenchSingleCaseCandidateArtifactCapture(_SingleCaseRunBase):
             raise ValueError(
                 f"generated artifact hashes must match artifact hash rows: {mismatched_artifacts}"
             )
+        if self.candidate_artifact_capture_status == "captured_inside_write_scope":
+            if self.forbidden_content_screen_verdict != "passed":
+                raise ValueError("captured artifacts require passed forbidden-content screening")
+            if self.inside_write_scope_posture != "inside_released_write_scope":
+                raise ValueError("captured artifacts require inside released write scope posture")
+            if not self.generated_artifact_rows or not self.artifact_hash_rows:
+                raise ValueError("captured artifacts require generated artifact and hash rows")
+            if self.artifact_capture_blocker_refs:
+                raise ValueError("captured artifacts cannot carry artifact capture blockers")
+        else:
+            if self.generated_artifact_rows or self.artifact_hash_rows:
+                raise ValueError("non-captured artifact status cannot carry generated artifacts")
+            if not self.artifact_capture_blocker_refs:
+                raise ValueError("non-captured artifact status requires artifact blockers")
+            if self.candidate_artifact_capture_status == "missing":
+                if self.forbidden_content_screen_verdict != "passed":
+                    raise ValueError("missing artifact capture expects passed content screening")
+                if self.inside_write_scope_posture != "not_applicable_missing_capture":
+                    raise ValueError("missing artifact capture requires missing-capture posture")
+            elif self.candidate_artifact_capture_status == "outside_write_scope":
+                if self.forbidden_content_screen_verdict != "passed":
+                    raise ValueError("outside-scope capture expects passed content screening")
+                if self.inside_write_scope_posture != "outside_released_write_scope":
+                    raise ValueError("outside-scope capture requires outside write scope posture")
+            elif self.candidate_artifact_capture_status == "screening_not_passed":
+                if self.forbidden_content_screen_verdict == "passed":
+                    raise ValueError("screening-not-passed capture requires a non-passed verdict")
+                if self.inside_write_scope_posture != "not_applicable_screening_not_passed":
+                    raise ValueError("screening-not-passed capture requires screening posture")
         _ensure_no_forbidden_refs(
             [
                 self.single_case_candidate_artifact_capture_ref,
                 self.single_case_execution_trace_ref,
                 self.artifact_capture_policy_ref,
                 self.write_scope_ref,
+                *self.artifact_capture_blocker_refs,
             ],
             field_name="single_case_artifact_capture_refs",
         )
@@ -1271,6 +1334,7 @@ class ProgrambenchSingleCaseLocalOutcomeAudit(_SingleCaseRunBase):
     artifact_capture_blocker_refs: list[str] = Field(default_factory=list)
     candidate_artifact_inside_write_scope_posture: Literal[
         "inside_released_write_scope",
+        "not_applicable_screening_not_passed",
         "outside_released_write_scope",
         "not_applicable_missing_capture",
     ]
@@ -1433,11 +1497,32 @@ class ProgrambenchSingleCaseRunObservationSummary(_SingleCaseRunBase):
         "single_case_locally_accepted",
         "single_case_remand_recommended",
     ]
-    stdout_summary_posture: Literal["local_stdout_expectation_satisfied"]
-    stderr_summary_posture: Literal["local_stderr_expectation_satisfied"]
-    exit_code_summary_posture: Literal["local_exit_code_expectation_satisfied"]
-    filesystem_summary_posture: Literal["local_filesystem_expectation_satisfied"]
-    artifact_summary_posture: Literal["local_artifact_capture_inside_write_scope"]
+    stdout_summary_posture: Literal[
+        "local_stdout_expectation_failed",
+        "local_stdout_expectation_not_applicable_with_reason",
+        "local_stdout_expectation_satisfied",
+    ]
+    stderr_summary_posture: Literal[
+        "local_stderr_expectation_failed",
+        "local_stderr_expectation_not_applicable_with_reason",
+        "local_stderr_expectation_satisfied",
+    ]
+    exit_code_summary_posture: Literal[
+        "local_exit_code_expectation_failed",
+        "local_exit_code_expectation_not_applicable_with_reason",
+        "local_exit_code_expectation_satisfied",
+    ]
+    filesystem_summary_posture: Literal[
+        "local_filesystem_expectation_failed",
+        "local_filesystem_expectation_not_applicable_with_reason",
+        "local_filesystem_expectation_satisfied",
+    ]
+    artifact_summary_posture: Literal[
+        "local_artifact_capture_inside_write_scope",
+        "local_artifact_capture_missing",
+        "local_artifact_capture_outside_write_scope",
+        "local_artifact_capture_screening_not_passed",
+    ]
     single_specimen_scope_posture: Literal["single_local_specimen_only_no_comparison"]
     benchmark_score_language_posture: Literal["benchmark_score_language_absent"]
     baseline_comparison_language_posture: Literal["baseline_comparison_language_absent"]
@@ -1816,10 +1901,6 @@ def validate_pb_single_case_run_0b_bundle(
         raise ValueError("execution trace must reference worker dispatch specimen")
     if execution_trace.execution_trace_kind != "worker_dispatch_trace":
         raise ValueError("reference B bundle records the worker dispatch trace")
-    if execution_trace.forbidden_content_screen_verdict != (
-        _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
-    ):
-        raise ValueError("execution trace requires passed forbidden-content screening")
     if execution_trace.sandbox_violation_refs:
         raise ValueError("execution trace cannot carry sandbox violations")
 
@@ -1846,6 +1927,15 @@ def validate_pb_single_case_run_0b_bundle(
         execution_trace.forbidden_content_screen_verdict
     ):
         raise ValueError("candidate artifact capture must preserve screening verdict")
+    if (
+        execution_trace.forbidden_content_screen_verdict
+        != _PASSED_FORBIDDEN_CONTENT_SCREEN_VERDICT
+        and candidate_artifact_capture.candidate_artifact_capture_status
+        != "screening_not_passed"
+    ):
+        raise ValueError(
+            "non-passed content screening requires screening-not-passed artifact capture"
+        )
     if candidate_artifact_capture.write_scope_ref != execution_preflight.write_scope_ref:
         raise ValueError("candidate artifact capture must use released write scope")
     if candidate_artifact_capture.write_scope_hash != execution_preflight.write_scope_hash:
@@ -1948,6 +2038,16 @@ def validate_pb_single_case_run_0c_bundle(
         != candidate_artifact_capture.single_case_candidate_artifact_capture_ref
     ):
         raise ValueError("outcome audit must reference candidate artifact capture")
+    if (
+        local_outcome_audit.candidate_artifact_capture_status
+        != candidate_artifact_capture.candidate_artifact_capture_status
+    ):
+        raise ValueError("outcome audit artifact capture status must match capture row")
+    if (
+        local_outcome_audit.candidate_artifact_inside_write_scope_posture
+        != candidate_artifact_capture.inside_write_scope_posture
+    ):
+        raise ValueError("outcome audit write-scope posture must match capture row")
     if (
         local_outcome_audit.single_case_lifecycle_projection_ref
         != lifecycle_projection.single_case_lifecycle_projection_ref
