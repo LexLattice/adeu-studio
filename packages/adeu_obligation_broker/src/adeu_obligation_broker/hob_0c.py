@@ -324,6 +324,8 @@ class RepoObligationStaleLedgerInvalidationReport(_HobBase):
                 raise ValueError("invalidation_reason_rows must match invalidated refs")
         elif self.stale_ledger_reuse_posture != "current_catalog_hash_bound":
             raise ValueError("unchanged catalog hash requires current_catalog_hash_bound")
+        elif invalidated_refs or self.invalidation_reason_rows:
+            raise ValueError("unchanged catalog hash cannot invalidate current refs")
         if self.report_hash is not None:
             expected = canonical_hash(self, drop_keys={"report_hash"})
             if self.report_hash != expected:
@@ -395,11 +397,12 @@ class RepoObligationBrokerIntegrationHandoff(_HobBase):
             "handoff_pressure_rows",
             sorted(self.handoff_pressure_rows, key=lambda row: row.pressure_ref),
         )
-        if self.handoff_pressure_rows and not any(
-            row.handoff_pressure_kind == self.handoff_pressure_kind
-            for row in self.handoff_pressure_rows
-        ):
-            raise ValueError("handoff_pressure_kind must be represented by pressure rows")
+        for row in self.handoff_pressure_rows:
+            if row.handoff_pressure_kind != self.handoff_pressure_kind:
+                raise ValueError(
+                    f"handoff pressure row kind {row.handoff_pressure_kind!r} does not match "
+                    f"handoff kind {self.handoff_pressure_kind!r}"
+                )
         if self.handoff_hash is not None:
             expected = canonical_hash(self, drop_keys={"handoff_hash"})
             if self.handoff_hash != expected:
@@ -462,10 +465,15 @@ class RepoObligationBrokerFamilyCloseoutAlignment(_HobBase):
                 raise ValueError("closed family cannot hide residual deferred refs or blockers")
         if self.family_scope_posture == "hob_0_family_blocked" and not self.blocker_refs:
             raise ValueError("blocked family closeout requires blocker_refs")
-        if self.family_scope_posture == "hob_0_family_open_with_deferred_refs" and (
-            not self.residual_deferred_refs
-        ):
-            raise ValueError("open-with-deferred family closeout requires residual_deferred_refs")
+        if self.family_scope_posture == "hob_0_family_open_with_deferred_refs":
+            if not self.residual_deferred_refs:
+                raise ValueError(
+                    "open-with-deferred family closeout requires residual_deferred_refs"
+                )
+            if self.blocker_refs:
+                raise ValueError(
+                    "open-with-deferred family closeout cannot have blocker_refs"
+                )
         if self.alignment_hash is not None:
             expected = canonical_hash(self, drop_keys={"alignment_hash"})
             if self.alignment_hash != expected:

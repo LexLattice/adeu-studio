@@ -280,6 +280,31 @@ def test_stale_catalog_hash_change_without_invalidations_fails_closed() -> None:
         )
 
 
+def test_unchanged_catalog_hash_rejects_invalidation_refs() -> None:
+    with pytest.raises(ValidationError):
+        RepoObligationStaleLedgerInvalidationReport.model_validate(
+            {
+                "schema": "repo_obligation_stale_ledger_invalidation_report@1",
+                "prior_catalog_id": "program-odeu-obligations",
+                "prior_catalog_version": "v1",
+                "prior_catalog_hash": "sha256:same",
+                "current_catalog_id": "program-odeu-obligations",
+                "current_catalog_version": "v1",
+                "current_catalog_hash": "sha256:same",
+                "invalidated_ledger_refs": ["ledger:current"],
+                "invalidated_probe_plan_refs": [],
+                "invalidation_reason_rows": [
+                    {
+                        "invalidated_ref": "ledger:current",
+                        "stale_reason": "contradictory invalidation",
+                        "invalidation_status": "invalidated",
+                    }
+                ],
+                "stale_ledger_reuse_posture": "current_catalog_hash_bound",
+            }
+        )
+
+
 def test_integration_handoff_is_pressure_only_and_non_selecting() -> None:
     catalog, _closure_report = _closure()
 
@@ -304,6 +329,36 @@ def test_integration_handoff_is_pressure_only_and_non_selecting() -> None:
     assert handoff.future_family_selection_posture == "no_future_family_selection"
 
 
+def test_integration_handoff_rejects_mixed_pressure_kinds() -> None:
+    catalog, _closure_report = _closure()
+
+    with pytest.raises(ValidationError):
+        build_integration_handoff(
+            catalog=catalog,
+            handoff_pressure_kind="future_probe_execution_governance_review",
+            handoff_pressure_rows=[
+                HandoffPressureRow.model_validate(
+                    {
+                        "pressure_ref": "pressure:probe-execution",
+                        "target_node_refs": ["5.1"],
+                        "handoff_pressure_kind": "future_probe_execution_governance_review",
+                        "pressure_summary": "Probe execution governance pressure.",
+                        "evidence_boundary_posture": "local_locked_probe_delta",
+                    }
+                ),
+                HandoffPressureRow.model_validate(
+                    {
+                        "pressure_ref": "pressure:implementation",
+                        "target_node_refs": ["5.2"],
+                        "handoff_pressure_kind": "future_implementation_authority_review",
+                        "pressure_summary": "Mixed implementation pressure.",
+                        "evidence_boundary_posture": "local_locked_probe_delta",
+                    }
+                ),
+            ],
+        )
+
+
 def test_handoff_rejects_unknown_node_ids() -> None:
     catalog, _closure_report = _closure()
 
@@ -322,6 +377,26 @@ def test_handoff_rejects_unknown_node_ids() -> None:
                     }
                 )
             ],
+        )
+
+
+def test_open_with_deferred_family_closeout_rejects_active_blockers() -> None:
+    with pytest.raises(ValidationError):
+        RepoObligationBrokerFamilyCloseoutAlignment.model_validate(
+            {
+                "schema": REPO_OBLIGATION_BROKER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+                "family_ref": "HOB-0",
+                "closed_slices": ["HOB-0-A", "HOB-0-B", "HOB-0-C"],
+                "slice_a_closeout_ref": "closeout:HOB-0-A",
+                "slice_b_closeout_ref": "closeout:HOB-0-B",
+                "slice_c_closeout_ref": "closeout:HOB-0-C",
+                "family_scope_posture": "hob_0_family_open_with_deferred_refs",
+                "residual_deferred_refs": ["deferred:integration"],
+                "blocker_refs": ["blocker:unresolved-b"],
+                "integration_authority_posture": "no_integration_authority",
+                "implementation_authority_posture": "no_implementation_authority",
+                "future_family_selection_posture": "no_future_family_selection",
+            }
         )
 
 
