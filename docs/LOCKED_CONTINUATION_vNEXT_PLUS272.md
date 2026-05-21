@@ -239,7 +239,6 @@ Minimum `repo_obligation_broker_non_authority_guardrail@1` fields:
 - a child is omitted without an allowed proof object;
 - a proof-sensitive status lacks its structured proof row;
 - a scoped deferral is used as irrelevance proof;
-- `not_inherited` is used outside catalog/default or inactive-parent rules;
 - `not_inherited` is used without an inactive parent, catalog default
   allowance, or explicit outside-active-subtree proof;
 - `optional_observed` is used to close a parent without local triggering or

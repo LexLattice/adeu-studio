@@ -866,6 +866,7 @@ def validate_obligation_ledger(
     frontier_rows: list[FrontierRow] = []
 
     expected = expand_inherited_obligations(catalog, activation)
+    expected_rows = {row.node_id: row for row in expected.obligation_rows}
     expected_node_ids = {
         row.node_id for row in expected.obligation_rows if row.inheritance_status != "not_inherited"
     }
@@ -948,6 +949,23 @@ def validate_obligation_ledger(
         node = catalog_nodes.get(row.node_id)
         if node is None:
             continue
+        expected_row = expected_rows.get(row.node_id)
+        if expected_row is not None and not _lineage_matches_expected(row, expected_row):
+            diagnostic_ref = add_diag(
+                code="INHERITED_OBLIGATION_LINEAGE_MISMATCH",
+                node_id=row.node_id,
+                message=(
+                    f"obligation row {row.node_id!r} has inherited_from_node_id or "
+                    "inheritance_status that does not match deterministic catalog expansion"
+                ),
+            )
+            add_frontier(
+                node_id=row.node_id,
+                parent_node_id=expected_row.inherited_from_node_id,
+                reason="active_branch_needs_terminalization",
+                action="semantic_adjudication",
+                diagnostic_ref=diagnostic_ref,
+            )
         if row.proof_ref is not None and row.proof_ref not in proof_rows:
             diagnostic_ref = add_diag(
                 code="UNKNOWN_PROOF_REF",
@@ -1172,6 +1190,20 @@ def _validate_status_proof(
             action="reference_observation",
             diagnostic_ref=diagnostic_ref,
         )
+
+
+def _lineage_matches_expected(
+    row: InheritedObligationRow,
+    expected_row: InheritedObligationRow,
+) -> bool:
+    if row.inherited_from_node_id != expected_row.inherited_from_node_id:
+        return False
+    if row.inheritance_status == expected_row.inheritance_status:
+        return True
+    return (
+        expected_row.inheritance_status == "optional_observed"
+        and row.inheritance_status == "locally_triggered"
+    )
 
 
 def _validate_not_inherited(

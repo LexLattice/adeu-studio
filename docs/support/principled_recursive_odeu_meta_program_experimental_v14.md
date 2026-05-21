@@ -2037,8 +2037,12 @@ Cᴡ_src ----------------------> Cᴡ_local ----------------------------> O_loca
   |                               |                                      |
   | package_eval                  | E3 witness-bundle equivalence        | E2/E5 observation equivalence
   v                               v                                      v
-Cᴡ_eval ----------------------> run under Πeval,Σeval --------------> O_eval
-             E4/E5 substrate and execution-topology equivalence
+Cᴡ_eval ----------------------> Cᴡ_eval_ready ----------------------> O_eval
+             package_eval                    run under Πeval,Σeval
+
+E4/E5 substrate and execution-topology equivalence is the relation between
+the local run edge and the evaluator-intended run edge, not a replacement for
+E3 witness-bundle equivalence.
 ```
 
 If packaging, runtime, entrypoint, dependency, resource, or observer relation

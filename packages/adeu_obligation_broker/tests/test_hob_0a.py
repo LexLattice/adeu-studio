@@ -173,6 +173,26 @@ def test_missing_child_fails_closed_and_emits_frontier() -> None:
     )
 
 
+def test_wrong_child_lineage_fails_closed() -> None:
+    catalog = _catalog()
+    activation = _activation(catalog)
+    ledger = _valid_closed_ledger(catalog, activation)
+    payload = ledger.model_dump(mode="json", exclude_none=True)
+    for row in payload["obligation_rows"]:
+        if row["node_id"] == "5.2":
+            row["inherited_from_node_id"] = None
+            row["inheritance_status"] = "root_selected"
+    ledger = RepoInheritedObligationLedger.model_validate(payload)
+
+    report = validate_obligation_ledger(catalog=catalog, activation=activation, ledger=ledger)
+
+    assert report.validation_status == "failed_closed"
+    assert "INHERITED_OBLIGATION_LINEAGE_MISMATCH" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
+    assert any(row.node_id == "5.2" for row in report.frontier_rows)
+
+
 def test_scoped_deferral_blocks_parent_gold_ready_claim() -> None:
     catalog = _catalog()
     activation = _activation(catalog)
