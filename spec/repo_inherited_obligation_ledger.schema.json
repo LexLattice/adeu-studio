@@ -1,0 +1,511 @@
+{
+  "$defs": {
+    "BlockingProofRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_status": {
+          "enum": [
+            "blocked_pending_observation",
+            "blocked_pending_equivalence"
+          ],
+          "title": "Blocking Status",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "proof_kind": {
+          "const": "blocking",
+          "title": "Proof Kind",
+          "type": "string"
+        },
+        "proof_ref": {
+          "title": "Proof Ref",
+          "type": "string"
+        },
+        "proof_text": {
+          "title": "Proof Text",
+          "type": "string"
+        },
+        "proof_type": {
+          "enum": [
+            "pending_observation",
+            "pending_equivalence"
+          ],
+          "title": "Proof Type",
+          "type": "string"
+        },
+        "protected_surfaces": {
+          "$ref": "#/$defs/ProtectedSurfaces"
+        },
+        "required_next_evidence": {
+          "title": "Required Next Evidence",
+          "type": "string"
+        },
+        "warrant_ref": {
+          "title": "Warrant Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proof_ref",
+        "node_id",
+        "proof_kind",
+        "proof_type",
+        "protected_surfaces",
+        "warrant_ref",
+        "blocking_status",
+        "required_next_evidence",
+        "proof_text"
+      ],
+      "title": "BlockingProofRow",
+      "type": "object"
+    },
+    "DeferralProofRow": {
+      "additionalProperties": false,
+      "properties": {
+        "deferral_status": {
+          "enum": [
+            "scoped_deferred_with_expected_risk",
+            "gold_deferred_with_expected_risk"
+          ],
+          "title": "Deferral Status",
+          "type": "string"
+        },
+        "expected_risk": {
+          "title": "Expected Risk",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "proof_kind": {
+          "const": "deferral",
+          "title": "Proof Kind",
+          "type": "string"
+        },
+        "proof_ref": {
+          "title": "Proof Ref",
+          "type": "string"
+        },
+        "proof_text": {
+          "title": "Proof Text",
+          "type": "string"
+        },
+        "proof_type": {
+          "enum": [
+            "scoped_deferral",
+            "gold_deferral"
+          ],
+          "title": "Proof Type",
+          "type": "string"
+        },
+        "protected_surfaces": {
+          "$ref": "#/$defs/ProtectedSurfaces"
+        },
+        "warrant_ref": {
+          "title": "Warrant Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proof_ref",
+        "node_id",
+        "proof_kind",
+        "proof_type",
+        "protected_surfaces",
+        "warrant_ref",
+        "deferral_status",
+        "expected_risk",
+        "proof_text"
+      ],
+      "title": "DeferralProofRow",
+      "type": "object"
+    },
+    "InheritedObligationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_risk_if_deferred": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Risk If Deferred"
+        },
+        "implementation_owner": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Implementation Owner"
+        },
+        "inheritance_status": {
+          "enum": [
+            "root_selected",
+            "inherited_required",
+            "locally_triggered",
+            "optional_observed",
+            "not_inherited"
+          ],
+          "title": "Inheritance Status",
+          "type": "string"
+        },
+        "inherited_from_node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inherited From Node Id"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "obligation_status": {
+          "enum": [
+            "open",
+            "covered_terminalized",
+            "covered_by_probe_matrix",
+            "proved_pass_through",
+            "proved_irrelevant",
+            "scoped_deferred_with_expected_risk",
+            "gold_deferred_with_expected_risk",
+            "blocked_pending_observation",
+            "blocked_pending_equivalence",
+            "conflict_isolated",
+            "representative_examples_only"
+          ],
+          "title": "Obligation Status",
+          "type": "string"
+        },
+        "probe_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Probe Refs",
+          "type": "array"
+        },
+        "proof_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proof Ref"
+        },
+        "warrant_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Warrant Ref"
+        }
+      },
+      "required": [
+        "node_id",
+        "inheritance_status",
+        "obligation_status"
+      ],
+      "title": "InheritedObligationRow",
+      "type": "object"
+    },
+    "IrrelevanceProofRow": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "proof_kind": {
+          "const": "irrelevance",
+          "title": "Proof Kind",
+          "type": "string"
+        },
+        "proof_ref": {
+          "title": "Proof Ref",
+          "type": "string"
+        },
+        "proof_text": {
+          "title": "Proof Text",
+          "type": "string"
+        },
+        "proof_type": {
+          "enum": [
+            "semantic_impossibility",
+            "public_schema_absence",
+            "negative_reference_behavior",
+            "outside_active_subtree"
+          ],
+          "title": "Proof Type",
+          "type": "string"
+        },
+        "protected_surfaces": {
+          "$ref": "#/$defs/ProtectedSurfaces"
+        },
+        "warrant_ref": {
+          "title": "Warrant Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proof_ref",
+        "node_id",
+        "proof_kind",
+        "proof_type",
+        "protected_surfaces",
+        "warrant_ref",
+        "proof_text"
+      ],
+      "title": "IrrelevanceProofRow",
+      "type": "object"
+    },
+    "PassThroughProofRow": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "pass_through_scope": {
+          "title": "Pass Through Scope",
+          "type": "string"
+        },
+        "proof_kind": {
+          "const": "pass_through",
+          "title": "Proof Kind",
+          "type": "string"
+        },
+        "proof_ref": {
+          "title": "Proof Ref",
+          "type": "string"
+        },
+        "proof_text": {
+          "title": "Proof Text",
+          "type": "string"
+        },
+        "proof_type": {
+          "const": "protected_surface_pass_through",
+          "title": "Proof Type",
+          "type": "string"
+        },
+        "protected_surfaces": {
+          "$ref": "#/$defs/ProtectedSurfaces"
+        },
+        "warrant_ref": {
+          "title": "Warrant Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proof_ref",
+        "node_id",
+        "proof_kind",
+        "proof_type",
+        "protected_surfaces",
+        "warrant_ref",
+        "pass_through_scope",
+        "proof_text"
+      ],
+      "title": "PassThroughProofRow",
+      "type": "object"
+    },
+    "ProtectedSurfaces": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation_denominator": {
+          "default": false,
+          "title": "Aggregation Denominator",
+          "type": "boolean"
+        },
+        "exit": {
+          "default": false,
+          "title": "Exit",
+          "type": "boolean"
+        },
+        "files": {
+          "default": false,
+          "title": "Files",
+          "type": "boolean"
+        },
+        "row_universe": {
+          "default": false,
+          "title": "Row Universe",
+          "type": "boolean"
+        },
+        "state": {
+          "default": false,
+          "title": "State",
+          "type": "boolean"
+        },
+        "stderr": {
+          "default": false,
+          "title": "Stderr",
+          "type": "boolean"
+        },
+        "stdout": {
+          "default": false,
+          "title": "Stdout",
+          "type": "boolean"
+        }
+      },
+      "title": "ProtectedSurfaces",
+      "type": "object"
+    },
+    "ReadinessClaimRow": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "readiness_claim_ref": {
+          "title": "Readiness Claim Ref",
+          "type": "string"
+        },
+        "readiness_status": {
+          "enum": [
+            "not_ready",
+            "representative_examples_only",
+            "branch_matrix_partial",
+            "scoped_ready",
+            "gold_ready",
+            "blocked"
+          ],
+          "title": "Readiness Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "readiness_status",
+        "readiness_claim_ref"
+      ],
+      "title": "ReadinessClaimRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activation_assessment_ref": {
+      "title": "Activation Assessment Ref",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "ledger_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ledger Hash"
+    },
+    "obligation_rows": {
+      "items": {
+        "$ref": "#/$defs/InheritedObligationRow"
+      },
+      "title": "Obligation Rows",
+      "type": "array"
+    },
+    "proof_rows": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "blocking": "#/$defs/BlockingProofRow",
+            "deferral": "#/$defs/DeferralProofRow",
+            "irrelevance": "#/$defs/IrrelevanceProofRow",
+            "pass_through": "#/$defs/PassThroughProofRow"
+          },
+          "propertyName": "proof_kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/IrrelevanceProofRow"
+          },
+          {
+            "$ref": "#/$defs/PassThroughProofRow"
+          },
+          {
+            "$ref": "#/$defs/DeferralProofRow"
+          },
+          {
+            "$ref": "#/$defs/BlockingProofRow"
+          }
+        ]
+      },
+      "title": "Proof Rows",
+      "type": "array"
+    },
+    "readiness_claim_rows": {
+      "items": {
+        "$ref": "#/$defs/ReadinessClaimRow"
+      },
+      "title": "Readiness Claim Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_inherited_obligation_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stale_catalog_posture": {
+      "enum": [
+        "current_catalog_hash_bound",
+        "stale_catalog_blocked"
+      ],
+      "title": "Stale Catalog Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "activation_assessment_ref",
+    "obligation_rows",
+    "stale_catalog_posture"
+  ],
+  "title": "RepoInheritedObligationLedger",
+  "type": "object"
+}

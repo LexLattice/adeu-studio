@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "FrontierRow": {
+      "additionalProperties": false,
+      "properties": {
+        "frontier_reason": {
+          "enum": [
+            "inherited_required_missing_status",
+            "active_branch_needs_terminalization",
+            "irrelevance_proof_invalid",
+            "pass_through_proof_incomplete",
+            "deferral_risk_statement_required",
+            "blocked_pending_reference_observation",
+            "blocked_pending_methodological_equivalence",
+            "parent_closure_blocked_by_child"
+          ],
+          "title": "Frontier Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "parent_node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Node Id"
+        },
+        "required_next_action": {
+          "enum": [
+            "semantic_adjudication",
+            "terminalization",
+            "proof_repair",
+            "deferral_risk_statement",
+            "reference_observation",
+            "methodological_equivalence_check"
+          ],
+          "title": "Required Next Action",
+          "type": "string"
+        },
+        "source_diagnostic_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Diagnostic Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "node_id",
+        "frontier_reason",
+        "required_next_action",
+        "source_diagnostic_refs"
+      ],
+      "title": "FrontierRow",
+      "type": "object"
+    },
+    "TraversalDiagnosticRow": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostic_code": {
+          "title": "Diagnostic Code",
+          "type": "string"
+        },
+        "diagnostic_ref": {
+          "title": "Diagnostic Ref",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node Id"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "diagnostic_ref",
+        "severity",
+        "diagnostic_code",
+        "message"
+      ],
+      "title": "TraversalDiagnosticRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activation_assessment_hash": {
+      "title": "Activation Assessment Hash",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "diagnostic_rows": {
+      "items": {
+        "$ref": "#/$defs/TraversalDiagnosticRow"
+      },
+      "title": "Diagnostic Rows",
+      "type": "array"
+    },
+    "false_parent_closure_blocked": {
+      "title": "False Parent Closure Blocked",
+      "type": "boolean"
+    },
+    "frontier_rows": {
+      "items": {
+        "$ref": "#/$defs/FrontierRow"
+      },
+      "title": "Frontier Rows",
+      "type": "array"
+    },
+    "inherited_obligation_ledger_hash": {
+      "title": "Inherited Obligation Ledger Hash",
+      "type": "string"
+    },
+    "report_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Hash"
+    },
+    "schema": {
+      "const": "repo_obligation_traversal_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "validation_status": {
+      "enum": [
+        "passed",
+        "failed_closed"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "activation_assessment_hash",
+    "inherited_obligation_ledger_hash",
+    "validation_status",
+    "diagnostic_rows",
+    "frontier_rows",
+    "false_parent_closure_blocked"
+  ],
+  "title": "RepoObligationTraversalValidationReport",
+  "type": "object"
+}

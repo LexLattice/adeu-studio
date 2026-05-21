@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ActivationWarrantRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "support",
+            "planning",
+            "architecture",
+            "lock"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "warrant_kind": {
+          "enum": [
+            "visible_spec",
+            "public_schema_observation",
+            "reference_behavior_observation",
+            "methodological_equivalence",
+            "support_doctrine"
+          ],
+          "title": "Warrant Kind",
+          "type": "string"
+        },
+        "warrant_ref": {
+          "title": "Warrant Ref",
+          "type": "string"
+        },
+        "warrant_summary": {
+          "title": "Warrant Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "warrant_ref",
+        "warrant_kind",
+        "authority_layer",
+        "warrant_summary"
+      ],
+      "title": "ActivationWarrantRow",
+      "type": "object"
+    },
+    "NodeActivationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_note": {
+          "title": "Activation Note",
+          "type": "string"
+        },
+        "activation_status": {
+          "enum": [
+            "applies",
+            "not_applicable_proven",
+            "candidate_pending",
+            "conflict_isolated"
+          ],
+          "title": "Activation Status",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "warrant_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warrant Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node_id",
+        "activation_status",
+        "warrant_refs",
+        "activation_note"
+      ],
+      "title": "NodeActivationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "activation_rows": {
+      "items": {
+        "$ref": "#/$defs/NodeActivationRow"
+      },
+      "title": "Activation Rows",
+      "type": "array"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_activation_assessment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_judgment_authority_posture": {
+      "const": "model_authored_broker_schema_validated",
+      "title": "Semantic Judgment Authority Posture",
+      "type": "string"
+    },
+    "warrant_rows": {
+      "items": {
+        "$ref": "#/$defs/ActivationWarrantRow"
+      },
+      "title": "Warrant Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "activation_rows",
+    "warrant_rows",
+    "semantic_judgment_authority_posture"
+  ],
+  "title": "RepoObligationActivationAssessment",
+  "type": "object"
+}
