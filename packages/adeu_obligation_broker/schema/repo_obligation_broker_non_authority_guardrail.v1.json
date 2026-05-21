@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closure_aggregation_posture": {
+      "const": "deferred_to_hob_0b",
+      "title": "Closure Aggregation Posture",
+      "type": "string"
+    },
+    "delta_attribution_posture": {
+      "const": "deferred_to_hob_0c",
+      "title": "Delta Attribution Posture",
+      "type": "string"
+    },
+    "denied_authority_postures": {
+      "items": {
+        "enum": [
+          "no_semantic_judgment_authority",
+          "no_ontology_generation_authority",
+          "no_probe_planning_authority",
+          "no_probe_execution_authority",
+          "no_worker_dispatch_authority",
+          "no_implementation_authority",
+          "no_product_truth_authority",
+          "no_future_family_selection_authority"
+        ],
+        "type": "string"
+      },
+      "title": "Denied Authority Postures",
+      "type": "array"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "probe_matrix_posture": {
+      "const": "deferred_to_hob_0b",
+      "title": "Probe Matrix Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_broker_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "slice_scope_posture": {
+      "const": "hob_0a_structural_validation_only",
+      "title": "Slice Scope Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "guardrail_ref",
+    "denied_authority_postures",
+    "slice_scope_posture",
+    "closure_aggregation_posture",
+    "probe_matrix_posture",
+    "delta_attribution_posture"
+  ],
+  "title": "RepoObligationBrokerNonAuthorityGuardrail",
+  "type": "object"
+}

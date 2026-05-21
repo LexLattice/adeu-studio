@@ -26,6 +26,7 @@
     "candidate_artifact_inside_write_scope_posture": {
       "enum": [
         "inside_released_write_scope",
+        "not_applicable_screening_not_passed",
         "outside_released_write_scope",
         "not_applicable_missing_capture"
       ],

@@ -288,13 +288,13 @@ def test_pb_single_case_run_0b_rejects_shell_marker_in_argv_token() -> None:
         ProgrambenchSingleCaseExecutionTrace.model_validate(payload)
 
 
-def test_pb_single_case_run_0b_rejects_capture_before_screening_passes() -> None:
+def test_pb_single_case_run_0b_rejects_screening_verdict_mismatch() -> None:
     _, trace, _, capture, _ = _load_single_case_run_b_rows()
     bad_trace = trace.model_copy(
         update={"forbidden_content_screen_verdict": "inconclusive_requires_review"}
     )
 
-    with pytest.raises(ValueError, match="passed forbidden-content screening"):
+    with pytest.raises(ValueError, match="preserve screening verdict"):
         validate_pb_single_case_run_0b_bundle(
             matrix_inclusion_family_closeout=_load_matrix_inclusion_c_rows()[0],
             matrix_revision_registration=_load_matrix_inclusion_c_rows()[1],
@@ -312,6 +312,84 @@ def test_pb_single_case_run_0b_rejects_capture_before_screening_passes() -> None
         )
 
 
+def test_pb_single_case_run_0b_allows_missing_artifact_capture_for_remand() -> None:
+    matrix_closeout, matrix_registration, matrix_readiness = (
+        _load_matrix_inclusion_c_rows()
+    )
+    request, target, preflight, control, guardrail = _load_single_case_run_a_rows()
+    dispatch, trace, probes, capture, projection = _load_single_case_run_b_rows()
+    missing_capture = ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(
+        capture.model_dump(by_alias=True)
+        | {
+            "artifact_capture_blocker_refs": [
+                "artifact-capture-blocker:pb-single-case-run-0b:missing-candidate-artifact"
+            ],
+            "artifact_hash_rows": [],
+            "candidate_artifact_capture_status": "missing",
+            "generated_artifact_rows": [],
+            "inside_write_scope_posture": "not_applicable_missing_capture",
+            "materialization_input_hash": trace.stderr_hash,
+        }
+    )
+
+    validate_pb_single_case_run_0b_bundle(
+        matrix_inclusion_family_closeout=matrix_closeout,
+        matrix_revision_registration=matrix_registration,
+        matrix_revision_readiness_summary=matrix_readiness,
+        run_request=request,
+        target_selection=target,
+        execution_preflight=preflight,
+        run_control_contract=control,
+        non_authority_guardrail=guardrail,
+        worker_dispatch_specimen=dispatch,
+        execution_trace=trace,
+        probe_observation_bundle=probes,
+        candidate_artifact_capture=missing_capture,
+        lifecycle_projection=projection,
+    )
+
+
+def test_pb_single_case_run_0b_allows_screening_block_capture_for_remand() -> None:
+    matrix_closeout, matrix_registration, matrix_readiness = (
+        _load_matrix_inclusion_c_rows()
+    )
+    request, target, preflight, control, guardrail = _load_single_case_run_a_rows()
+    dispatch, trace, probes, capture, projection = _load_single_case_run_b_rows()
+    screened_trace = trace.model_copy(
+        update={"forbidden_content_screen_verdict": "inconclusive_requires_review"}
+    )
+    screened_capture = ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(
+        capture.model_dump(by_alias=True)
+        | {
+            "artifact_capture_blocker_refs": [
+                "artifact-capture-blocker:pb-single-case-run-0b:screening-review"
+            ],
+            "artifact_hash_rows": [],
+            "candidate_artifact_capture_status": "screening_not_passed",
+            "forbidden_content_screen_verdict": "inconclusive_requires_review",
+            "generated_artifact_rows": [],
+            "inside_write_scope_posture": "not_applicable_screening_not_passed",
+            "materialization_input_hash": screened_trace.stderr_hash,
+        }
+    )
+
+    validate_pb_single_case_run_0b_bundle(
+        matrix_inclusion_family_closeout=matrix_closeout,
+        matrix_revision_registration=matrix_registration,
+        matrix_revision_readiness_summary=matrix_readiness,
+        run_request=request,
+        target_selection=target,
+        execution_preflight=preflight,
+        run_control_contract=control,
+        non_authority_guardrail=guardrail,
+        worker_dispatch_specimen=dispatch,
+        execution_trace=screened_trace,
+        probe_observation_bundle=probes,
+        candidate_artifact_capture=screened_capture,
+        lifecycle_projection=projection,
+    )
+
+
 def test_pb_single_case_run_0b_rejects_artifact_outside_write_scope() -> None:
     capture = _load_single_case_run_b_rows()[3]
 
@@ -320,6 +398,36 @@ def test_pb_single_case_run_0b_rejects_artifact_outside_write_scope() -> None:
             capture.model_dump(by_alias=True)
             | {"inside_write_scope_posture": "outside_released_write_scope"}
         )
+
+
+def test_pb_single_case_run_0b_rejects_missing_artifact_capture_without_blocker() -> None:
+    capture = _load_single_case_run_b_rows()[3]
+    payload = capture.model_dump(by_alias=True)
+    payload.update(
+        {
+            "artifact_hash_rows": [],
+            "candidate_artifact_capture_status": "missing",
+            "generated_artifact_rows": [],
+            "inside_write_scope_posture": "not_applicable_missing_capture",
+        }
+    )
+
+    with pytest.raises(ValidationError, match="requires artifact blockers"):
+        ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(payload)
+
+
+def test_pb_single_case_run_0b_rejects_captured_artifact_without_artifact_rows() -> None:
+    capture = _load_single_case_run_b_rows()[3]
+    payload = capture.model_dump(by_alias=True)
+    payload.update(
+        {
+            "artifact_hash_rows": [],
+            "generated_artifact_rows": [],
+        }
+    )
+
+    with pytest.raises(ValidationError, match="captured artifacts require"):
+        ProgrambenchSingleCaseCandidateArtifactCapture.model_validate(payload)
 
 
 def test_pb_single_case_run_0b_rejects_artifact_hash_contradiction() -> None:

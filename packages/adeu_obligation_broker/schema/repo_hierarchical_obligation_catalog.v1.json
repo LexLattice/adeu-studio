@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "CatalogNodeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "title": "Authority Ref",
+          "type": "string"
+        },
+        "default_inheritance": {
+          "default": "inherited_required",
+          "enum": [
+            "inherited_required",
+            "optional_observed",
+            "not_inherited"
+          ],
+          "title": "Default Inheritance",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "node_kind": {
+          "enum": [
+            "obligation_family",
+            "macro",
+            "branch",
+            "terminal_leaf"
+          ],
+          "title": "Node Kind",
+          "type": "string"
+        },
+        "parent_node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Node Id"
+        },
+        "required_child_node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Child Node Ids",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "node_kind",
+        "title",
+        "authority_ref"
+      ],
+      "title": "CatalogNodeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "catalog_authority": {
+      "enum": [
+        "support",
+        "planning",
+        "architecture",
+        "lock"
+      ],
+      "title": "Catalog Authority",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Catalog Hash"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_nodes": {
+      "items": {
+        "$ref": "#/$defs/CatalogNodeRow"
+      },
+      "title": "Catalog Nodes",
+      "type": "array"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_hierarchical_obligation_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_authority",
+    "catalog_nodes"
+  ],
+  "title": "RepoHierarchicalObligationCatalog",
+  "type": "object"
+}
