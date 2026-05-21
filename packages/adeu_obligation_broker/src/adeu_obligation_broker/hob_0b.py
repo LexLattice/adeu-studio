@@ -578,8 +578,8 @@ def compute_obligation_closure(
         child_closure_by_node[node.node_id] = result
         return result
 
-    for row in ledger.obligation_rows:
-        node = _node_by_id(catalog).get(row.node_id)
+    for node_id in _closure_seed_node_ids(catalog, ledger, validation_report):
+        node = _node_by_id(catalog).get(node_id)
         if node is not None:
             close_node(node)
 
@@ -654,6 +654,9 @@ def plan_probe_matrix(
 ) -> RepoObligationProbeMatrixPlan:
     held_out = set(held_out_node_refs or [])
     closure_node_ids = {row.node_id for row in closure_report.subtree_closure_rows}
+    unknown_held_out = sorted(held_out - closure_node_ids)
+    if unknown_held_out:
+        raise ValueError(f"held_out_node_refs must belong to closure nodes: {unknown_held_out}")
     terminal_refs = sorted(
         node.node_id
         for node in catalog.catalog_nodes
@@ -668,6 +671,18 @@ def plan_probe_matrix(
     for node_id in terminal_refs:
         probe_kind: ProbeKind = (
             "held_out_regression_probe" if node_id in held_out else "terminal_behavior_probe"
+        )
+        rows.append(
+            ProbeMatrixRow(
+                node_id=node_id,
+                probe_kind=probe_kind,
+                expected_surface_refs=[f"surface:{node_id}"],
+                probe_authority_posture="plan_only_not_observed",
+            )
+        )
+    for node_id in boundary_refs:
+        probe_kind: ProbeKind = (
+            "held_out_regression_probe" if node_id in held_out else "boundary_probe"
         )
         rows.append(
             ProbeMatrixRow(
@@ -785,6 +800,27 @@ def _children_by_parent(
         if node.parent_node_id is not None:
             children[node.parent_node_id].append(node)
     return {parent: sorted(rows, key=lambda row: row.node_id) for parent, rows in children.items()}
+
+
+def _closure_seed_node_ids(
+    catalog: RepoHierarchicalObligationCatalog,
+    ledger: RepoInheritedObligationLedger,
+    validation_report: RepoObligationTraversalValidationReport,
+) -> list[str]:
+    catalog_nodes = _node_by_id(catalog)
+    seed_ids = {row.node_id for row in ledger.obligation_rows}
+    seed_ids.update(
+        row.node_id
+        for row in validation_report.diagnostic_rows
+        if row.node_id is not None and _diagnostic_blocks_closure(row.diagnostic_code)
+    )
+    expanded = set(seed_ids)
+    for node_id in seed_ids:
+        node = catalog_nodes.get(node_id)
+        while node is not None and node.parent_node_id is not None:
+            expanded.add(node.parent_node_id)
+            node = catalog_nodes.get(node.parent_node_id)
+    return sorted(expanded)
 
 
 def _close_leaf_from_obligation(

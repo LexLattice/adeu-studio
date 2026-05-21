@@ -274,6 +274,35 @@ def test_a_validation_blocker_blocks_b_closure() -> None:
     } == {"blocked_by_A_validation"}
 
 
+def test_empty_ledger_still_emits_a_validation_blocked_closure_rows() -> None:
+    catalog = _catalog()
+    activation = _activation(catalog)
+    ledger = _ledger(catalog, activation)
+    payload = ledger.model_dump(mode="json", exclude_none=True)
+    payload["obligation_rows"] = []
+    ledger = RepoInheritedObligationLedger.model_validate(payload)
+    validation_report = validate_obligation_ledger(
+        catalog=catalog,
+        activation=activation,
+        ledger=ledger,
+    )
+
+    closure = compute_obligation_closure(
+        catalog=catalog,
+        ledger=ledger,
+        validation_report=validation_report,
+    )
+
+    assert validation_report.validation_status == "failed_closed"
+    assert closure.closure_status == "blocked"
+    assert {row.node_id for row in closure.subtree_closure_rows} == {"5", "5.1", "5.2", "5.3"}
+    assert all(
+        row.closure_basis == "blocked_by_A_validation"
+        for row in closure.subtree_closure_rows
+    )
+    assert closure.closure_blocker_refs == ["5", "5.1", "5.2", "5.3"]
+
+
 def test_parent_readiness_cannot_exceed_weakest_child() -> None:
     with pytest.raises(ValidationError):
         RepoObligationClosureReport(
@@ -350,14 +379,38 @@ def test_probe_matrix_plan_is_plan_only_not_observed() -> None:
 
     assert plan.probe_authority_posture == "plan_only_not_observed"
     assert plan.probe_plan_non_execution_posture == "plan_only_no_probe_execution"
-    assert {row.node_id for row in plan.probe_matrix_rows} == {"5.1", "5.2", "5.3"}
+    assert {row.node_id for row in plan.probe_matrix_rows} == {"5", "5.1", "5.2", "5.3"}
     assert all(
         row.probe_authority_posture == "plan_only_not_observed"
         for row in plan.probe_matrix_rows
     )
+    assert next(row for row in plan.probe_matrix_rows if row.node_id == "5").probe_kind == (
+        "boundary_probe"
+    )
     assert next(row for row in plan.probe_matrix_rows if row.node_id == "5.3").probe_kind == (
         "held_out_regression_probe"
     )
+
+
+def test_probe_matrix_marks_held_out_boundary_nodes() -> None:
+    catalog, _ledger_obj, closure = _closure_report()
+
+    plan = plan_probe_matrix(catalog=catalog, closure_report=closure, held_out_node_refs=["5"])
+
+    assert next(row for row in plan.probe_matrix_rows if row.node_id == "5").probe_kind == (
+        "held_out_regression_probe"
+    )
+
+
+def test_probe_matrix_rejects_held_out_refs_outside_closure() -> None:
+    catalog, _ledger_obj, closure = _closure_report()
+
+    with pytest.raises(ValueError):
+        plan_probe_matrix(
+            catalog=catalog,
+            closure_report=closure,
+            held_out_node_refs=["5.4"],
+        )
 
 
 def test_probe_matrix_rows_reject_execution_or_observation_posture() -> None:
