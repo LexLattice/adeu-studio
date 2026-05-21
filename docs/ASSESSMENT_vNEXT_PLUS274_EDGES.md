@@ -1,8 +1,8 @@
 # Assessment vNext+274 Edges
 
-Status: starter edge assessment for `HOB-0-C`.
+Status: post-closeout edge assessment for `HOB-0-C` and `HOB-0`.
 
-Authority layer: planning / starter gate.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,93 +10,129 @@ Authority layer: planning / starter gate.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS274_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edge Review
 
 ### Edge 1: Delta Attribution Becomes Product Truth
 
-- Risk:
-  attribution rows could be read as clean behavior truth instead of pressure
-  over numbered obligations.
-- Starter containment:
-  every attribution row requires `evidence_boundary_posture`, and clean product
-  truth is outside C authority.
+- Closeout state:
+  contained.
+- Evidence:
+  delta ledgers require `pressure_attribution_only_not_product_truth`, and
+  attribution rows remain evidence-boundary typed pressure over numbered nodes.
 
 ### Edge 2: Score Movement Becomes Macro Closure
 
-- Risk:
-  official-like score movement could be interpreted as macro closure.
-- Starter containment:
-  score movement cannot close a macro without released closure evidence; score
-  rows remain pressure, not closure proof.
+- Closeout state:
+  contained.
+- Evidence:
+  macro closure attribution requires released closure evidence and local
+  locked-probe evidence posture. Official-like pressure cannot close a macro.
 
 ### Edge 3: Post-Eval Pressure Is Laundered As Clean Evidence
 
-- Risk:
-  official failures, postmortem rows, or source-postmortem pressure could be
-  mislabeled as clean first-pass semantic evidence.
-- Starter containment:
-  allowed evidence boundary postures distinguish `post_eval_pressure_only`,
-  `official_like_pressure`, `source_postmortem_pressure`, and
-  `clean_first_pass_disallowed`.
+- Closeout state:
+  contained.
+- Evidence:
+  attribution and handoff rows require explicit evidence boundary posture;
+  disallowed clean-first-pass laundering is rejected.
 
 ### Edge 4: Stale Ledger Reuse After Catalog Changes
 
-- Risk:
-  old ledgers or probe plans could be reused after the numbered catalog
-  changes.
-- Starter containment:
-  stale-ledger invalidation reports require prior/current catalog
-  id/version/hash and fail closed on unhandled hash changes.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  stale-ledger invalidation reports bind prior/current catalog
+  id/version/hash. Changed hashes require invalidated refs and reason rows;
+  unchanged hashes reject contradictory invalidation refs.
 
 ### Edge 5: Integration Handoff Becomes Future-Family Selection
 
-- Risk:
-  handoff rows could grant ProgramBench, semantic compiler, probe execution,
-  implementation, or future-family authority.
-- Starter containment:
-  handoff rows are pressure-only and require explicit non-selection and
-  non-authority postures.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  handoff rows are pressure-only and require explicit no-authority postures for
+  ProgramBench integration, semantic compiler integration, probe execution,
+  implementation, and future-family selection. Mixed pressure kinds in one
+  handoff are rejected.
 
 ### Edge 6: C Reopens A Or B Decisions
 
-- Risk:
-  C could re-decide semantic applicability from A or recompute closure outside
-  released B records.
-- Starter containment:
-  C consumes released A/B records and validates catalog continuity; it does not
-  reopen activation or closure computation.
+- Closeout state:
+  contained.
+- Evidence:
+  C consumes released A/B substrate and validates catalog continuity. It does
+  not decide activation applicability and does not recompute closure outside
+  released B closure evidence.
 
 ### Edge 7: Family Closeout Hides Unresolved Blockers
 
-- Risk:
-  family closeout alignment could mark the family closed while unresolved B or
-  C blockers remain.
-- Starter containment:
-  closeout alignment must list closed slices and residual deferred refs, and it
-  fails closed on unresolved blockers.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  closed family alignment requires exact `HOB-0-A`, `HOB-0-B`, and `HOB-0-C`
+  slice refs and rejects residual deferred refs or blockers. Open-with-deferred
+  family posture rejects active blockers.
 
 ### Edge 8: Canonical Determinism Is Claimed But Not Tested
 
-- Risk:
-  row-order differences could change attribution, stale-ledger, handoff, or
-  closeout hashes.
-- Starter containment:
-  the starter fixture set requires shuffled input order to preserve output
-  order and canonical hashes.
+- Closeout state:
+  contained.
+- Evidence:
+  focused C fixtures cover deterministic ordering and canonical hashes for
+  delta attribution rows.
+
+### Edge 9: C Emits Execution Or Implementation Authority
+
+- Closeout state:
+  contained.
+- Evidence:
+  C emits only delta attribution, stale-ledger invalidation, pressure-only
+  handoff, and family closeout alignment shapes. Probe execution, worker
+  dispatch, implementation authority, product truth, ProgramBench integration,
+  and future-family selection remain absent.
+
+## Review Feedback Integrated
+
+- Codex review:
+  unchanged prior/current catalog hashes now reject invalidated ledger/probe
+  plan refs and reason rows.
+- Gemini review:
+  all handoff pressure rows must match the top-level handoff pressure kind.
+- Gemini review:
+  `hob_0_family_open_with_deferred_refs` requires deferred refs and rejects
+  active blockers.
+
+## Residual Edges
+
+- HOB remains a deterministic broker only. It does not decide semantic
+  applicability, generate ontology catalogs, run probes, dispatch workers,
+  patch product code, authorize product behavior, integrate ProgramBench, or
+  select future families.
+- C handoff rows are pressure-only. They may inform later families, but they do
+  not select or authorize those families.
+- Delta attribution remains evidence-bound pressure. It is not clean product
+  truth, benchmark truth, model performance, or macro closure unless released
+  closure evidence supports the narrower closure posture.
 
 ## Current Judgment
 
-`HOB-0-C` is safe to draft as the final slice if it stays limited to delta
-attribution, stale-ledger invalidation, pressure-only integration handoff, and
-family closeout alignment over released `HOB-0-A` / `HOB-0-B` artifacts.
+`HOB-0-C` is closed. The full `HOB-0` family is closed as deterministic
+hierarchical obligation brokerage:
 
-The strongest implementation risks are evidence laundering and score-to-closure
-promotion. The first C PR should prove evidence-boundary discipline with small
-deterministic fixtures before any probe runner, worker orchestration,
-ProgramBench integration, or implementation-authority machinery is added.
+```text
+HOB-0-A:
+  catalog + activation + inherited ledger + validation/frontier
+
+HOB-0-B:
+  closure + frontier priority + plan-only probe matrix + bounded batches
+
+HOB-0-C:
+  delta pressure attribution + stale-ledger invalidation + pressure-only
+  handoff + family closeout alignment
+```

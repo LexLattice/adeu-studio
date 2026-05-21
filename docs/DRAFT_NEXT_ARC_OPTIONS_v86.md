@@ -284,6 +284,9 @@ select `HOB-0-B` as the next default candidate.
 After `HOB-0-B` is released and closed, continue the selected `HOB-0` family and
 select `HOB-0-C` as the next default candidate.
 
+After `HOB-0-C` is released and closed, the selected `HOB-0` family is closed
+as deterministic hierarchical obligation brokerage.
+
 The reason is narrow and practical:
 
 ```text
