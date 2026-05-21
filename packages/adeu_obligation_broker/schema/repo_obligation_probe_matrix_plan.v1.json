@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "ProbeMatrixRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Surface Refs",
+          "type": "array"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "probe_authority_posture": {
+          "const": "plan_only_not_observed",
+          "title": "Probe Authority Posture",
+          "type": "string"
+        },
+        "probe_kind": {
+          "enum": [
+            "terminal_behavior_probe",
+            "boundary_probe",
+            "held_out_regression_probe"
+          ],
+          "title": "Probe Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "probe_kind",
+        "expected_surface_refs",
+        "probe_authority_posture"
+      ],
+      "title": "ProbeMatrixRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Boundary Node Refs",
+      "type": "array"
+    },
+    "held_out_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Held Out Node Refs",
+      "type": "array"
+    },
+    "obligation_closure_report_hash": {
+      "title": "Obligation Closure Report Hash",
+      "type": "string"
+    },
+    "plan_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Plan Hash"
+    },
+    "probe_authority_posture": {
+      "const": "plan_only_not_observed",
+      "title": "Probe Authority Posture",
+      "type": "string"
+    },
+    "probe_matrix_rows": {
+      "items": {
+        "$ref": "#/$defs/ProbeMatrixRow"
+      },
+      "title": "Probe Matrix Rows",
+      "type": "array"
+    },
+    "probe_plan_non_execution_posture": {
+      "const": "plan_only_no_probe_execution",
+      "title": "Probe Plan Non Execution Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_probe_matrix_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "terminal_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Terminal Node Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "obligation_closure_report_hash",
+    "probe_matrix_rows",
+    "probe_plan_non_execution_posture",
+    "probe_authority_posture"
+  ],
+  "title": "RepoObligationProbeMatrixPlan",
+  "type": "object"
+}

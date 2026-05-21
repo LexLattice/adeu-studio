@@ -1,8 +1,8 @@
 # Assessment vNext+272 Edges
 
-Status: starter edge assessment for `HOB-0-A`.
+Status: post-closeout edge assessment for `HOB-0-A`.
 
-Authority layer: planning / starter gate.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,102 +10,129 @@ Authority layer: planning / starter gate.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS272_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edge Review
 
 ### Edge 1: Broker Becomes Semantic Judge
 
-- Risk:
-  the tool could decide applicability instead of validating model-authored
-  activation rows.
-- Starter containment:
-  `HOB-0-A` records activation as supplied judgment and validates only catalog
-  refs, vocabulary, warrants, and row shape.
+- Closeout result:
+  contained.
+- Evidence:
+  activation assessment rows preserve model/upstream semantic judgment posture;
+  the broker validates catalog refs, vocabulary, warrants, and row shape, but
+  does not compute applicability.
 
 ### Edge 2: A Accidentally Implements Closure Aggregation
 
-- Risk:
-  traversal validation could blur into full subtree closure/readiness summary.
-- Starter containment:
-  A may reject invalid closure/readiness claims and emit blockers/frontiers, but
-  full closure aggregation is deferred to `HOB-0-B`.
+- Closeout result:
+  contained.
+- Evidence:
+  A emits traversal diagnostics and frontier rows only. Full closure reports,
+  probe matrix plans, implementation batch contracts, operationalization
+  reports, and delta attribution remain absent.
 
 ### Edge 3: Missing Children Silently Disappear
 
-- Risk:
-  selected parents could omit inherited children and still appear complete.
-- Starter containment:
-  selected parents import children from the catalog, and missing inherited
-  children fail closed.
+- Closeout result:
+  contained.
+- Evidence:
+  active-parent fixtures deterministically import catalog children, and missing
+  inherited child rows fail closed in traversal validation.
 
 ### Edge 4: Irrelevance Becomes A Prose Escape Hatch
 
-- Risk:
-  a worker marks a child irrelevant with weak prose.
-- Starter containment:
-  proof-sensitive statuses require structured proof rows with allowed proof
-  types, protected surfaces, warrant refs, and evidence refs.
+- Closeout result:
+  contained.
+- Evidence:
+  proof-sensitive statuses require proof rows discriminated by proof kind/type
+  with protected surfaces, warrant refs, proof text, and evidence refs;
+  proof-text alone is not accepted.
 
 ### Edge 5: Scoped Deferral Masquerades As Irrelevance
 
-- Risk:
-  a scoped deferral could close a parent or support gold readiness.
-- Starter containment:
-  scoped deferral is not irrelevance proof and blocks gold readiness.
+- Closeout result:
+  contained.
+- Evidence:
+  scoped deferrals remain distinct from irrelevance proof and block false
+  gold-ready claims.
 
 ### Edge 6: `not_inherited` And `optional_observed` Become Escape Hatches
 
-- Risk:
-  rows could avoid traversal through permissive inheritance statuses.
-- Starter containment:
-  `not_inherited` is allowed only when catalog default or inactive parent
-  permits it; `optional_observed` cannot close a parent without local triggering
-  or explicit promotion.
+- Closeout result:
+  contained.
+- Evidence:
+  `not_inherited` requires catalog/default or inactive-parent justification,
+  and optional observation cannot silently satisfy required inherited closure.
 
 ### Edge 7: Stale Catalog Ledgers Reused After Tree Changes
 
-- Risk:
-  a ledger from an older ontology catalog could be treated as current.
-- Starter containment:
-  every catalog, activation, ledger, and validation report binds catalog id,
-  version, hash, and authority posture.
+- Closeout result:
+  contained.
+- Evidence:
+  catalog, activation, inherited ledger, traversal validation, and guardrail
+  records bind catalog id/version/hash; stale catalog reuse fails validation.
 
 ### Edge 8: Frontier Output Becomes Implementation Authority
 
-- Risk:
-  next-frontier rows could be read as permission to code or dispatch workers.
-- Starter containment:
-  frontier rows name required next descent actions only; non-authority guardrail
-  denies probe execution, implementation, worker dispatch, product authority,
-  and future-family selection.
+- Closeout result:
+  contained.
+- Evidence:
+  frontier rows name required next descent actions and diagnostics only; the
+  guardrail denies probe execution, implementation, worker dispatch, product
+  authority, and future-family selection.
 
 ### Edge 9: Probe Matrices Sneak Into A
 
-- Risk:
-  A could start generating concrete probes before closure/frontier semantics are
-  stable.
-- Starter containment:
-  probe-matrix planning is deferred to `HOB-0-B`.
+- Closeout result:
+  contained.
+- Evidence:
+  no probe matrix, probe authority, or observation/execution records shipped in
+  A; probe-matrix planning remains deferred to `HOB-0-B`.
 
 ### Edge 10: Canonical Determinism Is Claimed But Not Tested
 
-- Risk:
-  row-order differences could change outputs or hashes.
-- Starter containment:
-  the starter fixture set requires shuffled input order to produce stable
-  canonical output order and hash.
+- Closeout result:
+  contained.
+- Evidence:
+  shuffled input fixtures preserve canonical output order and validation hash.
+
+## Review Feedback Integrated
+
+- Codex review:
+  structured proof handling and validation diagnostics remained fail-closed
+  while preserving the A/B boundary.
+- Gemini review:
+  schema and validation wording was tightened where useful; redundant
+  broadening suggestions were not applied when they would have moved B closure
+  aggregation into A.
+
+## Residual Edges
+
+- Full subtree closure/readiness reporting remains deferred to `HOB-0-B`.
+- Probe-matrix planning remains deferred to `HOB-0-B`.
+- Implementation batch contracts remain deferred to `HOB-0-B`.
+- Delta attribution and stale-ledger invalidation remain deferred to
+  `HOB-0-C`.
+- The broker still does not decide semantic applicability, mutate catalogs,
+  execute probes, dispatch workers, patch product code, authorize product
+  behavior, or select future families.
 
 ## Current Judgment
 
-`HOB-0-A` is safe to draft as the first slice if it stays limited to catalog
-validation, activation row validation, inherited ledger expansion, traversal
-validation, next-frontier emission, and non-authority guardrails.
+`HOB-0-A` is closed on `main`. The implementation proves the deterministic
+institutional move:
 
-The strongest implementation risk is slice creep. The first PR should prove the
-broker's deterministic traversal behavior with small fixtures before any
-probe-matrix, implementation-batch, or delta-attribution machinery is added.
+```text
+model/upstream activation says parent applies
+  -> broker imports inherited children
+  -> broker requires admissible status/proof rows
+  -> broker rejects false closure/readiness claims
+  -> broker emits next frontier rows
+```
+
+The family remains open for `HOB-0-B`.

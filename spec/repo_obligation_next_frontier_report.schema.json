@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "FrontierBatchabilityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "batchability": {
+          "enum": [
+            "batchable",
+            "requires_sequential_review"
+          ],
+          "title": "Batchability",
+          "type": "string"
+        },
+        "batchability_reason": {
+          "title": "Batchability Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "batchability",
+        "batchability_reason"
+      ],
+      "title": "FrontierBatchabilityRow",
+      "type": "object"
+    },
+    "FrontierPriorityRow": {
+      "additionalProperties": false,
+      "properties": {
+        "batchability": {
+          "enum": [
+            "batchable",
+            "requires_sequential_review"
+          ],
+          "title": "Batchability",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "critical",
+            "high",
+            "normal",
+            "low"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "priority_reason": {
+          "title": "Priority Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "node_id",
+        "priority",
+        "batchability",
+        "priority_reason"
+      ],
+      "title": "FrontierPriorityRow",
+      "type": "object"
+    },
+    "FrontierRow": {
+      "additionalProperties": false,
+      "properties": {
+        "frontier_reason": {
+          "enum": [
+            "inherited_required_missing_status",
+            "active_branch_needs_terminalization",
+            "irrelevance_proof_invalid",
+            "pass_through_proof_incomplete",
+            "deferral_risk_statement_required",
+            "blocked_pending_reference_observation",
+            "blocked_pending_methodological_equivalence",
+            "parent_closure_blocked_by_child"
+          ],
+          "title": "Frontier Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "parent_node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Node Id"
+        },
+        "required_next_action": {
+          "enum": [
+            "semantic_adjudication",
+            "terminalization",
+            "proof_repair",
+            "deferral_risk_statement",
+            "reference_observation",
+            "methodological_equivalence_check"
+          ],
+          "title": "Required Next Action",
+          "type": "string"
+        },
+        "source_diagnostic_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Diagnostic Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "node_id",
+        "frontier_reason",
+        "required_next_action",
+        "source_diagnostic_refs"
+      ],
+      "title": "FrontierRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "frontier_batchability_rows": {
+      "items": {
+        "$ref": "#/$defs/FrontierBatchabilityRow"
+      },
+      "title": "Frontier Batchability Rows",
+      "type": "array"
+    },
+    "frontier_plan_authority_posture": {
+      "const": "planning_only_not_implementation_authority",
+      "title": "Frontier Plan Authority Posture",
+      "type": "string"
+    },
+    "frontier_priority_rows": {
+      "items": {
+        "$ref": "#/$defs/FrontierPriorityRow"
+      },
+      "title": "Frontier Priority Rows",
+      "type": "array"
+    },
+    "frontier_rows": {
+      "items": {
+        "$ref": "#/$defs/FrontierRow"
+      },
+      "title": "Frontier Rows",
+      "type": "array"
+    },
+    "obligation_closure_report_hash": {
+      "title": "Obligation Closure Report Hash",
+      "type": "string"
+    },
+    "report_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Hash"
+    },
+    "schema": {
+      "const": "repo_obligation_next_frontier_report@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "obligation_closure_report_hash",
+    "frontier_rows",
+    "frontier_priority_rows",
+    "frontier_batchability_rows",
+    "frontier_plan_authority_posture"
+  ],
+  "title": "RepoObligationNextFrontierReport",
+  "type": "object"
+}

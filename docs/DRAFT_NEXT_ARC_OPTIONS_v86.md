@@ -278,6 +278,9 @@ HOB-0: Hierarchical Obligation Broker
 
 as the next family, and select `HOB-0-A` as the next default candidate.
 
+After `HOB-0-A` is released and closed, continue the selected `HOB-0` family and
+select `HOB-0-B` as the next default candidate.
+
 The reason is narrow and practical:
 
 ```text
