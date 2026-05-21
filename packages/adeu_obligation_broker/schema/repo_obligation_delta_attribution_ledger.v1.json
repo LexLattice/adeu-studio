@@ -1,0 +1,209 @@
+{
+  "$defs": {
+    "DeltaAttributionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "attribution_confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Attribution Confidence",
+          "type": "string"
+        },
+        "attribution_kind": {
+          "enum": [
+            "failure_reduction_pressure",
+            "regression_pressure",
+            "failure_migration_pressure",
+            "closure_evidence_pressure"
+          ],
+          "title": "Attribution Kind",
+          "type": "string"
+        },
+        "closure_effect_posture": {
+          "enum": [
+            "pressure_only_no_closure",
+            "representative_transfer_only",
+            "macro_closure_supported_by_released_closure",
+            "regression_pressure_only"
+          ],
+          "title": "Closure Effect Posture",
+          "type": "string"
+        },
+        "evidence_boundary_posture": {
+          "enum": [
+            "post_eval_pressure_only",
+            "local_locked_probe_delta",
+            "official_like_pressure",
+            "source_postmortem_pressure",
+            "clean_first_pass_disallowed"
+          ],
+          "title": "Evidence Boundary Posture",
+          "type": "string"
+        },
+        "interpretation": {
+          "enum": [
+            "representative_transfer_success",
+            "macro_closure_success",
+            "resource_or_substrate_masking",
+            "implementation_transfer_error",
+            "theory_gap_persists"
+          ],
+          "title": "Interpretation",
+          "type": "string"
+        },
+        "macro_ref": {
+          "title": "Macro Ref",
+          "type": "string"
+        },
+        "matrix_rows_green": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Matrix Rows Green",
+          "type": "array"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "regressions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regressions",
+          "type": "array"
+        },
+        "rows_moved_to_other_failure": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rows Moved To Other Failure",
+          "type": "array"
+        },
+        "source_delta_ref": {
+          "title": "Source Delta Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "macro_ref",
+        "source_delta_ref",
+        "attribution_kind",
+        "attribution_confidence",
+        "interpretation",
+        "closure_effect_posture",
+        "evidence_boundary_posture"
+      ],
+      "title": "DeltaAttributionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "changed_failure_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Changed Failure Rows",
+      "type": "array"
+    },
+    "closure_evidence_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Closure Evidence Node Refs",
+      "type": "array"
+    },
+    "delta_attribution_rows": {
+      "items": {
+        "$ref": "#/$defs/DeltaAttributionRow"
+      },
+      "title": "Delta Attribution Rows",
+      "type": "array"
+    },
+    "delta_authority_posture": {
+      "const": "pressure_attribution_only_not_product_truth",
+      "title": "Delta Authority Posture",
+      "type": "string"
+    },
+    "evidence_boundary_posture": {
+      "enum": [
+        "post_eval_pressure_only",
+        "local_locked_probe_delta",
+        "official_like_pressure",
+        "source_postmortem_pressure",
+        "clean_first_pass_disallowed"
+      ],
+      "title": "Evidence Boundary Posture",
+      "type": "string"
+    },
+    "ledger_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ledger Hash"
+    },
+    "regression_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Regression Rows",
+      "type": "array"
+    },
+    "rows_moved_to_other_failure_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rows Moved To Other Failure Rows",
+      "type": "array"
+    },
+    "run_after_ref": {
+      "title": "Run After Ref",
+      "type": "string"
+    },
+    "run_before_ref": {
+      "title": "Run Before Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_delta_attribution_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "run_before_ref",
+    "run_after_ref",
+    "delta_attribution_rows",
+    "evidence_boundary_posture",
+    "delta_authority_posture"
+  ],
+  "title": "RepoObligationDeltaAttributionLedger",
+  "type": "object"
+}

@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "StaleLedgerInvalidationReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "invalidated_ref": {
+          "title": "Invalidated Ref",
+          "type": "string"
+        },
+        "invalidation_status": {
+          "enum": [
+            "invalidated",
+            "current"
+          ],
+          "title": "Invalidation Status",
+          "type": "string"
+        },
+        "stale_reason": {
+          "title": "Stale Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invalidated_ref",
+        "stale_reason",
+        "invalidation_status"
+      ],
+      "title": "StaleLedgerInvalidationReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "current_catalog_hash": {
+      "title": "Current Catalog Hash",
+      "type": "string"
+    },
+    "current_catalog_id": {
+      "title": "Current Catalog Id",
+      "type": "string"
+    },
+    "current_catalog_version": {
+      "title": "Current Catalog Version",
+      "type": "string"
+    },
+    "invalidated_ledger_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Invalidated Ledger Refs",
+      "type": "array"
+    },
+    "invalidated_probe_plan_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Invalidated Probe Plan Refs",
+      "type": "array"
+    },
+    "invalidation_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/StaleLedgerInvalidationReasonRow"
+      },
+      "title": "Invalidation Reason Rows",
+      "type": "array"
+    },
+    "prior_catalog_hash": {
+      "title": "Prior Catalog Hash",
+      "type": "string"
+    },
+    "prior_catalog_id": {
+      "title": "Prior Catalog Id",
+      "type": "string"
+    },
+    "prior_catalog_version": {
+      "title": "Prior Catalog Version",
+      "type": "string"
+    },
+    "report_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Hash"
+    },
+    "schema": {
+      "const": "repo_obligation_stale_ledger_invalidation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stale_ledger_reuse_posture": {
+      "enum": [
+        "current_catalog_hash_bound",
+        "stale_catalog_hash_invalidated"
+      ],
+      "title": "Stale Ledger Reuse Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "prior_catalog_id",
+    "prior_catalog_version",
+    "prior_catalog_hash",
+    "current_catalog_id",
+    "current_catalog_version",
+    "current_catalog_hash",
+    "invalidation_reason_rows",
+    "stale_ledger_reuse_posture"
+  ],
+  "title": "RepoObligationStaleLedgerInvalidationReport",
+  "type": "object"
+}

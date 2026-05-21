@@ -1,0 +1,153 @@
+{
+  "$defs": {
+    "HandoffPressureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_boundary_posture": {
+          "enum": [
+            "post_eval_pressure_only",
+            "local_locked_probe_delta",
+            "official_like_pressure",
+            "source_postmortem_pressure",
+            "clean_first_pass_disallowed"
+          ],
+          "title": "Evidence Boundary Posture",
+          "type": "string"
+        },
+        "handoff_pressure_kind": {
+          "enum": [
+            "future_programbench_broker_integration_review",
+            "future_semantic_compiler_integration_review",
+            "future_probe_execution_governance_review",
+            "future_worker_taskpack_generation_review",
+            "future_implementation_authority_review",
+            "future_family_only"
+          ],
+          "title": "Handoff Pressure Kind",
+          "type": "string"
+        },
+        "pressure_ref": {
+          "title": "Pressure Ref",
+          "type": "string"
+        },
+        "pressure_summary": {
+          "title": "Pressure Summary",
+          "type": "string"
+        },
+        "target_node_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Node Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pressure_ref",
+        "target_node_refs",
+        "handoff_pressure_kind",
+        "pressure_summary",
+        "evidence_boundary_posture"
+      ],
+      "title": "HandoffPressureRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "handoff_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Handoff Hash"
+    },
+    "handoff_non_selection_posture": {
+      "const": "pressure_only_no_future_family_selection",
+      "title": "Handoff Non Selection Posture",
+      "type": "string"
+    },
+    "handoff_pressure_kind": {
+      "enum": [
+        "future_programbench_broker_integration_review",
+        "future_semantic_compiler_integration_review",
+        "future_probe_execution_governance_review",
+        "future_worker_taskpack_generation_review",
+        "future_implementation_authority_review",
+        "future_family_only"
+      ],
+      "title": "Handoff Pressure Kind",
+      "type": "string"
+    },
+    "handoff_pressure_rows": {
+      "items": {
+        "$ref": "#/$defs/HandoffPressureRow"
+      },
+      "title": "Handoff Pressure Rows",
+      "type": "array"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "probe_execution_authority_posture": {
+      "const": "no_probe_execution_authority",
+      "title": "Probe Execution Authority Posture",
+      "type": "string"
+    },
+    "programbench_integration_authority_posture": {
+      "const": "no_programbench_integration_authority",
+      "title": "Programbench Integration Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_obligation_broker_integration_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_compiler_integration_authority_posture": {
+      "const": "no_semantic_compiler_integration_authority",
+      "title": "Semantic Compiler Integration Authority Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "handoff_pressure_rows",
+    "handoff_pressure_kind",
+    "handoff_non_selection_posture",
+    "programbench_integration_authority_posture",
+    "semantic_compiler_integration_authority_posture",
+    "probe_execution_authority_posture",
+    "implementation_authority_posture",
+    "future_family_selection_posture"
+  ],
+  "title": "RepoObligationBrokerIntegrationHandoff",
+  "type": "object"
+}
