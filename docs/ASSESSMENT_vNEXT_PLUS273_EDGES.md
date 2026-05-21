@@ -1,8 +1,8 @@
 # Assessment vNext+273 Edges
 
-Status: starter edge assessment for `HOB-0-B`.
+Status: post-closeout edge assessment for `HOB-0-B`.
 
-Authority layer: planning / starter gate.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,105 +10,133 @@ Authority layer: planning / starter gate.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS273_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Edge Review
+## Closed Edge Review
 
 ### Edge 1: B Re-Decides Semantic Applicability
 
-- Risk:
-  closure planning could decide whether a parent applies instead of consuming
-  A activation rows.
-- Starter containment:
-  B consumes released A records and validates catalog/hash continuity. It may
-  compute closure over selected subtrees only.
+- Closeout result:
+  contained.
+- Evidence:
+  B consumes released A catalog, activation, inherited ledger, traversal
+  validation, and guardrail records. It validates catalog id/version/hash
+  continuity and computes closure over those records without deciding whether a
+  parent applies.
 
 ### Edge 2: Closure Becomes Product Truth
 
-- Risk:
-  a closed subtree could be read as product behavior correctness.
-- Starter containment:
-  closure reports are broker-accounting artifacts only; probe execution,
-  product behavior truth, ProgramBench integration, and score attribution are
-  excluded.
+- Closeout result:
+  contained.
+- Evidence:
+  closure reports are broker-accounting artifacts only. They do not claim clean
+  product behavior, ProgramBench truth, score movement, implementation
+  authority, probe execution authority, or worker dispatch authority.
 
 ### Edge 3: Probe Plan Becomes Observation
 
-- Risk:
-  planned probe rows could be written as if behavior was observed.
-- Starter containment:
-  probe matrix rows require `probe_authority_posture =
-  plan_only_not_observed` and non-execution posture.
+- Closeout result:
+  contained.
+- Evidence:
+  probe matrix plans require `probe_authority_posture =
+  plan_only_not_observed`; rows describe planned coverage obligations, not
+  observed probe outcomes.
 
 ### Edge 4: Batch Contract Becomes Worker Dispatch
 
-- Risk:
-  implementation batch contracts could become permission to assign workers.
-- Starter containment:
-  batch contracts are planning records only and require
+- Closeout result:
+  contained.
+- Evidence:
+  implementation batch contracts remain bounded planning records and require
   `worker_dispatch_authority_posture = no_worker_dispatch_authority`.
 
 ### Edge 5: Parent Readiness Exceeds Weakest Child
 
-- Risk:
-  a parent could be marked gold-ready while a required child is scoped,
-  blocked, deferred, or representative-only.
-- Starter containment:
-  weakest-child readiness rows are required, and parent closure cannot exceed
-  the weakest required child.
+- Closeout result:
+  contained.
+- Evidence:
+  weakest-child readiness rows are emitted, and fixtures reject parent closure
+  stronger than the weakest required child.
 
 ### Edge 6: Representative-Only Closure Launders Partial Coverage
 
-- Risk:
-  representative coverage could be marked fixed or gold-ready.
-- Starter containment:
-  representative-only branches have distinct closure basis and cannot produce
-  fixed/gold readiness.
+- Closeout result:
+  contained.
+- Evidence:
+  representative-only branches have a distinct closure basis and cannot produce
+  fixed or gold-ready closure.
 
 ### Edge 7: A Validation Blockers Are Ignored
 
-- Risk:
-  B could compute closure from a ledger that A already marked invalid.
-- Starter containment:
-  consumed A validation blockers force `blocked_by_A_validation` closure.
+- Closeout result:
+  contained.
+- Evidence:
+  consumed A validation blockers force `blocked_by_A_validation` closure. The
+  review fix also seeds fail-closed closure rows when the selected root is
+  missing or the ledger is empty.
 
 ### Edge 8: Frontier Prioritization Hides Blockers
 
-- Risk:
-  prioritization could remove blocked/frontier rows from the next work set.
-- Starter containment:
+- Closeout result:
+  contained.
+- Evidence:
   next-frontier reports preserve source frontier refs, blocker refs, priority
   rows, and batchability rows separately.
 
 ### Edge 9: C Attribution Sneaks Into B
 
-- Risk:
-  B could attribute score/failure deltas or invalidate stale ledgers.
-- Starter containment:
-  delta attribution, stale-ledger invalidation, integration handoff, and family
-  closeout remain deferred to `HOB-0-C`.
+- Closeout result:
+  contained.
+- Evidence:
+  B ships no delta-attribution ledger, stale-ledger invalidation report,
+  integration handoff, or family closeout alignment surface.
 
 ### Edge 10: Canonical Determinism Is Claimed But Not Tested
 
-- Risk:
-  row-order differences could change closure rows, frontier priorities, or
+- Closeout result:
+  contained.
+- Evidence:
+  shuffled input fixtures preserve deterministic row order and canonical
   hashes.
-- Starter containment:
-  the starter fixture set requires shuffled input order to preserve output
-  order and canonical hashes.
+
+## Review Feedback Integrated
+
+- Codex review:
+  empty/root-missing ledgers now emit fail-closed closure rows instead of
+  silently producing no closure result.
+- Codex review:
+  held-out refs are constrained to the computed closure-node universe and
+  invalid held-out refs fail closed.
+- Gemini review:
+  boundary nodes are included in the probe matrix plan, including the held-out
+  boundary branch, while preserving plan-only posture.
+
+## Residual Edges
+
+- Delta attribution remains deferred to `HOB-0-C`.
+- Stale-ledger invalidation remains deferred to `HOB-0-C`.
+- Integration handoff remains deferred to `HOB-0-C`.
+- Family closeout alignment remains deferred to `HOB-0-C`.
+- The broker still does not decide semantic applicability, mutate catalogs,
+  execute probes, dispatch workers, patch product code, authorize product
+  behavior, interpret score movement, or select future families.
 
 ## Current Judgment
 
-`HOB-0-B` is safe to draft as the second slice if it stays limited to closure
-reporting, frontier prioritization, plan-only probe matrices, bounded
-implementation batch contracts, and operationalization reports over released
-`HOB-0-A` artifacts.
+`HOB-0-B` is closed on `main`. The implementation proves the second
+deterministic broker seam:
 
-The strongest implementation risks are observation leakage and dispatch
-leakage. The first B PR should prove plan-only behavior with small deterministic
-fixtures before any probe runner, worker orchestration, or delta-attribution
-machinery is added.
+```text
+released A traversal records
+  -> closure posture and weakest-child readiness
+  -> prioritized next frontier
+  -> plan-only probe matrix rows
+  -> bounded implementation batch contracts
+  -> operationalization reports without dispatch or product truth
+```
+
+The family remains open for `HOB-0-C`.
