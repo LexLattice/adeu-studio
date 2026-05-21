@@ -19,6 +19,12 @@ from .hob_0b import (
     RepoObligationOperationalizationReport,
     RepoObligationProbeMatrixPlan,
 )
+from .hob_0c import (
+    RepoObligationBrokerFamilyCloseoutAlignment,
+    RepoObligationBrokerIntegrationHandoff,
+    RepoObligationDeltaAttributionLedger,
+    RepoObligationStaleLedgerInvalidationReport,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -118,6 +124,42 @@ def main() -> None:
             / "schema"
             / "repo_obligation_operationalization_report.v1.json",
             root / "spec" / "repo_obligation_operationalization_report.schema.json",
+        ),
+        (
+            RepoObligationDeltaAttributionLedger.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_obligation_broker"
+            / "schema"
+            / "repo_obligation_delta_attribution_ledger.v1.json",
+            root / "spec" / "repo_obligation_delta_attribution_ledger.schema.json",
+        ),
+        (
+            RepoObligationStaleLedgerInvalidationReport.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_obligation_broker"
+            / "schema"
+            / "repo_obligation_stale_ledger_invalidation_report.v1.json",
+            root / "spec" / "repo_obligation_stale_ledger_invalidation_report.schema.json",
+        ),
+        (
+            RepoObligationBrokerIntegrationHandoff.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_obligation_broker"
+            / "schema"
+            / "repo_obligation_broker_integration_handoff.v1.json",
+            root / "spec" / "repo_obligation_broker_integration_handoff.schema.json",
+        ),
+        (
+            RepoObligationBrokerFamilyCloseoutAlignment.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_obligation_broker"
+            / "schema"
+            / "repo_obligation_broker_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_obligation_broker_family_closeout_alignment.schema.json",
         ),
     ]
     for schema, authoritative_path, mirror_path in mappings:

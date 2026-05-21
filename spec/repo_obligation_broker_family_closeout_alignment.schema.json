@@ -1,0 +1,98 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "alignment_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Alignment Hash"
+    },
+    "blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocker Refs",
+      "type": "array"
+    },
+    "closed_slices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Closed Slices",
+      "type": "array"
+    },
+    "family_ref": {
+      "const": "HOB-0",
+      "title": "Family Ref",
+      "type": "string"
+    },
+    "family_scope_posture": {
+      "enum": [
+        "hob_0_family_closed",
+        "hob_0_family_open_with_deferred_refs",
+        "hob_0_family_blocked"
+      ],
+      "title": "Family Scope Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "integration_authority_posture": {
+      "const": "no_integration_authority",
+      "title": "Integration Authority Posture",
+      "type": "string"
+    },
+    "residual_deferred_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Residual Deferred Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_obligation_broker_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "slice_a_closeout_ref": {
+      "title": "Slice A Closeout Ref",
+      "type": "string"
+    },
+    "slice_b_closeout_ref": {
+      "title": "Slice B Closeout Ref",
+      "type": "string"
+    },
+    "slice_c_closeout_ref": {
+      "title": "Slice C Closeout Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "family_ref",
+    "closed_slices",
+    "slice_a_closeout_ref",
+    "slice_b_closeout_ref",
+    "slice_c_closeout_ref",
+    "family_scope_posture",
+    "integration_authority_posture",
+    "implementation_authority_posture",
+    "future_family_selection_posture"
+  ],
+  "title": "RepoObligationBrokerFamilyCloseoutAlignment",
+  "type": "object"
+}
