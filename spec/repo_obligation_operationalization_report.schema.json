@@ -1,0 +1,108 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "audit_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Audit Node Refs",
+      "type": "array"
+    },
+    "blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocker Refs",
+      "type": "array"
+    },
+    "closure_metric_defined": {
+      "title": "Closure Metric Defined",
+      "type": "boolean"
+    },
+    "closure_report_hash": {
+      "title": "Closure Report Hash",
+      "type": "string"
+    },
+    "deferrals_explicit": {
+      "title": "Deferrals Explicit",
+      "type": "boolean"
+    },
+    "implementation_batch_contract_hash": {
+      "title": "Implementation Batch Contract Hash",
+      "type": "string"
+    },
+    "implementation_owners_bound": {
+      "title": "Implementation Owners Bound",
+      "type": "boolean"
+    },
+    "macro_subbranches_expanded": {
+      "title": "Macro Subbranches Expanded",
+      "type": "boolean"
+    },
+    "ontology_nodes_preserved": {
+      "title": "Ontology Nodes Preserved",
+      "type": "boolean"
+    },
+    "operationalization_non_authority_posture": {
+      "const": "planning_only_not_product_truth",
+      "title": "Operationalization Non Authority Posture",
+      "type": "string"
+    },
+    "operationalization_status": {
+      "enum": [
+        "ready_for_implementation_planning",
+        "partial_with_blockers",
+        "blocked"
+      ],
+      "title": "Operationalization Status",
+      "type": "string"
+    },
+    "probe_matrix_plan_hash": {
+      "title": "Probe Matrix Plan Hash",
+      "type": "string"
+    },
+    "probes_generated_before_patch": {
+      "title": "Probes Generated Before Patch",
+      "type": "boolean"
+    },
+    "report_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Hash"
+    },
+    "schema": {
+      "const": "repo_obligation_operationalization_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "worker_task_ref": {
+      "title": "Worker Task Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "closure_report_hash",
+    "probe_matrix_plan_hash",
+    "implementation_batch_contract_hash",
+    "audit_node_refs",
+    "worker_task_ref",
+    "ontology_nodes_preserved",
+    "macro_subbranches_expanded",
+    "probes_generated_before_patch",
+    "implementation_owners_bound",
+    "deferrals_explicit",
+    "closure_metric_defined",
+    "operationalization_status",
+    "operationalization_non_authority_posture"
+  ],
+  "title": "RepoObligationOperationalizationReport",
+  "type": "object"
+}

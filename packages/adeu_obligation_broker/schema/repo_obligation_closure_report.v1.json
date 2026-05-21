@@ -1,0 +1,238 @@
+{
+  "$defs": {
+    "ClosureBasisRow": {
+      "additionalProperties": false,
+      "properties": {
+        "closure_basis": {
+          "enum": [
+            "all_children_gold_ready",
+            "all_children_scoped_ready",
+            "representative_only",
+            "blocked_by_child",
+            "blocked_by_A_validation",
+            "deferred_with_risk"
+          ],
+          "title": "Closure Basis",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "closure_basis"
+      ],
+      "title": "ClosureBasisRow",
+      "type": "object"
+    },
+    "SubtreeClosureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_node_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Node Refs",
+          "type": "array"
+        },
+        "child_node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Child Node Ids",
+          "type": "array"
+        },
+        "closure_basis": {
+          "enum": [
+            "all_children_gold_ready",
+            "all_children_scoped_ready",
+            "representative_only",
+            "blocked_by_child",
+            "blocked_by_A_validation",
+            "deferred_with_risk"
+          ],
+          "title": "Closure Basis",
+          "type": "string"
+        },
+        "closure_status": {
+          "enum": [
+            "gold_ready",
+            "scoped_ready",
+            "representative_only",
+            "deferred_with_risk",
+            "blocked",
+            "not_ready"
+          ],
+          "title": "Closure Status",
+          "type": "string"
+        },
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "representative_only": {
+          "default": false,
+          "title": "Representative Only",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "node_id",
+        "closure_basis",
+        "closure_status"
+      ],
+      "title": "SubtreeClosureRow",
+      "type": "object"
+    },
+    "WeakestChildReadinessRow": {
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "weakest_child_node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weakest Child Node Id"
+        },
+        "weakest_child_readiness": {
+          "enum": [
+            "gold_ready",
+            "scoped_ready",
+            "representative_only",
+            "deferred_with_risk",
+            "blocked",
+            "not_ready"
+          ],
+          "title": "Weakest Child Readiness",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_id",
+        "weakest_child_readiness"
+      ],
+      "title": "WeakestChildReadinessRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "a_validation_status": {
+      "enum": [
+        "passed",
+        "failed_closed"
+      ],
+      "title": "A Validation Status",
+      "type": "string"
+    },
+    "catalog_hash": {
+      "title": "Catalog Hash",
+      "type": "string"
+    },
+    "catalog_id": {
+      "title": "Catalog Id",
+      "type": "string"
+    },
+    "catalog_version": {
+      "title": "Catalog Version",
+      "type": "string"
+    },
+    "closure_authority_posture": {
+      "const": "local_broker_accounting_only_not_product_truth",
+      "title": "Closure Authority Posture",
+      "type": "string"
+    },
+    "closure_basis_rows": {
+      "items": {
+        "$ref": "#/$defs/ClosureBasisRow"
+      },
+      "title": "Closure Basis Rows",
+      "type": "array"
+    },
+    "closure_blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Closure Blocker Refs",
+      "type": "array"
+    },
+    "closure_status": {
+      "enum": [
+        "gold_ready",
+        "scoped_ready",
+        "representative_only",
+        "deferred_with_risk",
+        "blocked",
+        "not_ready"
+      ],
+      "title": "Closure Status",
+      "type": "string"
+    },
+    "inherited_obligation_ledger_hash": {
+      "title": "Inherited Obligation Ledger Hash",
+      "type": "string"
+    },
+    "report_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Hash"
+    },
+    "schema": {
+      "const": "repo_obligation_closure_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subtree_closure_rows": {
+      "items": {
+        "$ref": "#/$defs/SubtreeClosureRow"
+      },
+      "title": "Subtree Closure Rows",
+      "type": "array"
+    },
+    "traversal_validation_report_hash": {
+      "title": "Traversal Validation Report Hash",
+      "type": "string"
+    },
+    "weakest_child_readiness_rows": {
+      "items": {
+        "$ref": "#/$defs/WeakestChildReadinessRow"
+      },
+      "title": "Weakest Child Readiness Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "catalog_id",
+    "catalog_version",
+    "catalog_hash",
+    "inherited_obligation_ledger_hash",
+    "traversal_validation_report_hash",
+    "a_validation_status",
+    "subtree_closure_rows",
+    "weakest_child_readiness_rows",
+    "closure_basis_rows",
+    "closure_status",
+    "closure_authority_posture"
+  ],
+  "title": "RepoObligationClosureReport",
+  "type": "object"
+}

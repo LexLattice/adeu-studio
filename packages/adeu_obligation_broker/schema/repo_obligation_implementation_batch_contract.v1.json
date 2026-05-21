@@ -1,0 +1,119 @@
+{
+  "$defs": {
+    "ImplementationOwnerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "node_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Node Refs",
+          "type": "array"
+        },
+        "owner_ref": {
+          "title": "Owner Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_ref",
+        "node_refs"
+      ],
+      "title": "ImplementationOwnerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Contract Hash"
+    },
+    "excluded_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Excluded Node Refs",
+      "type": "array"
+    },
+    "held_out_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Held Out Node Refs",
+      "type": "array"
+    },
+    "implementation_owner_rows": {
+      "items": {
+        "$ref": "#/$defs/ImplementationOwnerRow"
+      },
+      "title": "Implementation Owner Rows",
+      "type": "array"
+    },
+    "included_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Included Node Refs",
+      "type": "array"
+    },
+    "max_macro_count": {
+      "minimum": 1,
+      "title": "Max Macro Count",
+      "type": "integer"
+    },
+    "obligation_probe_matrix_plan_hash": {
+      "title": "Obligation Probe Matrix Plan Hash",
+      "type": "string"
+    },
+    "regression_node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Regression Node Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_obligation_implementation_batch_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "submit_allowed_posture": {
+      "const": "submit_not_allowed_planning_only",
+      "title": "Submit Allowed Posture",
+      "type": "string"
+    },
+    "target_subtree_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Subtree Refs",
+      "type": "array"
+    },
+    "worker_dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority",
+      "title": "Worker Dispatch Authority Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "obligation_probe_matrix_plan_hash",
+    "target_subtree_refs",
+    "included_node_refs",
+    "max_macro_count",
+    "implementation_owner_rows",
+    "submit_allowed_posture",
+    "worker_dispatch_authority_posture"
+  ],
+  "title": "RepoObligationImplementationBatchContract",
+  "type": "object"
+}
