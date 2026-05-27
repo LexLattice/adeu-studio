@@ -1066,9 +1066,45 @@ def validate_transition(
             reason="conflict_isolated",
         )
 
-    artifact_by_ref = {row.artifact_ref: row for row in artifact_rows}
-    evidence_by_ref = {row.evidence_ref: row for row in evidence_rows}
-    obligation_by_ref = {row.obligation_ref: row for row in obligation_rows}
+    artifact_by_ref: dict[str, PhaseArtifactRow] = {}
+    for row in artifact_rows:
+        if row.artifact_ref in artifact_by_ref:
+            diagnose(
+                code="DUPLICATE_ARTIFACT_REFERENCE",
+                bridge_field="claim",
+                message=f"duplicate artifact reference {row.artifact_ref!r} in input",
+                action="route_to_human_review",
+                reason="conflict_isolated",
+                object_refs=[row.artifact_ref],
+            )
+            continue
+        artifact_by_ref[row.artifact_ref] = row
+    evidence_by_ref: dict[str, EvidenceRow] = {}
+    for row in evidence_rows:
+        if row.evidence_ref in evidence_by_ref:
+            diagnose(
+                code="DUPLICATE_EVIDENCE_REFERENCE",
+                bridge_field="claim",
+                message=f"duplicate evidence reference {row.evidence_ref!r} in input",
+                action="route_to_human_review",
+                reason="conflict_isolated",
+                evidence_refs=[row.evidence_ref],
+            )
+            continue
+        evidence_by_ref[row.evidence_ref] = row
+    obligation_by_ref: dict[str, ObligationTransferRow] = {}
+    for row in obligation_rows:
+        if row.obligation_ref in obligation_by_ref:
+            diagnose(
+                code="DUPLICATE_OBLIGATION_REFERENCE",
+                bridge_field="claim",
+                message=f"duplicate obligation reference {row.obligation_ref!r} in input",
+                action="route_to_human_review",
+                reason="conflict_isolated",
+                object_refs=[row.obligation_ref],
+            )
+            continue
+        obligation_by_ref[row.obligation_ref] = row
 
     for required in bridge.O_bridge.required_objects:
         artifact = _select_required_artifact(required, artifact_rows)
@@ -1285,6 +1321,7 @@ def _claim_mismatches(
         catalog,
         drop_keys={"circuit_hash"},
     )
+    transition = _transition_by_id(catalog).get(bridge.transition_id)
     return (
         claim.circuit_id != catalog.circuit_id
         or claim.circuit_version != catalog.circuit_version
@@ -1292,6 +1329,8 @@ def _claim_mismatches(
         or claim.transition_id != bridge.transition_id
         or claim.from_phase != bridge.from_phase
         or claim.to_phase != bridge.to_phase
+        or transition is None
+        or claim.claimed_transition_kind != transition.transition_kind
     )
 
 
@@ -1335,6 +1374,10 @@ def _validate_evidence_bridge(
     artifact_by_ref = {row.artifact_ref: row for row in artifact_rows}
     for artifact_ref in claim.artifact_refs:
         artifact = artifact_by_ref.get(artifact_ref)
+        if artifact is not None:
+            root_evidence_refs.update(artifact.evidence_refs)
+    for required in bridge.O_bridge.required_objects:
+        artifact = _select_required_artifact(required, artifact_rows)
         if artifact is not None:
             root_evidence_refs.update(artifact.evidence_refs)
     for token in bridge.E_bridge.required_evidence:
@@ -1427,25 +1470,21 @@ def _first_forbidden_evidence_token(
     forbidden_tokens: set[str],
 ) -> str | None:
     visited: set[str] = set()
-
-    def walk(ref: str) -> str | None:
+    stack = [evidence_ref]
+    while stack:
+        ref = stack.pop()
         if ref in visited:
-            return None
+            continue
         visited.add(ref)
         evidence = evidence_by_ref.get(ref)
         if evidence is None:
-            return None
+            continue
         tokens = {evidence.evidence_ref, evidence.evidence_kind, *evidence.contamination_tags}
         matched = sorted(tokens & forbidden_tokens)
         if matched:
             return matched[0]
-        for parent_ref in evidence.derived_from_evidence_refs:
-            result = walk(parent_ref)
-            if result is not None:
-                return result
-        return None
-
-    return walk(evidence_ref)
+        stack.extend(reversed(evidence.derived_from_evidence_refs))
+    return None
 
 
 def _validate_obligation_bridge(
@@ -1456,7 +1495,12 @@ def _validate_obligation_bridge(
     diagnose: Any,
     mark_completeness: Any,
 ) -> None:
-    required_refs = set(bridge.D_bridge.obligations_preserved)
+    required_refs: set[str] = set()
+    if bridge.D_bridge.forbidden_silent_drops:
+        required_refs.update(bridge.D_bridge.obligations_created)
+        required_refs.update(bridge.D_bridge.obligations_preserved)
+        required_refs.update(bridge.D_bridge.obligations_discharged)
+        required_refs.update(bridge.D_bridge.obligations_blocked_or_deferred)
     required_refs.update(claim.obligation_transfer_refs)
     for obligation_ref in sorted(required_refs):
         if obligation_ref not in obligation_by_ref:
@@ -1471,6 +1515,20 @@ def _validate_obligation_bridge(
                 completeness_status="missing_obligation_transfer",
             )
     for row in obligation_by_ref.values():
+        if row.source_phase != bridge.from_phase or row.target_phase != bridge.to_phase:
+            diagnose(
+                code="OBLIGATION_PHASE_MISMATCH",
+                bridge_field="D_bridge",
+                message=(
+                    f"obligation {row.obligation_ref!r} phase transition "
+                    f"({row.source_phase!r} -> {row.target_phase!r}) does not match "
+                    f"bridge transition ({bridge.from_phase!r} -> {bridge.to_phase!r})"
+                ),
+                action="route_to_human_review",
+                reason="blocked_equivalence",
+                object_refs=[row.obligation_ref],
+                completeness_status="missing_equivalence",
+            )
         if row.transfer_status == "discharged" and row.discharge_ref is None:
             diagnose(
                 code="DISCHARGE_REF_REQUIRED",
@@ -1493,6 +1551,16 @@ def _validate_obligation_bridge(
                 reason="silent_obligation_drop",
                 object_refs=[row.obligation_ref],
                 completeness_status="missing_deferral_risk",
+            )
+        if row.transfer_status == "blocked" and row.blocker_ref is None:
+            diagnose(
+                code="BLOCKER_REF_REQUIRED",
+                bridge_field="D_bridge",
+                message=f"blocked obligation {row.obligation_ref!r} lacks blocker_ref",
+                action="discharge_or_defer_obligation",
+                reason="missing_warrant",
+                object_refs=[row.obligation_ref],
+                completeness_status="missing_warrant",
             )
 
 

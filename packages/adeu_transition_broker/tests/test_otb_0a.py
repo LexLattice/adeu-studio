@@ -318,6 +318,20 @@ def test_artifact_authority_layer_mismatch_fails_closed() -> None:
     assert any(row.frontier_reason == "blocked_equivalence" for row in report.frontier_rows)
 
 
+def test_duplicate_input_references_fail_closed() -> None:
+    report = _validate(
+        artifacts=[_artifact(), _artifact(file_hash="sha256:second")],
+        evidence=[_visible_evidence(), _visible_evidence(evidence_hash="sha256:second")],
+        obligations=[_obligation(), _obligation(preservation_required=False)],
+    )
+
+    assert {
+        "DUPLICATE_ARTIFACT_REFERENCE",
+        "DUPLICATE_EVIDENCE_REFERENCE",
+        "DUPLICATE_OBLIGATION_REFERENCE",
+    }.issubset({row.diagnostic_code for row in report.diagnostic_rows})
+
+
 def test_direct_forbidden_evidence_fails_closed() -> None:
     catalog = _catalog()
     bridge = _bridge(catalog, forbidden_evidence=["post_eval_pressure"])
@@ -375,6 +389,74 @@ def test_transitive_forbidden_evidence_fails_closed() -> None:
     }
 
 
+def test_deep_transitive_forbidden_evidence_does_not_recurse() -> None:
+    catalog = _catalog()
+    bridge = _bridge(catalog, forbidden_evidence=["post_eval_pressure"])
+    evidence = [
+        _visible_evidence(
+            evidence_ref="evidence:root",
+            evidence_kind="methodological_equivalence",
+            evidence_hash="sha256:root",
+            derived_from_evidence_refs=["evidence:node-0000"],
+        ),
+        _visible_evidence(
+            evidence_ref="evidence:posteval",
+            evidence_kind="post_eval_pressure",
+            authority_layer="post_eval_pressure",
+            boundary_posture="post_eval_pressure_only",
+            clean_first_pass_posture="not_clean",
+            evidence_hash="sha256:posteval",
+        ),
+    ]
+    for index in range(1100):
+        parent_ref = f"evidence:node-{index + 1:04d}" if index < 1099 else "evidence:posteval"
+        evidence.append(
+            _visible_evidence(
+                evidence_ref=f"evidence:node-{index:04d}",
+                evidence_kind="methodological_equivalence",
+                evidence_hash=f"sha256:node-{index:04d}",
+                derived_from_evidence_refs=[parent_ref],
+            )
+        )
+    claim = _claim(catalog, evidence_refs=["evidence:root"])
+    report = _validate(catalog=catalog, bridge=bridge, claim=claim, evidence=evidence)
+
+    assert "FORBIDDEN_EVIDENCE_CONTAMINATION" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
+
+
+def test_required_artifact_evidence_is_validated_even_when_claim_omits_artifact() -> None:
+    catalog = _catalog()
+    bridge = _bridge(catalog, forbidden_evidence=["post_eval_pressure"])
+    claim = _claim(catalog, artifact_refs=[], evidence_refs=["evidence:visible"])
+    artifact = _artifact(
+        catalog=catalog,
+        bridge=bridge,
+        evidence_refs=["evidence:posteval"],
+    )
+    report = _validate(
+        catalog=catalog,
+        bridge=bridge,
+        claim=claim,
+        artifacts=[artifact],
+        evidence=[
+            _visible_evidence(),
+            _visible_evidence(
+                evidence_ref="evidence:posteval",
+                evidence_kind="post_eval_pressure",
+                authority_layer="post_eval_pressure",
+                boundary_posture="post_eval_pressure_only",
+                clean_first_pass_posture="not_clean",
+            ),
+        ],
+    )
+
+    assert "FORBIDDEN_EVIDENCE_CONTAMINATION" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
+
+
 def test_missing_evidence_boundary_posture_fails_closed() -> None:
     report = _validate(evidence=[_visible_evidence(boundary_posture=None)])
 
@@ -408,10 +490,39 @@ def test_silent_obligation_drop_fails_closed() -> None:
     assert any(row.frontier_reason == "silent_obligation_drop" for row in report.frontier_rows)
 
 
+def test_contract_created_obligation_transfer_is_required() -> None:
+    catalog = _catalog()
+    bridge = _bridge(catalog)
+    payload = bridge.model_dump(mode="json", exclude_none=True)
+    payload["D_bridge"]["obligations_created"] = ["obligation:new"]  # type: ignore[index]
+    payload.pop("bridge_hash", None)
+    bridge = RepoPhaseBridgeContract.model_validate(payload)
+    report = _validate(catalog=catalog, bridge=bridge)
+
+    assert "SILENT_OBLIGATION_DROP" in {row.diagnostic_code for row in report.diagnostic_rows}
+    assert report.bridge_completeness_status == "missing_obligation_transfer"
+
+
 def test_discharge_without_discharge_ref_fails_closed() -> None:
     report = _validate(obligations=[_obligation(transfer_status="discharged")])
 
     assert "DISCHARGE_REF_REQUIRED" in {row.diagnostic_code for row in report.diagnostic_rows}
+
+
+def test_obligation_phase_mismatch_fails_closed() -> None:
+    report = _validate(
+        obligations=[
+            _obligation(
+                source_phase="implementation",
+                target_phase="utility_program_reconciliation",
+            )
+        ]
+    )
+
+    assert "OBLIGATION_PHASE_MISMATCH" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
+    assert report.bridge_completeness_status == "missing_equivalence"
 
 
 def test_deferral_without_risk_posture_fails_closed() -> None:
@@ -430,6 +541,13 @@ def test_deferral_without_risk_posture_fails_closed() -> None:
     assert report.bridge_completeness_status == "missing_deferral_risk"
 
 
+def test_blocked_obligation_without_blocker_ref_fails_closed() -> None:
+    report = _validate(obligations=[_obligation(transfer_status="blocked")])
+
+    assert "BLOCKER_REF_REQUIRED" in {row.diagnostic_code for row in report.diagnostic_rows}
+    assert report.bridge_completeness_status == "missing_warrant"
+
+
 def test_target_phase_not_allowed_fails_closed() -> None:
     catalog = _catalog()
     bridge = _bridge(catalog, next_allowed_phases=["implementation"])
@@ -446,6 +564,16 @@ def test_forbidden_promotion_fails_closed() -> None:
 
     assert "FORBIDDEN_PROMOTION" in {row.diagnostic_code for row in report.diagnostic_rows}
     assert any(row.frontier_reason == "illegal_promotion" for row in report.frontier_rows)
+
+
+def test_transition_kind_mismatch_fails_closed() -> None:
+    catalog = _catalog()
+    claim = _claim(catalog, claimed_transition_kind="different_transition_kind")
+    report = _validate(catalog=catalog, claim=claim)
+
+    assert "TRANSITION_CLAIM_MISMATCH" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
 
 
 def test_unsupported_posture_emits_downgrade_frontier() -> None:
