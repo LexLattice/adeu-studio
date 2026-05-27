@@ -458,6 +458,21 @@ def test_worker_baton_forbidden_input_fails_closed() -> None:
         )
 
 
+def test_worker_baton_preserves_explicit_empty_lists() -> None:
+    baton = build_worker_baton_contract(
+        _closure(),
+        allowed_inputs=[],
+        forbidden_inputs=[],
+        forbidden_promotions=[],
+        required_closeout_rows=[],
+    )
+
+    assert baton.allowed_inputs == []
+    assert baton.forbidden_inputs == []
+    assert baton.forbidden_promotions == []
+    assert baton.required_closeout_rows == []
+
+
 def test_worker_baton_output_outside_target_phase_fails_closed() -> None:
     closure = _closure()
 
@@ -486,6 +501,21 @@ def test_evidence_posture_plan_without_equivalence_checks_fails_closed() -> None
             official_readiness_requirements=[],
             plan_authority_posture="plan_only_not_observed_evidence",
         )
+
+
+def test_evidence_posture_plan_preserves_explicit_empty_optional_lists() -> None:
+    plan = plan_evidence_posture(
+        _closure(),
+        required_equivalence_checks=[
+            "packaged_artifact_equivalence",
+            "target_substrate_equivalence",
+        ],
+        forbidden_evidence_leaks=[],
+        official_readiness_requirements=[],
+    )
+
+    assert plan.forbidden_evidence_leaks == []
+    assert plan.official_readiness_requirements == []
 
 
 def test_operationalization_report_remains_non_executing_and_non_authoritative() -> None:
@@ -534,3 +564,65 @@ def test_shuffled_input_order_preserves_output_order_and_hashes() -> None:
 
     assert [row.transition_id for row in first.closure_rows] == ["T03", "T04"]
     assert first.canonical_output_hash == second.canonical_output_hash
+
+
+def test_frontier_summary_refs_are_unique_across_blocked_reports() -> None:
+    catalog = _catalog()
+    catalog_a, bridge_a, _report_a = _valid_case()
+    catalog_b, bridge_b, _report_b = _valid_case(
+        transition_id="T04",
+        from_phase="utility_program_reconciliation",
+        to_phase="implementation",
+        transition_kind="implementation_handoff_input",
+        object_kind="program_ontology_patch",
+    )
+    assert catalog_a == catalog_b == catalog
+    blocked_a = validate_transition(
+        catalog=catalog,
+        bridge=bridge_a,
+        transition_claim=_claim(catalog),
+        artifacts=[],
+        evidence=[_evidence()],
+        obligations=[_obligation()],
+    )
+    blocked_b = validate_transition(
+        catalog=catalog,
+        bridge=bridge_b,
+        transition_claim=_claim(
+            catalog,
+            transition_id="T04",
+            from_phase="utility_program_reconciliation",
+            to_phase="implementation",
+            transition_kind="implementation_handoff_input",
+            artifact_ref="artifact:T04",
+            evidence_ref="evidence:T04",
+            obligation_ref="obligation:T04",
+        ),
+        artifacts=[],
+        evidence=[_evidence("T04")],
+        obligations=[
+            _obligation(
+                transition_id="T04",
+                source_phase="utility_program_reconciliation",
+                target_phase="implementation",
+            )
+        ],
+    )
+
+    assert blocked_a.frontier_rows[0].frontier_ref == blocked_b.frontier_rows[0].frontier_ref
+    closure = compute_transition_closure(
+        catalog=catalog,
+        bridge_contracts=[bridge_a, bridge_b],
+        validation_reports=[blocked_a, blocked_b],
+    )
+
+    assert closure.frontier_summary_rows
+    assert len({row.frontier_ref for row in closure.frontier_summary_rows}) == len(
+        closure.frontier_summary_rows
+    )
+    assert {
+        row.source_validation_report_ref for row in closure.frontier_summary_rows
+    } == {
+        blocked_a.transition_validation_report_ref,
+        blocked_b.transition_validation_report_ref,
+    }

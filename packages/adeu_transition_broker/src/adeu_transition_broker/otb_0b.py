@@ -624,14 +624,22 @@ def build_worker_baton_contract(
         transition_id=row.transition_id,
         source_phase_refs=[row.from_phase],
         target_phase=selected_target_phase,
-        allowed_inputs=allowed_inputs or [row.transition_id],
+        allowed_inputs=allowed_inputs if allowed_inputs is not None else [row.transition_id],
         required_outputs=output_rows,
-        forbidden_inputs=forbidden_inputs or [],
-        forbidden_promotions=forbidden_promotions or [
-            "scoped_to_official",
-            "official_eval_handoff",
-        ],
-        required_closeout_rows=required_closeout_rows or ["worker_closeout"],
+        forbidden_inputs=forbidden_inputs if forbidden_inputs is not None else [],
+        forbidden_promotions=(
+            forbidden_promotions
+            if forbidden_promotions is not None
+            else [
+                "scoped_to_official",
+                "official_eval_handoff",
+            ]
+        ),
+        required_closeout_rows=(
+            required_closeout_rows
+            if required_closeout_rows is not None
+            else ["worker_closeout"]
+        ),
         baton_authority_posture="baton_contract_only_not_dispatch_authority",
     )
     return _model_with_hash(contract, hash_field="canonical_output_hash")
@@ -655,15 +663,25 @@ def plan_evidence_posture(
         transition_id=row.transition_id,
         current_evidence_posture=current_evidence_posture,
         target_evidence_posture=target_evidence_posture,
-        required_equivalence_checks=required_equivalence_checks
-        or [
-            "observation_oracle_equivalence",
-            "packaged_artifact_equivalence",
-            "target_substrate_equivalence",
-        ],
-        forbidden_evidence_leaks=forbidden_evidence_leaks or ["post_eval_pressure"],
-        official_readiness_requirements=official_readiness_requirements
-        or ["packaged_preflight_record"],
+        required_equivalence_checks=(
+            required_equivalence_checks
+            if required_equivalence_checks is not None
+            else [
+                "observation_oracle_equivalence",
+                "packaged_artifact_equivalence",
+                "target_substrate_equivalence",
+            ]
+        ),
+        forbidden_evidence_leaks=(
+            forbidden_evidence_leaks
+            if forbidden_evidence_leaks is not None
+            else ["post_eval_pressure"]
+        ),
+        official_readiness_requirements=(
+            official_readiness_requirements
+            if official_readiness_requirements is not None
+            else ["packaged_preflight_record"]
+        ),
         plan_authority_posture="plan_only_not_observed_evidence",
     )
     return _model_with_hash(plan, hash_field="canonical_output_hash")
@@ -720,7 +738,10 @@ def _frontier_summary(
     frontier: LegalFrontierRow,
 ) -> FrontierSummaryRow:
     return FrontierSummaryRow(
-        frontier_ref=frontier.frontier_ref,
+        frontier_ref=(
+            f"otb-0b-frontier-summary:{report.transition_validation_report_ref}:"
+            f"{frontier.frontier_ref}"
+        ),
         transition_id=frontier.transition_id,
         frontier_reason=frontier.frontier_reason,
         required_next_action=frontier.required_next_action,
