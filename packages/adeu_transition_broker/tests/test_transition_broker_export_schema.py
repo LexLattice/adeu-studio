@@ -12,10 +12,14 @@ from adeu_transition_broker import (
     REPO_PHASE_GATE_EXECUTION_PLAN_SCHEMA,
     REPO_PHASE_LEGAL_FRONTIER_REPORT_SCHEMA,
     REPO_PHASE_OPERATIONALIZATION_REPORT_SCHEMA,
+    REPO_PHASE_STALE_OBJECT_INVALIDATION_REPORT_SCHEMA,
     REPO_PHASE_TRANSITION_CLAIM_SCHEMA,
     REPO_PHASE_TRANSITION_CLOSURE_REPORT_SCHEMA,
+    REPO_PHASE_TRANSITION_DELTA_ATTRIBUTION_LEDGER_SCHEMA,
     REPO_PHASE_TRANSITION_VALIDATION_REPORT_SCHEMA,
     REPO_PHASE_WORKER_BATON_CONTRACT_SCHEMA,
+    REPO_TRANSITION_BROKER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA,
+    REPO_TRANSITION_BROKER_INTEGRATION_HANDOFF_SCHEMA,
     REPO_TRANSITION_BROKER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
 )
 from adeu_transition_broker.export_schema import main as export_schema_main
@@ -118,6 +122,38 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "repo_phase_operationalization_report.v1.json",
             root / "spec" / "repo_phase_operationalization_report.schema.json",
         ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_transition_delta_attribution_ledger.v1.json",
+            root / "spec" / "repo_phase_transition_delta_attribution_ledger.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_stale_object_invalidation_report.v1.json",
+            root / "spec" / "repo_phase_stale_object_invalidation_report.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_transition_broker_integration_handoff.v1.json",
+            root / "spec" / "repo_transition_broker_integration_handoff.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_transition_broker_family_closeout_alignment.v1.json",
+            root / "spec" / "repo_transition_broker_family_closeout_alignment.schema.json",
+        ),
     ]
 
 
@@ -162,6 +198,18 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "repo_phase_evidence_posture_plan.v1.json": REPO_PHASE_EVIDENCE_POSTURE_PLAN_SCHEMA,
         "repo_phase_operationalization_report.v1.json": (
             REPO_PHASE_OPERATIONALIZATION_REPORT_SCHEMA
+        ),
+        "repo_phase_transition_delta_attribution_ledger.v1.json": (
+            REPO_PHASE_TRANSITION_DELTA_ATTRIBUTION_LEDGER_SCHEMA
+        ),
+        "repo_phase_stale_object_invalidation_report.v1.json": (
+            REPO_PHASE_STALE_OBJECT_INVALIDATION_REPORT_SCHEMA
+        ),
+        "repo_transition_broker_integration_handoff.v1.json": (
+            REPO_TRANSITION_BROKER_INTEGRATION_HANDOFF_SCHEMA
+        ),
+        "repo_transition_broker_family_closeout_alignment.v1.json": (
+            REPO_TRANSITION_BROKER_FAMILY_CLOSEOUT_ALIGNMENT_SCHEMA
         ),
     }
     for authoritative, _mirror in _schema_paths():
