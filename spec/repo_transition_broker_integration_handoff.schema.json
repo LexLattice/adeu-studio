@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_consumption": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Consumption",
+      "type": "array"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "forbidden_consumption": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Consumption",
+      "type": "array"
+    },
+    "handoff_posture": {
+      "const": "handoff_constraints_only_not_authority",
+      "title": "Handoff Posture",
+      "type": "string"
+    },
+    "pressure_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Pressure Rows",
+      "type": "array"
+    },
+    "required_revalidation_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Revalidation Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_transition_broker_integration_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_family": {
+      "title": "Source Family",
+      "type": "string"
+    },
+    "target_family_or_lane": {
+      "title": "Target Family Or Lane",
+      "type": "string"
+    },
+    "transition_broker_integration_handoff_ref": {
+      "title": "Transition Broker Integration Handoff Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_broker_integration_handoff_ref",
+    "source_family",
+    "target_family_or_lane",
+    "handoff_posture",
+    "allowed_consumption",
+    "forbidden_consumption",
+    "pressure_rows",
+    "required_revalidation_rows"
+  ],
+  "title": "RepoTransitionBrokerIntegrationHandoff",
+  "type": "object"
+}

@@ -1,0 +1,123 @@
+{
+  "$defs": {
+    "AcceptedSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "slice_ref": {
+          "title": "Slice Ref",
+          "type": "string"
+        },
+        "surface_ref": {
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_ref",
+        "slice_ref"
+      ],
+      "title": "AcceptedSurfaceRow",
+      "type": "object"
+    },
+    "DeferredSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "deferral_reason": {
+          "title": "Deferral Reason",
+          "type": "string"
+        },
+        "slice_ref": {
+          "title": "Slice Ref",
+          "type": "string"
+        },
+        "surface_ref": {
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_ref",
+        "slice_ref",
+        "deferral_reason"
+      ],
+      "title": "DeferredSurfaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_surfaces": {
+      "items": {
+        "$ref": "#/$defs/AcceptedSurfaceRow"
+      },
+      "title": "Accepted Surfaces",
+      "type": "array"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "completed_slices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Completed Slices",
+      "type": "array"
+    },
+    "deferred_surfaces": {
+      "items": {
+        "$ref": "#/$defs/DeferredSurfaceRow"
+      },
+      "title": "Deferred Surfaces",
+      "type": "array"
+    },
+    "family_closeout_alignment_ref": {
+      "title": "Family Closeout Alignment Ref",
+      "type": "string"
+    },
+    "future_pressure_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Future Pressure Notes",
+      "type": "array"
+    },
+    "non_authority_boundary_confirmation": {
+      "const": "family_closeout_alignment_only_not_release_authority",
+      "title": "Non Authority Boundary Confirmation",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_transition_broker_family_closeout_alignment@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "unimplemented_slices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unimplemented Slices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "family_closeout_alignment_ref",
+    "completed_slices",
+    "unimplemented_slices",
+    "accepted_surfaces",
+    "deferred_surfaces",
+    "non_authority_boundary_confirmation",
+    "future_pressure_notes"
+  ],
+  "title": "RepoTransitionBrokerFamilyCloseoutAlignment",
+  "type": "object"
+}

@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "AttributionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "attribution_domain": {
+          "default": "transition_bridge",
+          "enum": [
+            "transition_bridge",
+            "artifact_identity",
+            "evidence_boundary",
+            "product_semantics"
+          ],
+          "title": "Attribution Domain",
+          "type": "string"
+        },
+        "attribution_ref": {
+          "title": "Attribution Ref",
+          "type": "string"
+        },
+        "bridge_field": {
+          "title": "Bridge Field",
+          "type": "string"
+        },
+        "confidence_posture": {
+          "enum": [
+            "candidate_pressure",
+            "dominant_transition_pressure",
+            "blocked_by_earlier_transition",
+            "requires_revalidation"
+          ],
+          "title": "Confidence Posture",
+          "type": "string"
+        },
+        "earlier_unproven_transition_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Earlier Unproven Transition Refs",
+          "type": "array"
+        },
+        "evidence_boundary_posture": {
+          "enum": [
+            "clean_first_pass_allowed",
+            "clean_first_pass_disallowed",
+            "post_eval_pressure_only",
+            "source_postmortem_pressure",
+            "official_like_pressure",
+            "local_locked_probe_delta"
+          ],
+          "title": "Evidence Boundary Posture",
+          "type": "string"
+        },
+        "pressure_kind": {
+          "enum": [
+            "score_movement",
+            "assertion_failure",
+            "official_failure",
+            "source_postmortem",
+            "local_probe_delta",
+            "resource_topology",
+            "artifact_identity"
+          ],
+          "title": "Pressure Kind",
+          "type": "string"
+        },
+        "pressure_summary": {
+          "title": "Pressure Summary",
+          "type": "string"
+        },
+        "recommended_route": {
+          "enum": [
+            "repair_transition_bridge",
+            "invalidate_and_revalidate",
+            "hold_as_pressure_only",
+            "route_to_product_theory_after_bridge_closure"
+          ],
+          "title": "Recommended Route",
+          "type": "string"
+        },
+        "run_delta_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Run Delta Refs",
+          "type": "array"
+        },
+        "transition_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Transition Evidence Refs",
+          "type": "array"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attribution_ref",
+        "transition_id",
+        "bridge_field",
+        "pressure_kind",
+        "pressure_summary",
+        "evidence_boundary_posture",
+        "run_delta_refs",
+        "confidence_posture",
+        "recommended_route"
+      ],
+      "title": "AttributionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attribution_rows": {
+      "items": {
+        "$ref": "#/$defs/AttributionRow"
+      },
+      "title": "Attribution Rows",
+      "type": "array"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "circuit_hash": {
+      "title": "Circuit Hash",
+      "type": "string"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "evidence_boundary_posture": {
+      "enum": [
+        "clean_first_pass_allowed",
+        "clean_first_pass_disallowed",
+        "post_eval_pressure_only",
+        "source_postmortem_pressure",
+        "official_like_pressure",
+        "local_locked_probe_delta"
+      ],
+      "title": "Evidence Boundary Posture",
+      "type": "string"
+    },
+    "input_closure_report_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Closure Report Refs",
+      "type": "array"
+    },
+    "run_delta_ref": {
+      "title": "Run Delta Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_phase_transition_delta_attribution_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_delta_attribution_ledger_ref": {
+      "title": "Transition Delta Attribution Ledger Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_delta_attribution_ledger_ref",
+    "circuit_id",
+    "circuit_version",
+    "circuit_hash",
+    "input_closure_report_refs",
+    "run_delta_ref",
+    "attribution_rows",
+    "evidence_boundary_posture"
+  ],
+  "title": "RepoPhaseTransitionDeltaAttributionLedger",
+  "type": "object"
+}

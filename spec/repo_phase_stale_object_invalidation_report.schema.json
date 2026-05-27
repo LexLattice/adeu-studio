@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "InvalidatedArtifactRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "invalidation_reasons": {
+          "items": {
+            "enum": [
+              "object_hash_changed",
+              "catalog_hash_changed",
+              "bridge_contract_hash_changed",
+              "evidence_boundary_changed",
+              "obligation_set_changed",
+              "target_substrate_changed",
+              "run_topology_changed"
+            ],
+            "type": "string"
+          },
+          "title": "Invalidation Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "invalidation_reasons"
+      ],
+      "title": "InvalidatedArtifactRow",
+      "type": "object"
+    },
+    "InvalidationReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Refs",
+          "type": "array"
+        },
+        "invalidation_reason": {
+          "enum": [
+            "object_hash_changed",
+            "catalog_hash_changed",
+            "bridge_contract_hash_changed",
+            "evidence_boundary_changed",
+            "obligation_set_changed",
+            "target_substrate_changed",
+            "run_topology_changed"
+          ],
+          "title": "Invalidation Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invalidation_reason",
+        "artifact_refs"
+      ],
+      "title": "InvalidationReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "input_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Artifact Refs",
+      "type": "array"
+    },
+    "invalidated_artifact_rows": {
+      "items": {
+        "$ref": "#/$defs/InvalidatedArtifactRow"
+      },
+      "title": "Invalidated Artifact Rows",
+      "type": "array"
+    },
+    "invalidation_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/InvalidationReasonRow"
+      },
+      "title": "Invalidation Reason Rows",
+      "type": "array"
+    },
+    "new_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "New Artifact Refs",
+      "type": "array"
+    },
+    "required_revalidation_frontier": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Revalidation Frontier",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_stale_object_invalidation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stale_object_invalidation_report_ref": {
+      "title": "Stale Object Invalidation Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "stale_object_invalidation_report_ref",
+    "input_artifact_refs",
+    "new_artifact_refs",
+    "invalidated_artifact_rows",
+    "invalidation_reason_rows",
+    "required_revalidation_frontier"
+  ],
+  "title": "RepoPhaseStaleObjectInvalidationReport",
+  "type": "object"
+}
