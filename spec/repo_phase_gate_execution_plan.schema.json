@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "GatePlanRow": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_output_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Output Kinds",
+          "type": "array"
+        },
+        "failure_route": {
+          "title": "Failure Route",
+          "type": "string"
+        },
+        "forbidden_evidence_kinds": {
+          "items": {
+            "enum": [
+              "visible_spec",
+              "public_schema_observation",
+              "reference_behavior_observation",
+              "implementation_observation",
+              "post_eval_pressure",
+              "source_tail",
+              "methodological_equivalence",
+              "support_doctrine"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Evidence Kinds",
+          "type": "array"
+        },
+        "gate_kind": {
+          "enum": [
+            "phase_transition_gate",
+            "equivalence_preflight_gate",
+            "evidence_boundary_gate",
+            "baton_closeout_gate"
+          ],
+          "title": "Gate Kind",
+          "type": "string"
+        },
+        "gate_ref": {
+          "title": "Gate Ref",
+          "type": "string"
+        },
+        "plan_authority_posture": {
+          "const": "plan_only_not_execution_authority",
+          "title": "Plan Authority Posture",
+          "type": "string"
+        },
+        "required_input_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Input Refs",
+          "type": "array"
+        },
+        "success_posture": {
+          "enum": [
+            "not_ready",
+            "representative_only",
+            "scoped_method_test_only",
+            "scoped_ready",
+            "gold_ready",
+            "official_ready_candidate",
+            "official_ready"
+          ],
+          "title": "Success Posture",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_ref",
+        "transition_id",
+        "gate_kind",
+        "success_posture",
+        "failure_route",
+        "plan_authority_posture"
+      ],
+      "title": "GatePlanRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "gate_execution_plan_ref": {
+      "title": "Gate Execution Plan Ref",
+      "type": "string"
+    },
+    "gate_plan_rows": {
+      "items": {
+        "$ref": "#/$defs/GatePlanRow"
+      },
+      "title": "Gate Plan Rows",
+      "type": "array"
+    },
+    "plan_authority_posture": {
+      "const": "plan_only_not_execution_authority",
+      "title": "Plan Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_phase_gate_execution_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_closure_report_ref": {
+      "title": "Transition Closure Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "gate_execution_plan_ref",
+    "transition_closure_report_ref",
+    "gate_plan_rows",
+    "plan_authority_posture"
+  ],
+  "title": "RepoPhaseGateExecutionPlan",
+  "type": "object"
+}

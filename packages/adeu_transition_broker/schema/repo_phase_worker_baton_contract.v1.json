@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "BatonOutputRow": {
+      "additionalProperties": false,
+      "properties": {
+        "output_kind": {
+          "title": "Output Kind",
+          "type": "string"
+        },
+        "target_phase": {
+          "title": "Target Phase",
+          "type": "string"
+        }
+      },
+      "required": [
+        "output_kind",
+        "target_phase"
+      ],
+      "title": "BatonOutputRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_inputs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Inputs",
+      "type": "array"
+    },
+    "baton_authority_posture": {
+      "const": "baton_contract_only_not_dispatch_authority",
+      "title": "Baton Authority Posture",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "forbidden_inputs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Inputs",
+      "type": "array"
+    },
+    "forbidden_promotions": {
+      "items": {
+        "enum": [
+          "none",
+          "representative_to_scoped",
+          "scoped_to_gold",
+          "scoped_to_official",
+          "official_eval_handoff"
+        ],
+        "type": "string"
+      },
+      "title": "Forbidden Promotions",
+      "type": "array"
+    },
+    "required_closeout_rows": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Closeout Rows",
+      "type": "array"
+    },
+    "required_outputs": {
+      "items": {
+        "$ref": "#/$defs/BatonOutputRow"
+      },
+      "title": "Required Outputs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_worker_baton_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_phase_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Phase Refs",
+      "type": "array"
+    },
+    "target_phase": {
+      "title": "Target Phase",
+      "type": "string"
+    },
+    "transition_id": {
+      "title": "Transition Id",
+      "type": "string"
+    },
+    "worker_baton_contract_ref": {
+      "title": "Worker Baton Contract Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "worker_baton_contract_ref",
+    "transition_id",
+    "source_phase_refs",
+    "target_phase",
+    "allowed_inputs",
+    "required_outputs",
+    "forbidden_inputs",
+    "forbidden_promotions",
+    "required_closeout_rows",
+    "baton_authority_posture"
+  ],
+  "title": "RepoPhaseWorkerBatonContract",
+  "type": "object"
+}

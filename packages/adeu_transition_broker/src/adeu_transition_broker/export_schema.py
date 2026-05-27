@@ -13,6 +13,13 @@ from .otb_0a import (
     RepoPhaseTransitionValidationReport,
     RepoTransitionBrokerNonAuthorityGuardrail,
 )
+from .otb_0b import (
+    RepoPhaseEvidencePosturePlan,
+    RepoPhaseGateExecutionPlan,
+    RepoPhaseOperationalizationReport,
+    RepoPhaseTransitionClosureReport,
+    RepoPhaseWorkerBatonContract,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -77,6 +84,51 @@ def main() -> None:
             / "repo_transition_broker_non_authority_guardrail.v1.json",
             root / "spec" / "repo_transition_broker_non_authority_guardrail.schema.json",
         ),
+        (
+            RepoPhaseTransitionClosureReport.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_transition_closure_report.v1.json",
+            root / "spec" / "repo_phase_transition_closure_report.schema.json",
+        ),
+        (
+            RepoPhaseGateExecutionPlan.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_gate_execution_plan.v1.json",
+            root / "spec" / "repo_phase_gate_execution_plan.schema.json",
+        ),
+        (
+            RepoPhaseWorkerBatonContract.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_worker_baton_contract.v1.json",
+            root / "spec" / "repo_phase_worker_baton_contract.schema.json",
+        ),
+        (
+            RepoPhaseEvidencePosturePlan.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_evidence_posture_plan.v1.json",
+            root / "spec" / "repo_phase_evidence_posture_plan.schema.json",
+        ),
+        (
+            RepoPhaseOperationalizationReport.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_operationalization_report.v1.json",
+            root / "spec" / "repo_phase_operationalization_report.schema.json",
+        ),
     ]
     for schema, authoritative_path, mirror_path in mappings:
         _write_schema(authoritative_path, schema)
@@ -85,4 +137,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
