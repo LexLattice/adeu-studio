@@ -1,0 +1,170 @@
+{
+  "$defs": {
+    "LegalFrontierRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "const": "broker_validation_only_not_execution_authority",
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "downgrade_basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Downgrade Basis",
+          "type": "array"
+        },
+        "frontier_reason": {
+          "enum": [
+            "missing_object",
+            "forbidden_evidence",
+            "stale_artifact",
+            "silent_obligation_drop",
+            "illegal_promotion",
+            "blocked_equivalence",
+            "missing_warrant",
+            "conflict_isolated",
+            "posture_downgrade_required"
+          ],
+          "title": "Frontier Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "maximum_supported_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Supported Posture"
+        },
+        "requested_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Posture"
+        },
+        "required_next_action": {
+          "enum": [
+            "produce_object",
+            "remove_forbidden_evidence",
+            "refresh_artifact",
+            "discharge_or_defer_obligation",
+            "downgrade_promotion",
+            "run_equivalence_preflight",
+            "route_to_human_review"
+          ],
+          "title": "Required Next Action",
+          "type": "string"
+        },
+        "required_revalidation_frontier": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Revalidation Frontier",
+          "type": "array"
+        },
+        "source_diagnostic_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Diagnostic Refs",
+          "type": "array"
+        },
+        "target_phase_constraint": {
+          "title": "Target Phase Constraint",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "transition_id",
+        "frontier_reason",
+        "required_next_action",
+        "authority_posture",
+        "target_phase_constraint"
+      ],
+      "title": "LegalFrontierRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "frontier_rows": {
+      "items": {
+        "$ref": "#/$defs/LegalFrontierRow"
+      },
+      "title": "Frontier Rows",
+      "type": "array"
+    },
+    "legal_frontier_report_ref": {
+      "title": "Legal Frontier Report Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_phase_legal_frontier_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_validation_report_ref": {
+      "title": "Transition Validation Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "legal_frontier_report_ref",
+    "transition_validation_report_ref",
+    "frontier_rows"
+  ],
+  "title": "RepoPhaseLegalFrontierReport",
+  "type": "object"
+}

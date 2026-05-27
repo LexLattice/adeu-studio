@@ -39,6 +39,7 @@ bootstrap:
 		-e "packages/adeu_agentic_de[dev]" \
 		-e "packages/adeu_agent_harness[dev]" \
 		-e "packages/adeu_obligation_broker[dev]" \
+		-e "packages/adeu_transition_broker[dev]" \
 		-e "packages/adeu_repo_description[dev]" \
 		-e packages/urm_runtime \
 		-e packages/urm_domain_adeu \
