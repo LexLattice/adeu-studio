@@ -1,13 +1,8 @@
 # Assessment vNext+275 Edges
 
-Status: pre-lock edge assessment for `OTB-0-A`.
+Status: post-closeout edge assessment for `OTB-0-A`.
 
-Authority layer: planning assessment.
-
-This document records pre-implementation edge analysis for `vNext+275`
-(`OTB-0-A` phase catalog, bridge contract, transition claim, transition
-validation, legal frontier, and guardrail), aligned to
-`docs/DRAFT_NEXT_ARC_OPTIONS_v87.md`.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -15,198 +10,147 @@ validation, legal frontier, and guardrail), aligned to
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS275_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Scope
-
-In scope:
-
-- phase circuit catalog validation;
-- O/E/D/U bridge contract validation;
-- typed transition claim validation;
-- artifact, evidence, and obligation-transfer row validation;
-- transition admissibility diagnostics;
-- legal frontier emission;
-- non-authority guardrail output;
-- canonical hashing and schema export for A surfaces.
-
-Out of scope:
-
-- semantic adjudication;
-- domain ontology generation;
-- HOB closure recomputation;
-- transition closure/readiness aggregation;
-- gate execution plans;
-- worker baton contracts;
-- evidence posture plans;
-- operationalization reports;
-- transition delta attribution;
-- stale object invalidation after observed runs;
-- integration handoff;
-- probe generation or execution;
-- worker dispatch;
-- product authority;
-- official-eval authority;
-- future-family selection.
-
-## Inputs
-
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v87.md`
-- `docs/ARCHITECTURE_ADEU_ODEU_TRANSITION_BROKER_FAMILY_v0.md`
-- `docs/DRAFT_ADEU_ODEU_TRANSITION_BROKER_OTB_0_IMPLEMENTATION_MAPPING_v0.md`
-- `docs/DRAFT_ADEU_ODEU_TRANSITION_BROKER_OTB_0A_IMPLEMENTATION_MAPPING_v0.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS274.md`
-- `docs/ASSESSMENT_vNEXT_PLUS274_EDGES.md`
-- `docs/support/principled_recursive_odeu_meta_program_experimental_v46.md`
-- `docs/support/general_program_ontology_derived_v1_7.md`
-
-## Edge Set
+## Closed Edge Review
 
 ### Edge 1: Artifact Presence Becomes An Implied Transition Claim
 
-- Risk:
-  implementation infers a claimed transition from artifact presence.
-- Guardrail:
-  `repo_phase_transition_claim@1` is mandatory. Missing claim fails closed.
+- Closeout state:
+  contained.
+- Evidence:
+  `repo_phase_transition_claim@1` is a first-class required input. Transition
+  identity validation checks circuit, phase, transition id, and transition kind.
 
 ### Edge 2: Valid Transition Becomes Action Authority
 
-- Risk:
-  `valid` is read as permission to execute the next phase.
-- Guardrail:
-  A-level validation uses `valid_for_broker_frontier`; frontier rows carry
+- Closeout state:
+  contained.
+- Evidence:
+  valid reports use `valid_for_broker_frontier`; legal frontier rows carry
   `broker_validation_only_not_execution_authority`.
 
 ### Edge 3: Bridge Consistency Collapses Into Bridge Completeness
 
-- Risk:
-  well-formed but incomplete bridges are promoted.
-- Guardrail:
-  separate `bridge_consistency_status` and `bridge_completeness_status`; fixture
-  covers consistent but incomplete bridge.
+- Closeout state:
+  contained.
+- Evidence:
+  validation reports expose separate `bridge_consistency_status` and
+  `bridge_completeness_status`; consistent but incomplete bridges remain
+  blocked.
 
 ### Edge 4: Artifact Identity Is Under-Specified
 
-- Risk:
-  one `artifact_hash` hides payload, semantic object, catalog, bridge, evidence,
-  or obligation-set drift.
-- Guardrail:
-  multi-hash identity fields are required and mismatches fail closed.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  required objects compare file, canonical payload, semantic object,
+  evidence-boundary, obligation-set, catalog, and bridge hashes, plus authority
+  layer, source phase, identity claim, and freshness basis.
 
 ### Edge 5: Evidence Contamination Is Only Checked Directly
 
-- Risk:
-  post-eval or source-tail evidence leaks through a derived summary artifact.
-- Guardrail:
-  evidence rows include `derived_from_evidence_refs` and contamination is
-  checked through ancestry.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  evidence rows carry `derived_from_evidence_refs`; forbidden evidence is
+  checked with an iterative ancestry walk, including required-artifact evidence
+  refs even when the claim omits the artifact ref.
 
-### Edge 6: Useful But Overstrong Artifacts Are Only Blocked
+### Edge 6: Duplicate Rows Silently Overwrite Evidence
 
-- Risk:
-  the broker fails to name the maximum supported posture.
-- Guardrail:
-  unsupported claims emit `posture_downgrade_required` frontier rows with
-  `requested_posture`, `maximum_supported_posture`, and revalidation frontier.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  duplicate artifact, evidence, and obligation refs emit conflict diagnostics
+  instead of silently overwriting earlier rows.
 
-### Edge 7: Freshness Is Treated As Timestamp Freshness
+### Edge 7: Obligation Transfers Under-Cover The Bridge Contract
 
-- Risk:
-  stale objects are reused when object hashes, evidence boundaries, obligation
-  sets, target substrate, run topology, or partition changed.
-- Guardrail:
-  phase-local freshness basis is required and checked against bridge
-  requirements.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  all bridge-declared created, preserved, discharged, and blocked/deferred
+  obligations are required when silent drops are forbidden. Obligation phase
+  mismatches fail closed.
 
-### Edge 8: OTB Becomes A Semantic Judge
+### Edge 8: Blocked Obligations Lack Warrant
 
-- Risk:
-  the broker decides phase content quality or domain meaning.
-- Guardrail:
-  broker validates row shape, vocabulary, hashes, evidence boundary, and bridge
-  transfer only; semantic judgment remains upstream.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  blocked obligations require `blocker_ref`, just as discharged/deferred rows
+  require their own warrant refs.
 
-### Edge 9: OTB Recomputes HOB Closure
+### Edge 9: Useful But Overstrong Artifacts Are Only Blocked
 
-- Risk:
-  transition validation reopens HOB inheritance or closure.
-- Guardrail:
-  HOB outputs may be consumed as artifacts; OTB-A may not recompute HOB
-  closure.
+- Closeout state:
+  contained.
+- Evidence:
+  unsupported readiness claims emit `posture_downgrade_required` frontiers with
+  requested and maximum-supported postures.
 
-### Edge 10: A Leaks Into B/C
+### Edge 10: OTB Becomes A Semantic Judge
 
-- Risk:
-  closure summaries, gate plans, baton contracts, or attribution ship in A.
-- Guardrail:
-  A emits validation reports, legal-frontier rows, and guardrails only.
+- Closeout state:
+  contained.
+- Evidence:
+  A validates rows, hashes, declared transfer posture, and evidence boundaries.
+  It does not decide domain meaning, phase content quality, product correctness,
+  or official readiness.
 
-### Edge 11: Legal Frontier Becomes Worker Dispatch
+### Edge 11: A Leaks Into B/C
 
-- Risk:
-  frontier rows are treated as taskpacks.
-- Guardrail:
-  frontier rows name required next actions but deny worker dispatch and
-  execution authority.
+- Closeout state:
+  contained.
+- Evidence:
+  A ships validation reports, legal frontiers, and guardrails only. Closure
+  aggregation, gate plans, worker baton contracts, evidence posture plans,
+  operationalization reports, delta attribution, stale-object invalidation, and
+  integration handoff remain deferred.
 
 ### Edge 12: Canonical Determinism Is Claimed But Not Tested
 
-- Risk:
-  row ordering changes output hashes.
-- Guardrail:
-  shuffled input fixture must preserve canonical output order and hash.
+- Closeout state:
+  contained.
+- Evidence:
+  focused fixtures cover stable ordering and canonical hashes under shuffled
+  input.
 
-## Required Guardrails
+## Review Feedback Integrated
 
-- Transition-claim lock:
-  - no transition validation without `repo_phase_transition_claim@1`.
-- Non-action lock:
-  - A-level validation never emits execution or implementation authority.
-- Consistency/completeness lock:
-  - complete and consistent are separate fields.
-- Multi-hash identity lock:
-  - file, canonical payload, semantic object, catalog, bridge,
-    evidence-boundary, and obligation-set hashes are separately represented.
-- Evidence ancestry lock:
-  - forbidden evidence ancestry fails closed.
-- Posture downgrade lock:
-  - overstrong claims emit downgrade frontier instead of silent acceptance.
-- Freshness lock:
-  - stale phase-local basis fails closed.
-- Boundary lock:
-  - no B/C outputs in A.
-- Guardrail lock:
-  - non-authority guardrail denies semantic, ontology, HOB closure, probe,
-    implementation, worker dispatch, product, official-eval, and future-family
-    authority.
+- Codex review:
+  transition kind is now compared against the catalog transition row.
+- Codex review:
+  evidence attached to required artifacts is validated even when omitted from
+  claim artifact refs.
+- Codex review:
+  all contract-declared obligation transfer families are required.
+- Gemini review:
+  transitive evidence validation uses iterative DFS rather than recursion.
+- Gemini review:
+  duplicate artifact, evidence, and obligation refs fail closed.
+- Gemini review:
+  obligation source/target phases must match the bridge transition.
+- Gemini review:
+  blocked obligations require `blocker_ref`.
 
-## Acceptance Evidence Targets
+## Residual Edges
 
-- New `adeu_transition_broker` package exists.
-- Six A-level record shapes are modeled and schema-exported.
-- Focused tests cover the required starter fixtures in
-  `docs/LOCKED_CONTINUATION_vNEXT_PLUS275.md`.
-- Canonical hashing is stable under shuffled inputs.
-- No closure aggregation, gate planning, baton contracts, delta attribution, or
-  handoff APIs are present in A.
-- Local verification includes focused pytest, schema export tests, and the repo
-  Python gate selected for the implementation PR.
+- `OTB-0-A` remains a deterministic transition validator only.
+- It does not compute transition closure/readiness summaries, gate execution
+  plans, worker baton contracts, evidence posture plans, operationalization
+  reports, delta attribution, stale-object invalidation, or integration
+  handoffs.
+- `OTB-0-B` should consume released A records and preserve the A non-authority
+  posture while adding plan-only closure and operationalization surfaces.
 
-## Implementation Readiness Notes
+## Current Judgment
 
-1. `OTB-0-A` is implementation-ready as a bounded deterministic validation
-   slice after starter-bundle acceptance.
-2. Highest risks are action-authority overread and evidence-contamination
-   ancestry.
-3. Recommended implementation order:
-   - vocabulary and canonical hashing;
-   - record models;
-   - catalog/bridge/claim validation;
-   - artifact/evidence/obligation validation;
-   - transition validation and legal-frontier emission;
-   - schema export and focused fixtures.
-
+`OTB-0-A` is closed. The `OTB-0` family remains open for the planned
+`OTB-0-B` closure, gate planning, baton contract, evidence posture, and
+operationalization slice.
