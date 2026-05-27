@@ -334,3 +334,9 @@ select `OTB-0-A` as the next default candidate
 After `OTB-0-A` is released and closed on `main`, continue the selected
 `OTB-0` family by drafting the next slice lock/decision/assessment sequence and
 select `OTB-0-B` as the next default candidate.
+
+## Continuation After `OTB-0-B`
+
+After `OTB-0-B` is released and closed on `main`, continue the selected
+`OTB-0` family by drafting the next slice lock/decision/assessment sequence and
+select `OTB-0-C` as the next default candidate.
