@@ -1,0 +1,226 @@
+{
+  "$defs": {
+    "ClosureRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_next_phase_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Next Phase Refs",
+          "type": "array"
+        },
+        "blocking_frontier_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocking Frontier Refs",
+          "type": "array"
+        },
+        "closure_basis": {
+          "enum": [
+            "all_required_bridges_valid",
+            "blocked_by_A_validation",
+            "blocked_by_frontier",
+            "scoped_ready_with_known_risk",
+            "representative_only",
+            "deferred_with_risk",
+            "conflict_isolated"
+          ],
+          "title": "Closure Basis",
+          "type": "string"
+        },
+        "closure_status": {
+          "enum": [
+            "closed",
+            "blocked",
+            "scoped_ready",
+            "representative_only",
+            "deferred",
+            "conflict_isolated"
+          ],
+          "title": "Closure Status",
+          "type": "string"
+        },
+        "from_phase": {
+          "title": "From Phase",
+          "type": "string"
+        },
+        "known_risk_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Known Risk Ref"
+        },
+        "maximum_supported_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Supported Posture"
+        },
+        "readiness_posture": {
+          "enum": [
+            "not_ready",
+            "representative_only",
+            "scoped_method_test_only",
+            "scoped_ready",
+            "gold_ready",
+            "official_ready_candidate",
+            "official_ready"
+          ],
+          "title": "Readiness Posture",
+          "type": "string"
+        },
+        "to_phase": {
+          "title": "To Phase",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transition_id",
+        "from_phase",
+        "to_phase",
+        "closure_status",
+        "readiness_posture",
+        "closure_basis"
+      ],
+      "title": "ClosureRow",
+      "type": "object"
+    },
+    "FrontierSummaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "frontier_reason": {
+          "title": "Frontier Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "required_next_action": {
+          "title": "Required Next Action",
+          "type": "string"
+        },
+        "source_validation_report_ref": {
+          "title": "Source Validation Report Ref",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "transition_id",
+        "frontier_reason",
+        "required_next_action",
+        "source_validation_report_ref"
+      ],
+      "title": "FrontierSummaryRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "circuit_hash": {
+      "title": "Circuit Hash",
+      "type": "string"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "closure_rows": {
+      "items": {
+        "$ref": "#/$defs/ClosureRow"
+      },
+      "title": "Closure Rows",
+      "type": "array"
+    },
+    "frontier_summary_rows": {
+      "items": {
+        "$ref": "#/$defs/FrontierSummaryRow"
+      },
+      "title": "Frontier Summary Rows",
+      "type": "array"
+    },
+    "input_validation_report_hashes": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Input Validation Report Hashes",
+      "type": "object"
+    },
+    "input_validation_report_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Validation Report Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_transition_closure_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_closure_report_ref": {
+      "title": "Transition Closure Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_closure_report_ref",
+    "circuit_id",
+    "circuit_version",
+    "circuit_hash",
+    "input_validation_report_refs",
+    "closure_rows",
+    "frontier_summary_rows"
+  ],
+  "title": "RepoPhaseTransitionClosureReport",
+  "type": "object"
+}

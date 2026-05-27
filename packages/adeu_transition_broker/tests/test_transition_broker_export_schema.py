@@ -8,9 +8,14 @@ from adeu_ir.repo import repo_root
 from adeu_transition_broker import (
     REPO_PHASE_BRIDGE_CONTRACT_SCHEMA,
     REPO_PHASE_CIRCUIT_CATALOG_SCHEMA,
+    REPO_PHASE_EVIDENCE_POSTURE_PLAN_SCHEMA,
+    REPO_PHASE_GATE_EXECUTION_PLAN_SCHEMA,
     REPO_PHASE_LEGAL_FRONTIER_REPORT_SCHEMA,
+    REPO_PHASE_OPERATIONALIZATION_REPORT_SCHEMA,
     REPO_PHASE_TRANSITION_CLAIM_SCHEMA,
+    REPO_PHASE_TRANSITION_CLOSURE_REPORT_SCHEMA,
     REPO_PHASE_TRANSITION_VALIDATION_REPORT_SCHEMA,
+    REPO_PHASE_WORKER_BATON_CONTRACT_SCHEMA,
     REPO_TRANSITION_BROKER_NON_AUTHORITY_GUARDRAIL_SCHEMA,
 )
 from adeu_transition_broker.export_schema import main as export_schema_main
@@ -73,6 +78,46 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "repo_transition_broker_non_authority_guardrail.v1.json",
             root / "spec" / "repo_transition_broker_non_authority_guardrail.schema.json",
         ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_transition_closure_report.v1.json",
+            root / "spec" / "repo_phase_transition_closure_report.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_gate_execution_plan.v1.json",
+            root / "spec" / "repo_phase_gate_execution_plan.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_worker_baton_contract.v1.json",
+            root / "spec" / "repo_phase_worker_baton_contract.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_evidence_posture_plan.v1.json",
+            root / "spec" / "repo_phase_evidence_posture_plan.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_transition_broker"
+            / "schema"
+            / "repo_phase_operationalization_report.v1.json",
+            root / "spec" / "repo_phase_operationalization_report.schema.json",
+        ),
     ]
 
 
@@ -109,6 +154,15 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "repo_transition_broker_non_authority_guardrail.v1.json": (
             REPO_TRANSITION_BROKER_NON_AUTHORITY_GUARDRAIL_SCHEMA
         ),
+        "repo_phase_transition_closure_report.v1.json": (
+            REPO_PHASE_TRANSITION_CLOSURE_REPORT_SCHEMA
+        ),
+        "repo_phase_gate_execution_plan.v1.json": REPO_PHASE_GATE_EXECUTION_PLAN_SCHEMA,
+        "repo_phase_worker_baton_contract.v1.json": REPO_PHASE_WORKER_BATON_CONTRACT_SCHEMA,
+        "repo_phase_evidence_posture_plan.v1.json": REPO_PHASE_EVIDENCE_POSTURE_PLAN_SCHEMA,
+        "repo_phase_operationalization_report.v1.json": (
+            REPO_PHASE_OPERATIONALIZATION_REPORT_SCHEMA
+        ),
     }
     for authoritative, _mirror in _schema_paths():
         payload = json.loads(authoritative.read_text(encoding="utf-8"))
@@ -140,4 +194,3 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
     for authoritative, mirror in _schema_paths():
         _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
         _check_node(json.loads(mirror.read_text(encoding="utf-8")))
-

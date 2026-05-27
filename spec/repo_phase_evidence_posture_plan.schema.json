@@ -1,0 +1,103 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "current_evidence_posture": {
+      "enum": [
+        "clean_first_pass_allowed",
+        "clean_first_pass_disallowed",
+        "post_eval_pressure_only",
+        "source_postmortem_pressure",
+        "official_like_pressure",
+        "local_locked_probe_delta"
+      ],
+      "title": "Current Evidence Posture",
+      "type": "string"
+    },
+    "evidence_posture_plan_ref": {
+      "title": "Evidence Posture Plan Ref",
+      "type": "string"
+    },
+    "forbidden_evidence_leaks": {
+      "items": {
+        "enum": [
+          "visible_spec",
+          "public_schema_observation",
+          "reference_behavior_observation",
+          "implementation_observation",
+          "post_eval_pressure",
+          "source_tail",
+          "methodological_equivalence",
+          "support_doctrine"
+        ],
+        "type": "string"
+      },
+      "title": "Forbidden Evidence Leaks",
+      "type": "array"
+    },
+    "official_readiness_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Official Readiness Requirements",
+      "type": "array"
+    },
+    "plan_authority_posture": {
+      "const": "plan_only_not_observed_evidence",
+      "title": "Plan Authority Posture",
+      "type": "string"
+    },
+    "required_equivalence_checks": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Equivalence Checks",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_evidence_posture_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_evidence_posture": {
+      "enum": [
+        "clean_first_pass_allowed",
+        "clean_first_pass_disallowed",
+        "post_eval_pressure_only",
+        "source_postmortem_pressure",
+        "official_like_pressure",
+        "local_locked_probe_delta"
+      ],
+      "title": "Target Evidence Posture",
+      "type": "string"
+    },
+    "transition_id": {
+      "title": "Transition Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "evidence_posture_plan_ref",
+    "transition_id",
+    "current_evidence_posture",
+    "target_evidence_posture",
+    "required_equivalence_checks",
+    "forbidden_evidence_leaks",
+    "official_readiness_requirements",
+    "plan_authority_posture"
+  ],
+  "title": "RepoPhaseEvidencePosturePlan",
+  "type": "object"
+}

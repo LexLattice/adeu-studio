@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "blocked_frontier": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Frontier",
+      "type": "array"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "deferred_frontier": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Frontier",
+      "type": "array"
+    },
+    "handoff_constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Handoff Constraints",
+      "type": "array"
+    },
+    "operationalization_authority_posture": {
+      "const": "operationalization_summary_only_not_execution_authority",
+      "title": "Operationalization Authority Posture",
+      "type": "string"
+    },
+    "operationalization_report_ref": {
+      "title": "Operationalization Report Ref",
+      "type": "string"
+    },
+    "recommended_next_frontier": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Recommended Next Frontier",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_operationalization_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_closure_report_ref": {
+      "title": "Transition Closure Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "operationalization_report_ref",
+    "transition_closure_report_ref",
+    "recommended_next_frontier",
+    "blocked_frontier",
+    "deferred_frontier",
+    "handoff_constraints",
+    "operationalization_authority_posture"
+  ],
+  "title": "RepoPhaseOperationalizationReport",
+  "type": "object"
+}
