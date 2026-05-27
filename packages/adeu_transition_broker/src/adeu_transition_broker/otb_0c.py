@@ -269,10 +269,12 @@ class RepoPhaseTransitionDeltaAttributionLedger(_OtbCBase):
             sorted(self.attribution_rows, key=lambda row: row.attribution_ref),
         )
         if self.evidence_boundary_posture == "clean_first_pass_allowed" and any(
-            row.evidence_boundary_posture in _PRESSURE_ONLY_POSTURES
+            row.evidence_boundary_posture != "clean_first_pass_allowed"
             for row in self.attribution_rows
         ):
-            raise ValueError("pressure-only attribution cannot make the ledger clean first-pass")
+            raise ValueError(
+                "disallowed or pressure-only attribution cannot make the ledger clean first-pass"
+            )
         if self.canonical_output_hash is not None:
             expected = canonical_hash(self, drop_keys={"canonical_output_hash"})
             if self.canonical_output_hash != expected:
@@ -407,6 +409,14 @@ class RepoPhaseStaleObjectInvalidationReport(_OtbCBase):
         }
         if reason_artifact_refs != invalidated_refs:
             raise ValueError("invalidation reason rows must cover invalidated artifacts exactly")
+        reasons_by_artifact: dict[str, set[InvalidationReason]] = {}
+        for row in self.invalidation_reason_rows:
+            for artifact_ref in row.artifact_refs:
+                reasons_by_artifact.setdefault(artifact_ref, set()).add(row.invalidation_reason)
+        for row in self.invalidated_artifact_rows:
+            expected_reasons = reasons_by_artifact.get(row.artifact_ref, set())
+            if set(row.invalidation_reasons) != expected_reasons:
+                raise ValueError("invalidation reason rows must match each artifact reason set")
         if self.canonical_output_hash is not None:
             expected = canonical_hash(self, drop_keys={"canonical_output_hash"})
             if self.canonical_output_hash != expected:
@@ -546,6 +556,10 @@ class RepoTransitionBrokerFamilyCloseoutAlignment(_OtbCBase):
         missing = sorted(set(self.completed_slices) - accepted_slice_refs)
         if missing:
             raise ValueError("completed slices require accepted surface rows")
+        deferred_slice_refs = {row.slice_ref for row in self.deferred_surfaces}
+        missing_deferred = sorted(set(self.unimplemented_slices) - deferred_slice_refs)
+        if missing_deferred:
+            raise ValueError("unimplemented slices require deferred surface rows")
         if set(self.completed_slices) & set(self.unimplemented_slices):
             raise ValueError("completed_slices cannot also be unimplemented")
         if self.canonical_output_hash is not None:
@@ -752,12 +766,12 @@ def emit_family_closeout_alignment(
         completed_slices=(
             completed_slices
             if completed_slices is not None
-            else [row.slice_ref for row in accepted]
+            else sorted({row.slice_ref for row in accepted})
         ),
         unimplemented_slices=(
             unimplemented_slices
             if unimplemented_slices is not None
-            else [row.slice_ref for row in deferred]
+            else sorted({row.slice_ref for row in deferred})
         ),
         accepted_surfaces=accepted,
         deferred_surfaces=deferred,

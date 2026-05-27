@@ -9,7 +9,11 @@ from adeu_transition_broker import (
     AttributionRow,
     ClosureRow,
     DeferredSurfaceRow,
+    InvalidatedArtifactRow,
+    InvalidationReasonRow,
     PhaseArtifactIdentityRow,
+    RepoPhaseStaleObjectInvalidationReport,
+    RepoPhaseTransitionDeltaAttributionLedger,
     RepoTransitionBrokerFamilyCloseoutAlignment,
     RepoTransitionBrokerIntegrationHandoff,
     RunDeltaInput,
@@ -124,6 +128,20 @@ def test_clean_first_pass_label_on_official_pressure_fails_closed() -> None:
         _run_delta(evidence_boundary_posture="clean_first_pass_allowed")
 
 
+def test_clean_ledger_rejects_any_non_clean_attribution_row() -> None:
+    delta = _run_delta(
+        pressure_kind="assertion_failure",
+        evidence_boundary_posture="clean_first_pass_disallowed",
+    )
+
+    with pytest.raises(ValidationError, match="cannot make the ledger clean first-pass"):
+        attribute_transition_delta(
+            [_closure_report()],
+            delta,
+            evidence_boundary_posture="clean_first_pass_allowed",
+        )
+
+
 def test_missing_evidence_boundary_posture_fails_closed() -> None:
     payload = {
         "attribution_ref": "attribution:T03",
@@ -184,6 +202,29 @@ def test_distinct_hash_changes_emit_distinct_invalidation_reasons() -> None:
     ]
 
 
+def test_invalidation_reason_rows_must_match_each_artifact_reason_set() -> None:
+    with pytest.raises(ValidationError, match="match each artifact reason set"):
+        RepoPhaseStaleObjectInvalidationReport(
+            schema="repo_phase_stale_object_invalidation_report@1",
+            stale_object_invalidation_report_ref="invalidation:bad",
+            input_artifact_refs=["artifact:T03"],
+            new_artifact_refs=["artifact:T03"],
+            invalidated_artifact_rows=[
+                InvalidatedArtifactRow(
+                    artifact_ref="artifact:T03",
+                    invalidation_reasons=["object_hash_changed"],
+                )
+            ],
+            invalidation_reason_rows=[
+                InvalidationReasonRow(
+                    invalidation_reason="catalog_hash_changed",
+                    artifact_refs=["artifact:T03"],
+                )
+            ],
+            required_revalidation_frontier=["artifact:T03"],
+        )
+
+
 def test_handoff_cannot_grant_implementation_or_execution_authority() -> None:
     ledger = attribute_transition_delta([_closure_report()], _run_delta())
     invalidation = invalidate_stale_phase_objects(
@@ -206,6 +247,15 @@ def test_family_closeout_cannot_mark_unaccepted_slice_complete() -> None:
             accepted_surfaces=[],
             deferred_surfaces=[],
             completed_slices=["OTB-0-C"],
+        )
+
+
+def test_family_closeout_cannot_mark_undeferred_slice_unimplemented() -> None:
+    with pytest.raises(ValidationError, match="deferred surface"):
+        emit_family_closeout_alignment(
+            accepted_surfaces=[],
+            deferred_surfaces=[],
+            unimplemented_slices=["future-family"],
         )
 
 
@@ -263,7 +313,11 @@ def test_family_closeout_alignment_records_accepted_and_deferred_surfaces() -> N
             AcceptedSurfaceRow(
                 surface_ref="repo_phase_transition_delta_attribution_ledger@1",
                 slice_ref="OTB-0-C",
-            )
+            ),
+            AcceptedSurfaceRow(
+                surface_ref="repo_phase_stale_object_invalidation_report@1",
+                slice_ref="OTB-0-C",
+            ),
         ],
         deferred_surfaces=[
             DeferredSurfaceRow(
@@ -292,4 +346,31 @@ def test_direct_handoff_overlap_validation_fails_closed() -> None:
             forbidden_consumption=["consume_pressure_rows"],
             pressure_rows=[],
             required_revalidation_rows=[],
+        )
+
+
+def test_direct_clean_ledger_validation_rejects_clean_first_pass_disallowed_row() -> None:
+    with pytest.raises(ValidationError, match="cannot make the ledger clean first-pass"):
+        RepoPhaseTransitionDeltaAttributionLedger(
+            schema="repo_phase_transition_delta_attribution_ledger@1",
+            transition_delta_attribution_ledger_ref="ledger:bad",
+            circuit_id="program-reconstruction",
+            circuit_version="v0-test",
+            circuit_hash="sha256:circuit",
+            input_closure_report_refs=["closure:test"],
+            run_delta_ref="run-delta:test",
+            attribution_rows=[
+                AttributionRow(
+                    attribution_ref="attribution:T03",
+                    transition_id="T03",
+                    bridge_field="E_bridge",
+                    pressure_kind="assertion_failure",
+                    pressure_summary="disallowed clean pass",
+                    evidence_boundary_posture="clean_first_pass_disallowed",
+                    run_delta_refs=["run-delta:test"],
+                    confidence_posture="candidate_pressure",
+                    recommended_route="hold_as_pressure_only",
+                )
+            ],
+            evidence_boundary_posture="clean_first_pass_allowed",
         )
