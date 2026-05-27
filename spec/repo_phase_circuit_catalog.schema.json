@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "PhaseRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_input_object_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Input Object Kinds",
+          "type": "array"
+        },
+        "allowed_output_object_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Output Object Kinds",
+          "type": "array"
+        },
+        "authority_layer": {
+          "enum": [
+            "support",
+            "planning",
+            "architecture",
+            "lock",
+            "observed",
+            "post_eval_pressure"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "forbidden_evidence_kinds": {
+          "items": {
+            "enum": [
+              "visible_spec",
+              "public_schema_observation",
+              "reference_behavior_observation",
+              "implementation_observation",
+              "post_eval_pressure",
+              "source_tail",
+              "methodological_equivalence",
+              "support_doctrine"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Evidence Kinds",
+          "type": "array"
+        },
+        "phase_id": {
+          "title": "Phase Id",
+          "type": "string"
+        },
+        "phase_kind": {
+          "enum": [
+            "semantic_descent",
+            "reconciliation",
+            "hob_import",
+            "scout",
+            "probe_planning",
+            "implementation",
+            "local_parity",
+            "packaged_preflight",
+            "official_eval",
+            "post_eval_audit",
+            "manual_review"
+          ],
+          "title": "Phase Kind",
+          "type": "string"
+        },
+        "phase_label": {
+          "title": "Phase Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_id",
+        "phase_label",
+        "phase_kind",
+        "authority_layer"
+      ],
+      "title": "PhaseRow",
+      "type": "object"
+    },
+    "TransitionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "bridge_contract_ref": {
+          "title": "Bridge Contract Ref",
+          "type": "string"
+        },
+        "default_failure_route": {
+          "title": "Default Failure Route",
+          "type": "string"
+        },
+        "from_phase": {
+          "title": "From Phase",
+          "type": "string"
+        },
+        "to_phase": {
+          "title": "To Phase",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        },
+        "transition_kind": {
+          "title": "Transition Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transition_id",
+        "from_phase",
+        "to_phase",
+        "bridge_contract_ref",
+        "transition_kind",
+        "default_failure_route"
+      ],
+      "title": "TransitionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowed_status_vocabulary": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Status Vocabulary",
+      "type": "array"
+    },
+    "circuit_authority": {
+      "enum": [
+        "support",
+        "planning",
+        "architecture",
+        "lock",
+        "observed",
+        "post_eval_pressure"
+      ],
+      "title": "Circuit Authority",
+      "type": "string"
+    },
+    "circuit_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Circuit Hash"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "phase_rows": {
+      "items": {
+        "$ref": "#/$defs/PhaseRow"
+      },
+      "title": "Phase Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_circuit_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "shared_vocabulary_ref": {
+      "title": "Shared Vocabulary Ref",
+      "type": "string"
+    },
+    "transition_rows": {
+      "items": {
+        "$ref": "#/$defs/TransitionRow"
+      },
+      "title": "Transition Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "circuit_id",
+    "circuit_version",
+    "circuit_authority",
+    "phase_rows",
+    "transition_rows",
+    "allowed_status_vocabulary",
+    "shared_vocabulary_ref"
+  ],
+  "title": "RepoPhaseCircuitCatalog",
+  "type": "object"
+}

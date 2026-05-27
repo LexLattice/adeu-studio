@@ -1,0 +1,314 @@
+{
+  "$defs": {
+    "LegalFrontierRow": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "const": "broker_validation_only_not_execution_authority",
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "downgrade_basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Downgrade Basis",
+          "type": "array"
+        },
+        "frontier_reason": {
+          "enum": [
+            "missing_object",
+            "forbidden_evidence",
+            "stale_artifact",
+            "silent_obligation_drop",
+            "illegal_promotion",
+            "blocked_equivalence",
+            "missing_warrant",
+            "conflict_isolated",
+            "posture_downgrade_required"
+          ],
+          "title": "Frontier Reason",
+          "type": "string"
+        },
+        "frontier_ref": {
+          "title": "Frontier Ref",
+          "type": "string"
+        },
+        "maximum_supported_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Supported Posture"
+        },
+        "requested_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Posture"
+        },
+        "required_next_action": {
+          "enum": [
+            "produce_object",
+            "remove_forbidden_evidence",
+            "refresh_artifact",
+            "discharge_or_defer_obligation",
+            "downgrade_promotion",
+            "run_equivalence_preflight",
+            "route_to_human_review"
+          ],
+          "title": "Required Next Action",
+          "type": "string"
+        },
+        "required_revalidation_frontier": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Revalidation Frontier",
+          "type": "array"
+        },
+        "source_diagnostic_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Diagnostic Refs",
+          "type": "array"
+        },
+        "target_phase_constraint": {
+          "title": "Target Phase Constraint",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "frontier_ref",
+        "transition_id",
+        "frontier_reason",
+        "required_next_action",
+        "authority_posture",
+        "target_phase_constraint"
+      ],
+      "title": "LegalFrontierRow",
+      "type": "object"
+    },
+    "TransitionDiagnosticRow": {
+      "additionalProperties": false,
+      "properties": {
+        "bridge_field": {
+          "enum": [
+            "O_bridge",
+            "E_bridge",
+            "D_bridge",
+            "U_bridge",
+            "claim",
+            "catalog"
+          ],
+          "title": "Bridge Field",
+          "type": "string"
+        },
+        "diagnostic_code": {
+          "title": "Diagnostic Code",
+          "type": "string"
+        },
+        "diagnostic_ref": {
+          "title": "Diagnostic Ref",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "object_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Object Refs",
+          "type": "array"
+        },
+        "required_action": {
+          "enum": [
+            "produce_object",
+            "remove_forbidden_evidence",
+            "refresh_artifact",
+            "discharge_or_defer_obligation",
+            "downgrade_promotion",
+            "run_equivalence_preflight",
+            "route_to_human_review"
+          ],
+          "title": "Required Action",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "diagnostic_ref",
+        "severity",
+        "diagnostic_code",
+        "bridge_field",
+        "message",
+        "required_action"
+      ],
+      "title": "TransitionDiagnosticRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bridge_completeness_status": {
+      "enum": [
+        "complete",
+        "missing_required_object",
+        "missing_required_evidence",
+        "missing_obligation_transfer",
+        "missing_equivalence",
+        "missing_warrant",
+        "missing_deferral_risk"
+      ],
+      "title": "Bridge Completeness Status",
+      "type": "string"
+    },
+    "bridge_consistency_status": {
+      "enum": [
+        "consistent",
+        "inconsistent",
+        "unknown_vocabulary",
+        "hash_mismatch"
+      ],
+      "title": "Bridge Consistency Status",
+      "type": "string"
+    },
+    "bridge_contract_ref": {
+      "title": "Bridge Contract Ref",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "circuit_hash": {
+      "title": "Circuit Hash",
+      "type": "string"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "diagnostic_rows": {
+      "items": {
+        "$ref": "#/$defs/TransitionDiagnosticRow"
+      },
+      "title": "Diagnostic Rows",
+      "type": "array"
+    },
+    "frontier_rows": {
+      "items": {
+        "$ref": "#/$defs/LegalFrontierRow"
+      },
+      "title": "Frontier Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_phase_transition_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "transition_claim_ref": {
+      "title": "Transition Claim Ref",
+      "type": "string"
+    },
+    "transition_id": {
+      "title": "Transition Id",
+      "type": "string"
+    },
+    "transition_validation_report_ref": {
+      "title": "Transition Validation Report Ref",
+      "type": "string"
+    },
+    "validation_status": {
+      "enum": [
+        "valid_for_broker_frontier",
+        "blocked",
+        "invalid",
+        "stale",
+        "conflict_isolated"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_validation_report_ref",
+    "circuit_id",
+    "circuit_version",
+    "circuit_hash",
+    "transition_id",
+    "bridge_contract_ref",
+    "transition_claim_ref",
+    "validation_status",
+    "bridge_consistency_status",
+    "bridge_completeness_status",
+    "diagnostic_rows",
+    "frontier_rows"
+  ],
+  "title": "RepoPhaseTransitionValidationReport",
+  "type": "object"
+}

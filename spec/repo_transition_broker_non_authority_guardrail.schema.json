@@ -1,0 +1,98 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "closure_planning_posture": {
+      "const": "deferred_to_otb_0b",
+      "title": "Closure Planning Posture",
+      "type": "string"
+    },
+    "delta_attribution_posture": {
+      "const": "deferred_to_otb_0c",
+      "title": "Delta Attribution Posture",
+      "type": "string"
+    },
+    "domain_ontology_authority_posture": {
+      "const": "no_domain_ontology_authority",
+      "title": "Domain Ontology Authority Posture",
+      "type": "string"
+    },
+    "future_family_selection_posture": {
+      "const": "no_future_family_selection_authority",
+      "title": "Future Family Selection Posture",
+      "type": "string"
+    },
+    "hob_closure_authority_posture": {
+      "const": "no_hob_closure_authority",
+      "title": "Hob Closure Authority Posture",
+      "type": "string"
+    },
+    "implementation_authority_posture": {
+      "const": "no_implementation_authority",
+      "title": "Implementation Authority Posture",
+      "type": "string"
+    },
+    "official_eval_authority_posture": {
+      "const": "no_official_eval_authority",
+      "title": "Official Eval Authority Posture",
+      "type": "string"
+    },
+    "probe_execution_authority_posture": {
+      "const": "no_probe_execution_authority",
+      "title": "Probe Execution Authority Posture",
+      "type": "string"
+    },
+    "probe_generation_authority_posture": {
+      "const": "no_probe_generation_authority",
+      "title": "Probe Generation Authority Posture",
+      "type": "string"
+    },
+    "product_authority_posture": {
+      "const": "no_product_authority",
+      "title": "Product Authority Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_transition_broker_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_authority_posture": {
+      "const": "no_semantic_judgment_authority",
+      "title": "Semantic Authority Posture",
+      "type": "string"
+    },
+    "slice_scope_posture": {
+      "const": "otb_0a_structural_transition_validation_only",
+      "title": "Slice Scope Posture",
+      "type": "string"
+    },
+    "transition_broker_non_authority_guardrail_ref": {
+      "title": "Transition Broker Non Authority Guardrail Ref",
+      "type": "string"
+    },
+    "worker_dispatch_authority_posture": {
+      "const": "no_worker_dispatch_authority",
+      "title": "Worker Dispatch Authority Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_broker_non_authority_guardrail_ref",
+    "semantic_authority_posture",
+    "domain_ontology_authority_posture",
+    "hob_closure_authority_posture",
+    "probe_generation_authority_posture",
+    "probe_execution_authority_posture",
+    "implementation_authority_posture",
+    "worker_dispatch_authority_posture",
+    "product_authority_posture",
+    "official_eval_authority_posture",
+    "future_family_selection_posture",
+    "slice_scope_posture",
+    "closure_planning_posture",
+    "delta_attribution_posture"
+  ],
+  "title": "RepoTransitionBrokerNonAuthorityGuardrail",
+  "type": "object"
+}

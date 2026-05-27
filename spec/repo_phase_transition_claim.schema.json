@@ -1,0 +1,161 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Refs",
+      "type": "array"
+    },
+    "circuit_hash": {
+      "title": "Circuit Hash",
+      "type": "string"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "claim_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claim Hash"
+    },
+    "claim_source": {
+      "enum": [
+        "orchestrator",
+        "worker_closeout",
+        "planner",
+        "broker_output",
+        "manual_review"
+      ],
+      "title": "Claim Source",
+      "type": "string"
+    },
+    "claimed_evidence_posture": {
+      "enum": [
+        "clean_first_pass_allowed",
+        "clean_first_pass_disallowed",
+        "post_eval_pressure_only",
+        "source_postmortem_pressure",
+        "official_like_pressure",
+        "local_locked_probe_delta"
+      ],
+      "title": "Claimed Evidence Posture",
+      "type": "string"
+    },
+    "claimed_promotion": {
+      "default": "none",
+      "enum": [
+        "none",
+        "representative_to_scoped",
+        "scoped_to_gold",
+        "scoped_to_official",
+        "official_eval_handoff"
+      ],
+      "title": "Claimed Promotion",
+      "type": "string"
+    },
+    "claimed_readiness_posture": {
+      "enum": [
+        "not_ready",
+        "representative_only",
+        "scoped_method_test_only",
+        "scoped_ready",
+        "gold_ready",
+        "official_ready_candidate",
+        "official_ready"
+      ],
+      "title": "Claimed Readiness Posture",
+      "type": "string"
+    },
+    "claimed_transition_kind": {
+      "title": "Claimed Transition Kind",
+      "type": "string"
+    },
+    "claiming_actor_ref": {
+      "title": "Claiming Actor Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "from_phase": {
+      "title": "From Phase",
+      "type": "string"
+    },
+    "intended_use": {
+      "title": "Intended Use",
+      "type": "string"
+    },
+    "obligation_transfer_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Obligation Transfer Refs",
+      "type": "array"
+    },
+    "requested_next_frontier": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested Next Frontier"
+    },
+    "schema": {
+      "const": "repo_phase_transition_claim@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "to_phase": {
+      "title": "To Phase",
+      "type": "string"
+    },
+    "transition_claim_ref": {
+      "title": "Transition Claim Ref",
+      "type": "string"
+    },
+    "transition_id": {
+      "title": "Transition Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "transition_claim_ref",
+    "claiming_actor_ref",
+    "claim_source",
+    "circuit_id",
+    "circuit_version",
+    "circuit_hash",
+    "from_phase",
+    "to_phase",
+    "transition_id",
+    "claimed_transition_kind",
+    "claimed_readiness_posture",
+    "claimed_evidence_posture",
+    "intended_use"
+  ],
+  "title": "RepoPhaseTransitionClaim",
+  "type": "object"
+}

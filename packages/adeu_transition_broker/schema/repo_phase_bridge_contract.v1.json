@@ -1,0 +1,413 @@
+{
+  "$defs": {
+    "DBridge": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden_silent_drops": {
+          "default": true,
+          "title": "Forbidden Silent Drops",
+          "type": "boolean"
+        },
+        "obligations_blocked_or_deferred": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligations Blocked Or Deferred",
+          "type": "array"
+        },
+        "obligations_created": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligations Created",
+          "type": "array"
+        },
+        "obligations_discharged": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligations Discharged",
+          "type": "array"
+        },
+        "obligations_preserved": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Obligations Preserved",
+          "type": "array"
+        }
+      },
+      "title": "DBridge",
+      "type": "object"
+    },
+    "EBridge": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_boundary_rules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Boundary Rules",
+          "type": "array"
+        },
+        "forbidden_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Forbidden Evidence",
+          "type": "array"
+        },
+        "required_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Evidence",
+          "type": "array"
+        },
+        "warrant_requirements": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warrant Requirements",
+          "type": "array"
+        }
+      },
+      "title": "EBridge",
+      "type": "object"
+    },
+    "OBridge": {
+      "additionalProperties": false,
+      "properties": {
+        "object_identity_checks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Object Identity Checks",
+          "type": "array"
+        },
+        "required_artifact_hash_checks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Artifact Hash Checks",
+          "type": "array"
+        },
+        "required_objects": {
+          "items": {
+            "$ref": "#/$defs/RequiredObjectRow"
+          },
+          "title": "Required Objects",
+          "type": "array"
+        },
+        "stale_object_checks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stale Object Checks",
+          "type": "array"
+        },
+        "transformation_claims": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Transformation Claims",
+          "type": "array"
+        }
+      },
+      "title": "OBridge",
+      "type": "object"
+    },
+    "RequiredObjectRow": {
+      "additionalProperties": false,
+      "properties": {
+        "object_kind": {
+          "title": "Object Kind",
+          "type": "string"
+        },
+        "required_artifact_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Artifact Ref"
+        },
+        "required_authority_layer": {
+          "anyOf": [
+            {
+              "enum": [
+                "support",
+                "planning",
+                "architecture",
+                "lock",
+                "observed",
+                "post_eval_pressure"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Authority Layer"
+        },
+        "required_canonical_payload_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Canonical Payload Hash"
+        },
+        "required_evidence_boundary_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Evidence Boundary Hash"
+        },
+        "required_file_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required File Hash"
+        },
+        "required_freshness_basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Freshness Basis",
+          "type": "array"
+        },
+        "required_object_identity_claim": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Object Identity Claim"
+        },
+        "required_obligation_set_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Obligation Set Hash"
+        },
+        "required_semantic_object_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Semantic Object Hash"
+        },
+        "required_source_phase": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Source Phase"
+        }
+      },
+      "required": [
+        "object_kind"
+      ],
+      "title": "RequiredObjectRow",
+      "type": "object"
+    },
+    "UBridge": {
+      "additionalProperties": false,
+      "properties": {
+        "failure_routes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Routes",
+          "type": "array"
+        },
+        "forbidden_promotions": {
+          "items": {
+            "enum": [
+              "none",
+              "representative_to_scoped",
+              "scoped_to_gold",
+              "scoped_to_official",
+              "official_eval_handoff"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Promotions",
+          "type": "array"
+        },
+        "maximum_supported_posture": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_ready",
+                "representative_only",
+                "scoped_method_test_only",
+                "scoped_ready",
+                "gold_ready",
+                "official_ready_candidate",
+                "official_ready"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Supported Posture"
+        },
+        "next_allowed_phases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Next Allowed Phases",
+          "type": "array"
+        },
+        "purpose": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Purpose",
+          "type": "array"
+        },
+        "supported_readiness_postures": {
+          "items": {
+            "enum": [
+              "not_ready",
+              "representative_only",
+              "scoped_method_test_only",
+              "scoped_ready",
+              "gold_ready",
+              "official_ready_candidate",
+              "official_ready"
+            ],
+            "type": "string"
+          },
+          "title": "Supported Readiness Postures",
+          "type": "array"
+        }
+      },
+      "title": "UBridge",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "D_bridge": {
+      "$ref": "#/$defs/DBridge"
+    },
+    "E_bridge": {
+      "$ref": "#/$defs/EBridge"
+    },
+    "O_bridge": {
+      "$ref": "#/$defs/OBridge"
+    },
+    "U_bridge": {
+      "$ref": "#/$defs/UBridge"
+    },
+    "bridge_contract_ref": {
+      "title": "Bridge Contract Ref",
+      "type": "string"
+    },
+    "bridge_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bridge Hash"
+    },
+    "circuit_hash": {
+      "title": "Circuit Hash",
+      "type": "string"
+    },
+    "circuit_id": {
+      "title": "Circuit Id",
+      "type": "string"
+    },
+    "circuit_version": {
+      "title": "Circuit Version",
+      "type": "string"
+    },
+    "from_phase": {
+      "title": "From Phase",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_phase_bridge_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "to_phase": {
+      "title": "To Phase",
+      "type": "string"
+    },
+    "transition_id": {
+      "title": "Transition Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "bridge_contract_ref",
+    "circuit_id",
+    "circuit_version",
+    "circuit_hash",
+    "transition_id",
+    "from_phase",
+    "to_phase",
+    "O_bridge",
+    "E_bridge",
+    "D_bridge",
+    "U_bridge"
+  ],
+  "title": "RepoPhaseBridgeContract",
+  "type": "object"
+}
