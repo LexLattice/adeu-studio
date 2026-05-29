@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "ManifestScope": {
+      "additionalProperties": false,
+      "properties": {
+        "bounded_claim": {
+          "title": "Bounded Claim",
+          "type": "string"
+        },
+        "certificate_use_allowed": {
+          "default": false,
+          "title": "Certificate Use Allowed",
+          "type": "boolean"
+        },
+        "promotion_use_allowed": {
+          "default": false,
+          "title": "Promotion Use Allowed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "bounded_claim"
+      ],
+      "title": "ManifestScope",
+      "type": "object"
+    },
+    "OwnerSurfaceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "coverage_posture": {
+          "title": "Coverage Posture",
+          "type": "string"
+        },
+        "local_extension_posture": {
+          "default": "none",
+          "enum": [
+            "none",
+            "declared_local_extension"
+          ],
+          "title": "Local Extension Posture",
+          "type": "string"
+        },
+        "owner_surface": {
+          "title": "Owner Surface",
+          "type": "string"
+        },
+        "patch_risk_kind": {
+          "enum": [
+            "control_plane_parser",
+            "public_schema_mode_dispatch",
+            "resource_route_topology",
+            "input_dialect_reader",
+            "transform_or_embedded_language",
+            "state_lifecycle_mutation",
+            "subject_identity_binding",
+            "output_router_renderer",
+            "diagnostic_exit_channel",
+            "runtime_substrate_dependency",
+            "side_effect_workspace",
+            "config_policy_activation",
+            "generic_fallback_or_default_behavior",
+            "other"
+          ],
+          "title": "Patch Risk Kind",
+          "type": "string"
+        },
+        "protected_sibling_probe_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Protected Sibling Probe Refs",
+          "type": "array"
+        },
+        "required_when_touched": {
+          "default": true,
+          "title": "Required When Touched",
+          "type": "boolean"
+        },
+        "taxonomy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taxonomy Ref"
+        }
+      },
+      "required": [
+        "owner_surface",
+        "patch_risk_kind",
+        "coverage_posture"
+      ],
+      "title": "OwnerSurfaceRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_artifact_kind": {
+      "title": "Candidate Artifact Kind",
+      "type": "string"
+    },
+    "canonicalization_profile_hash": {
+      "title": "Canonicalization Profile Hash",
+      "type": "string"
+    },
+    "canonicalization_profile_ref": {
+      "title": "Canonicalization Profile Ref",
+      "type": "string"
+    },
+    "execution_environment_hash": {
+      "title": "Execution Environment Hash",
+      "type": "string"
+    },
+    "execution_environment_ref": {
+      "title": "Execution Environment Ref",
+      "type": "string"
+    },
+    "expected_observation_hash_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Observation Hash Refs",
+      "type": "array"
+    },
+    "manifest_authority_layer": {
+      "enum": [
+        "support",
+        "planning",
+        "architecture",
+        "lock",
+        "observed"
+      ],
+      "title": "Manifest Authority Layer",
+      "type": "string"
+    },
+    "manifest_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Manifest Hash"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "manifest_lifecycle_state": {
+      "enum": [
+        "draft",
+        "proposed",
+        "locked",
+        "released",
+        "stale",
+        "superseded",
+        "invalid"
+      ],
+      "title": "Manifest Lifecycle State",
+      "type": "string"
+    },
+    "manifest_scope": {
+      "$ref": "#/$defs/ManifestScope"
+    },
+    "manifest_version": {
+      "title": "Manifest Version",
+      "type": "string"
+    },
+    "manifest_visibility_posture": {
+      "enum": [
+        "implementation_visible_regression",
+        "checker_only_sealed",
+        "orchestrator_only",
+        "public_reference_matrix",
+        "source_tail_matrix"
+      ],
+      "title": "Manifest Visibility Posture",
+      "type": "string"
+    },
+    "owner_surface_map_hash": {
+      "title": "Owner Surface Map Hash",
+      "type": "string"
+    },
+    "owner_surface_map_ref": {
+      "title": "Owner Surface Map Ref",
+      "type": "string"
+    },
+    "owner_surface_rows": {
+      "items": {
+        "$ref": "#/$defs/OwnerSurfaceRow"
+      },
+      "title": "Owner Surface Rows",
+      "type": "array"
+    },
+    "owner_surface_taxonomy_version": {
+      "title": "Owner Surface Taxonomy Version",
+      "type": "string"
+    },
+    "probe_contract_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Probe Contract Refs",
+      "type": "array"
+    },
+    "product_ref": {
+      "title": "Product Ref",
+      "type": "string"
+    },
+    "protected_owner_surfaces": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Protected Owner Surfaces",
+      "type": "array"
+    },
+    "raw_material_storage_policy_ref": {
+      "title": "Raw Material Storage Policy Ref",
+      "type": "string"
+    },
+    "redaction_profile_ref": {
+      "title": "Redaction Profile Ref",
+      "type": "string"
+    },
+    "safe_rendering_policy_ref": {
+      "title": "Safe Rendering Policy Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_replay_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensitive_material_policy_ref": {
+      "title": "Sensitive Material Policy Ref",
+      "type": "string"
+    },
+    "suite_root_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Suite Root Hash"
+    }
+  },
+  "required": [
+    "schema",
+    "manifest_id",
+    "manifest_version",
+    "manifest_authority_layer",
+    "manifest_lifecycle_state",
+    "manifest_visibility_posture",
+    "manifest_scope",
+    "product_ref",
+    "candidate_artifact_kind",
+    "protected_owner_surfaces",
+    "owner_surface_rows",
+    "owner_surface_map_ref",
+    "owner_surface_map_hash",
+    "owner_surface_taxonomy_version",
+    "canonicalization_profile_ref",
+    "canonicalization_profile_hash",
+    "execution_environment_ref",
+    "execution_environment_hash",
+    "sensitive_material_policy_ref",
+    "safe_rendering_policy_ref",
+    "raw_material_storage_policy_ref",
+    "redaction_profile_ref",
+    "probe_contract_refs",
+    "expected_observation_hash_refs"
+  ],
+  "title": "RepoBehavioralReplayManifest",
+  "type": "object"
+}

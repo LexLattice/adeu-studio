@@ -1,0 +1,118 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "candidate_comparison_authority_granted": {
+      "title": "Candidate Comparison Authority Granted",
+      "type": "boolean"
+    },
+    "candidate_replay_execution_authority_granted": {
+      "title": "Candidate Replay Execution Authority Granted",
+      "type": "boolean"
+    },
+    "certificate_posture": {
+      "const": "deferred_to_brl_0c",
+      "title": "Certificate Posture",
+      "type": "string"
+    },
+    "domain_ontology_authority_granted": {
+      "title": "Domain Ontology Authority Granted",
+      "type": "boolean"
+    },
+    "future_family_selection_granted": {
+      "title": "Future Family Selection Granted",
+      "type": "boolean"
+    },
+    "guardrail_ref": {
+      "title": "Guardrail Ref",
+      "type": "string"
+    },
+    "hob_closure_authority_granted": {
+      "title": "Hob Closure Authority Granted",
+      "type": "boolean"
+    },
+    "impact_cone_selection_authority_granted": {
+      "title": "Impact Cone Selection Authority Granted",
+      "type": "boolean"
+    },
+    "implementation_authority_granted": {
+      "title": "Implementation Authority Granted",
+      "type": "boolean"
+    },
+    "no_regression_certificate_authority_granted": {
+      "title": "No Regression Certificate Authority Granted",
+      "type": "boolean"
+    },
+    "observation_capture_authority_granted": {
+      "title": "Observation Capture Authority Granted",
+      "type": "boolean"
+    },
+    "official_eval_authority_granted": {
+      "title": "Official Eval Authority Granted",
+      "type": "boolean"
+    },
+    "otb_transition_authority_granted": {
+      "title": "Otb Transition Authority Granted",
+      "type": "boolean"
+    },
+    "probe_execution_authority_granted": {
+      "title": "Probe Execution Authority Granted",
+      "type": "boolean"
+    },
+    "probe_generation_authority_granted": {
+      "title": "Probe Generation Authority Granted",
+      "type": "boolean"
+    },
+    "product_authority_granted": {
+      "title": "Product Authority Granted",
+      "type": "boolean"
+    },
+    "replay_execution_posture": {
+      "const": "deferred_to_brl_0b",
+      "title": "Replay Execution Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_replay_lock_non_authority_guardrail@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_authority_granted": {
+      "title": "Semantic Authority Granted",
+      "type": "boolean"
+    },
+    "slice_scope_posture": {
+      "const": "brl_0a_manifest_validation_only",
+      "title": "Slice Scope Posture",
+      "type": "string"
+    },
+    "worker_dispatch_authority_granted": {
+      "title": "Worker Dispatch Authority Granted",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema",
+    "guardrail_ref",
+    "semantic_authority_granted",
+    "domain_ontology_authority_granted",
+    "hob_closure_authority_granted",
+    "otb_transition_authority_granted",
+    "probe_generation_authority_granted",
+    "probe_execution_authority_granted",
+    "candidate_replay_execution_authority_granted",
+    "observation_capture_authority_granted",
+    "candidate_comparison_authority_granted",
+    "impact_cone_selection_authority_granted",
+    "no_regression_certificate_authority_granted",
+    "implementation_authority_granted",
+    "worker_dispatch_authority_granted",
+    "product_authority_granted",
+    "official_eval_authority_granted",
+    "future_family_selection_granted",
+    "slice_scope_posture",
+    "replay_execution_posture",
+    "certificate_posture"
+  ],
+  "title": "RepoBehavioralReplayLockNonAuthorityGuardrail",
+  "type": "object"
+}

@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "ManifestValidationDiagnosticRow": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostic_code": {
+          "enum": [
+            "missing_required_field",
+            "duplicate_probe_id",
+            "missing_expected_observation_hash",
+            "unknown_canonicalization_profile",
+            "empty_protected_surface_set",
+            "missing_file_tree_fixture_hash",
+            "suite_root_hash_mismatch",
+            "manifest_hash_mismatch",
+            "missing_owner_sentinel",
+            "missing_expected_observation_provenance",
+            "missing_execution_environment",
+            "protected_ignored_surface_conflict",
+            "forbidden_canonicalization",
+            "missing_mutation_policy",
+            "unsafe_sensitive_material",
+            "lifecycle_promotion_forbidden",
+            "unknown_owner_surface",
+            "guardrail_authority_violation",
+            "missing_probe_contract"
+          ],
+          "title": "Diagnostic Code",
+          "type": "string"
+        },
+        "diagnostic_ref": {
+          "title": "Diagnostic Ref",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "object_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Object Refs",
+          "type": "array"
+        },
+        "probe_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Probe Refs",
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "diagnostic_ref",
+        "severity",
+        "diagnostic_code",
+        "message"
+      ],
+      "title": "ManifestValidationDiagnosticRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "diagnostic_rows": {
+      "items": {
+        "$ref": "#/$defs/ManifestValidationDiagnosticRow"
+      },
+      "title": "Diagnostic Rows",
+      "type": "array"
+    },
+    "manifest_hash": {
+      "title": "Manifest Hash",
+      "type": "string"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_replay_manifest_validation_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "validation_report_ref": {
+      "title": "Validation Report Ref",
+      "type": "string"
+    },
+    "validation_status": {
+      "enum": [
+        "valid_for_manifest_lock",
+        "invalid",
+        "blocked"
+      ],
+      "title": "Validation Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "validation_report_ref",
+    "manifest_id",
+    "manifest_hash",
+    "validation_status",
+    "diagnostic_rows"
+  ],
+  "title": "RepoBehavioralReplayManifestValidationReport",
+  "type": "object"
+}

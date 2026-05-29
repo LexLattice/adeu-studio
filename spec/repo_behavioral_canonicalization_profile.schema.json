@@ -1,0 +1,175 @@
+{
+  "$defs": {
+    "CanonicalizationRuleRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applies_to_surfaces": {
+          "items": {
+            "enum": [
+              "exit_code",
+              "stdout",
+              "stderr",
+              "output_file_tree",
+              "process_state",
+              "timeout_status"
+            ],
+            "type": "string"
+          },
+          "title": "Applies To Surfaces",
+          "type": "array"
+        },
+        "protected_surface_effect": {
+          "enum": [
+            "preserves_protected_signal",
+            "ignores_unprotected_noise",
+            "hides_protected_change"
+          ],
+          "title": "Protected Surface Effect",
+          "type": "string"
+        },
+        "rule_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Hash"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "rule_kind": {
+          "enum": [
+            "text_replace",
+            "json_sort_keys",
+            "xml_sort_attributes",
+            "path_prefix_replace",
+            "ordering_sort_rows",
+            "file_tree_hash",
+            "process_state_projection",
+            "timing_bucket"
+          ],
+          "title": "Rule Kind",
+          "type": "string"
+        },
+        "scope": {
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "rule_kind",
+        "applies_to_surfaces",
+        "scope",
+        "protected_surface_effect"
+      ],
+      "title": "CanonicalizationRuleRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonicalization_profile_ref": {
+      "title": "Canonicalization Profile Ref",
+      "type": "string"
+    },
+    "file_tree_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "File Tree Rules",
+      "type": "array"
+    },
+    "forbidden_normalizations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Normalizations",
+      "type": "array"
+    },
+    "ordering_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ordering Rules",
+      "type": "array"
+    },
+    "path_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Path Rules",
+      "type": "array"
+    },
+    "process_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Process Rules",
+      "type": "array"
+    },
+    "profile_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Profile Hash"
+    },
+    "profile_version": {
+      "title": "Profile Version",
+      "type": "string"
+    },
+    "rule_rows": {
+      "items": {
+        "$ref": "#/$defs/CanonicalizationRuleRow"
+      },
+      "title": "Rule Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_canonicalization_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "structured_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Structured Rules",
+      "type": "array"
+    },
+    "text_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Text Rules",
+      "type": "array"
+    },
+    "timing_rules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Timing Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "canonicalization_profile_ref",
+    "profile_version",
+    "rule_rows"
+  ],
+  "title": "RepoBehavioralCanonicalizationProfile",
+  "type": "object"
+}
