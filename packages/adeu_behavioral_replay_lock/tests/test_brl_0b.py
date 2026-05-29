@@ -195,6 +195,23 @@ def _expected_observation(
     return RepoBehavioralObservationHash.model_validate(hashed)
 
 
+def _rehash_observation(
+    observation: RepoBehavioralObservationHash,
+    **updates: object,
+) -> RepoBehavioralObservationHash:
+    payload = observation.model_dump(mode="json", exclude_none=True)
+    payload.update(updates)
+    payload.pop("canonical_observation_hash", None)
+    observation_without_hash = RepoBehavioralObservationHash.model_validate(payload)
+    hashed = observation_without_hash.model_dump(mode="json", exclude_none=True)
+    hashed["canonical_observation_hash"] = canonical_hash(
+        observation_without_hash,
+        object_kind="repo_behavioral_observation_hash",
+        drop_keys={"canonical_observation_hash"},
+    )
+    return RepoBehavioralObservationHash.model_validate(hashed)
+
+
 def _manifest(
     *,
     profile: RepoBehavioralCanonicalizationProfile,
@@ -426,6 +443,34 @@ def test_stale_probe_contract_hash_blocks_replay(tmp_path: Path) -> None:
     assert diffs[0].diff_status == "blocked_by_manifest_validation"
 
 
+def test_expected_observation_must_belong_to_referenced_probe(tmp_path: Path) -> None:
+    profile, probe, observation, _manifest_obj, _report = _valid_bundle(tmp_path)
+    wrong_observation = _rehash_observation(observation, probe_id="probe:other")
+    manifest = _manifest(profile=profile, probes=[probe], observations=[wrong_observation])
+    stale_valid_report = RepoBehavioralReplayManifestValidationReport(
+        schema="repo_behavioral_replay_manifest_validation_report@1",
+        validation_report_ref="report:stale-valid",
+        manifest_id=manifest.manifest_id,
+        manifest_hash=manifest.manifest_hash,
+        validation_status="valid_for_manifest_lock",
+        diagnostic_rows=[],
+    )
+    execution, _records, diffs, _suite = replay_manifest(
+        manifest=manifest,
+        manifest_validation_report=stale_valid_report,
+        probe_contracts=[probe],
+        canonicalization_profile=profile,
+        expected_observation_hashes=[wrong_observation],
+        candidate_artifact_ref="candidate:test",
+        candidate_artifact_hash=_hash("candidate"),
+        cwd_map={"cwd:test": tmp_path},
+        timeout_seconds_by_ref={"timeout:short": 2},
+        env_base={},
+    )
+    assert execution.execution_status == "blocked_by_manifest_validation"
+    assert diffs[0].diff_status == "blocked_by_manifest_validation"
+
+
 def test_stale_canonicalization_profile_hash_blocks_replay(tmp_path: Path) -> None:
     profile, probe, observation, manifest, report = _valid_bundle(tmp_path)
     changed_profile = _profile(
@@ -541,6 +586,29 @@ def test_changed_exit_code_emits_structured_diff(tmp_path: Path) -> None:
     assert diffs[0].changed_surfaces == ["exit_code"]
 
 
+def test_stale_fixture_tree_before_blocks_without_running(tmp_path: Path) -> None:
+    code = (
+        "from pathlib import Path; import sys; "
+        "Path('ran.txt').write_text('ran'); "
+        "sys.stdout.write('ok'); sys.stderr.write('warn')"
+    )
+    profile, probe, observation, manifest, report = _valid_bundle(tmp_path, argv_code=code)
+    (tmp_path / "stale.txt").write_text("stale")
+    execution, records, diffs, suite = _run(
+        tmp_path,
+        profile=profile,
+        probe=probe,
+        observation=observation,
+        manifest=manifest,
+        validation_report=report,
+    )
+    assert execution.execution_status == "capture_failed"
+    assert records[0].raw_exit_code is None
+    assert diffs[0].diff_status == "capture_failed"
+    assert suite.suite_root_status == "capture_failed"
+    assert not (tmp_path / "ran.txt").exists()
+
+
 def test_changed_file_tree_hash_emits_structured_diff(tmp_path: Path) -> None:
     code = (
         "from pathlib import Path; import sys; "
@@ -563,7 +631,78 @@ def test_changed_file_tree_hash_emits_structured_diff(tmp_path: Path) -> None:
         manifest=manifest,
         validation_report=report,
     )
+    assert _execution.probe_execution_rows[0].execution_status == "completed"
     assert diffs[0].changed_surfaces == ["output_files"]
+
+
+def test_workspace_write_allowlist_rejects_unlisted_change(tmp_path: Path) -> None:
+    code = (
+        "from pathlib import Path; import sys; "
+        "Path('created.txt').write_text('x'); "
+        "Path('unexpected.txt').write_text('x'); "
+        "sys.stdout.write('ok'); sys.stderr.write('warn')"
+    )
+    profile, probe, observation, manifest, report = _valid_bundle(
+        tmp_path,
+        argv_code=code,
+        probe_overrides={
+            "fixture_tree_protection_kind": "workspace_mutation_allowed",
+            "workspace_write_allowlist": ["created.txt"],
+        },
+    )
+    execution, _records, diffs, suite = _run(
+        tmp_path,
+        profile=profile,
+        probe=probe,
+        observation=observation,
+        manifest=manifest,
+        validation_report=report,
+    )
+    assert execution.probe_execution_rows[0].execution_status == "fixture_mutation_forbidden"
+    assert diffs[0].diff_status == "capture_failed"
+    assert suite.suite_root_status == "capture_failed"
+
+
+def test_missing_cwd_directory_fails_closed(tmp_path: Path) -> None:
+    profile, probe, observation, manifest, report = _valid_bundle(tmp_path)
+    execution, records, diffs, suite = replay_manifest(
+        manifest=manifest,
+        manifest_validation_report=report,
+        probe_contracts=[probe],
+        canonicalization_profile=profile,
+        expected_observation_hashes=[observation],
+        candidate_artifact_ref="candidate:test",
+        candidate_artifact_hash=_hash("candidate"),
+        cwd_map={"cwd:test": tmp_path / "missing"},
+        timeout_seconds_by_ref={"timeout:short": 2},
+        env_base={},
+    )
+    assert execution.execution_status == "capture_failed"
+    assert records[0].raw_exit_code is None
+    assert diffs[0].diff_status == "capture_failed"
+    assert suite.suite_root_status == "capture_failed"
+
+
+def test_post_execution_missing_cwd_fails_closed(tmp_path: Path) -> None:
+    workdir = tmp_path / "cwd"
+    workdir.mkdir()
+    code = (
+        "import shutil, sys; "
+        "sys.stdout.write('ok'); sys.stderr.write('warn'); "
+        f"shutil.rmtree({str(workdir)!r})"
+    )
+    profile, probe, observation, manifest, report = _valid_bundle(workdir, argv_code=code)
+    execution, _records, diffs, suite = _run(
+        workdir,
+        profile=profile,
+        probe=probe,
+        observation=observation,
+        manifest=manifest,
+        validation_report=report,
+    )
+    assert execution.execution_status == "capture_failed"
+    assert diffs[0].diff_status == "capture_failed"
+    assert suite.suite_root_status == "capture_failed"
 
 
 def test_timeout_is_reported_without_updating_expected_hashes(tmp_path: Path) -> None:

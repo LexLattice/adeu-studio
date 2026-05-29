@@ -103,7 +103,7 @@ def hash_text(payload: str, *, domain: str) -> str:
     return hash_bytes(payload.encode("utf-8"), domain=domain)
 
 
-def hash_file_tree(root: Path) -> str:
+def _file_tree_snapshot(root: Path) -> tuple[str, dict[str, str]]:
     if not root.is_dir():
         raise ValueError(f"file tree root is not a directory: {root}")
     rows: list[dict[str, str]] = []
@@ -115,10 +115,16 @@ def hash_file_tree(root: Path) -> str:
                 "sha256": hash_bytes(path.read_bytes(), domain="file_tree:file"),
             }
         )
-    return canonical_hash(
+    tree_hash = canonical_hash(
         {"schema": "repo_behavioral_file_tree_hash@1", "rows": rows},
         object_kind="repo_behavioral_file_tree_hash",
     )
+    return tree_hash, {row["path"]: row["sha256"] for row in rows}
+
+
+def hash_file_tree(root: Path) -> str:
+    tree_hash, _snapshot = _file_tree_snapshot(root)
+    return tree_hash
 
 
 class ProbeExecutionRow(_BrlBBase):
@@ -593,6 +599,57 @@ def _capture_failure_record(
     )
 
 
+def _capture_failed_probe_row(
+    *,
+    probe: RepoBehavioralProbeContract,
+    profile: RepoBehavioralCanonicalizationProfile,
+    fixture_tree_hash_before: str | None = None,
+    timeout_status: TimeoutStatus = "not_run",
+) -> tuple[ProbeExecutionRow, RepoBehavioralObservationRecord]:
+    record = _capture_failure_record(
+        probe=probe,
+        profile=profile,
+        timeout_status=timeout_status,
+    )
+    return (
+        ProbeExecutionRow(
+            probe_id=probe.probe_id,
+            probe_contract_hash=probe.probe_contract_hash,
+            execution_status="capture_failed",
+            argv=probe.argv,
+            cwd_ref=probe.cwd_ref,
+            env_delta_hash=_hash_env_delta(probe.env_delta),
+            timeout_policy_ref=probe.timeout_policy_ref,
+            fixture_tree_hash_before=fixture_tree_hash_before,
+            fixture_tree_hash_after_actual=None,
+            observation_record_ref=record.observation_record_ref,
+            diff_ref=f"diff:{probe.probe_id}",
+        ),
+        record,
+    )
+
+
+def _changed_file_tree_paths(
+    before_snapshot: dict[str, str],
+    after_snapshot: dict[str, str],
+) -> list[str]:
+    return sorted(
+        path
+        for path in set(before_snapshot) | set(after_snapshot)
+        if before_snapshot.get(path) != after_snapshot.get(path)
+    )
+
+
+def _is_workspace_path_allowlisted(path: str, allowlist: list[str]) -> bool:
+    for allowed in allowlist:
+        normalized_allowed = allowed.strip("/")
+        if not normalized_allowed or normalized_allowed.startswith("../"):
+            continue
+        if path == normalized_allowed or path.startswith(f"{normalized_allowed}/"):
+            return True
+    return False
+
+
 def _capture_probe(
     *,
     probe: RepoBehavioralProbeContract,
@@ -610,22 +667,10 @@ def _capture_probe(
         not in probe.surface_policy.raw_observed_surfaces
     ]
     if missing_raw_surfaces or not probe.argv:
-        record = _capture_failure_record(probe=probe, profile=profile)
-        return (
-            ProbeExecutionRow(
-                probe_id=probe.probe_id,
-                probe_contract_hash=probe.probe_contract_hash,
-                execution_status="capture_failed",
-                argv=probe.argv,
-                cwd_ref=probe.cwd_ref,
-                env_delta_hash=_hash_env_delta(probe.env_delta),
-                timeout_policy_ref=probe.timeout_policy_ref,
-                fixture_tree_hash_before=probe.fixture_tree_hash_before,
-                fixture_tree_hash_after_actual=None,
-                observation_record_ref=record.observation_record_ref,
-                diff_ref=f"diff:{probe.probe_id}",
-            ),
-            record,
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=probe.fixture_tree_hash_before,
         )
 
     cwd = cwd_map.get(probe.cwd_ref)
@@ -634,26 +679,31 @@ def _capture_probe(
     if probe.stdin_ref is not None:
         stdin_bytes = stdin_map.get(probe.stdin_ref, b"")
     stdin_missing = probe.stdin_ref is not None and probe.stdin_ref not in stdin_map
-    if cwd is None or timeout_seconds is None or stdin_missing:
-        record = _capture_failure_record(probe=probe, profile=profile)
-        return (
-            ProbeExecutionRow(
-                probe_id=probe.probe_id,
-                probe_contract_hash=probe.probe_contract_hash,
-                execution_status="capture_failed",
-                argv=probe.argv,
-                cwd_ref=probe.cwd_ref,
-                env_delta_hash=_hash_env_delta(probe.env_delta),
-                timeout_policy_ref=probe.timeout_policy_ref,
-                fixture_tree_hash_before=probe.fixture_tree_hash_before,
-                fixture_tree_hash_after_actual=None,
-                observation_record_ref=record.observation_record_ref,
-                diff_ref=f"diff:{probe.probe_id}",
-            ),
-            record,
+    if cwd is None or not cwd.is_dir() or timeout_seconds is None or stdin_missing:
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=probe.fixture_tree_hash_before,
         )
 
-    before_tree_hash = hash_file_tree(cwd)
+    try:
+        before_tree_hash, before_snapshot = _file_tree_snapshot(cwd)
+    except (OSError, ValueError):
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=probe.fixture_tree_hash_before,
+        )
+    if (
+        probe.fixture_tree_hash_before is not None
+        and before_tree_hash != probe.fixture_tree_hash_before
+    ):
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=before_tree_hash,
+        )
+
     env = dict(env_base)
     env.update(probe.env_delta)
     timeout_status: TimeoutStatus = "completed"
@@ -678,24 +728,22 @@ def _capture_probe(
         timeout_status = "timed_out"
         execution_status = "timeout"
     except OSError:
-        record = _capture_failure_record(probe=probe, profile=profile)
-        return (
-            ProbeExecutionRow(
-                probe_id=probe.probe_id,
-                probe_contract_hash=probe.probe_contract_hash,
-                execution_status="capture_failed",
-                argv=probe.argv,
-                cwd_ref=probe.cwd_ref,
-                env_delta_hash=_hash_env_delta(probe.env_delta),
-                timeout_policy_ref=probe.timeout_policy_ref,
-                fixture_tree_hash_before=before_tree_hash,
-                fixture_tree_hash_after_actual=None,
-                observation_record_ref=record.observation_record_ref,
-                diff_ref=f"diff:{probe.probe_id}",
-            ),
-            record,
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=before_tree_hash,
         )
-    after_tree_hash = hash_file_tree(cwd)
+    try:
+        after_tree_hash, after_snapshot = _file_tree_snapshot(cwd)
+    except (OSError, ValueError):
+        return _capture_failed_probe_row(
+            probe=probe,
+            profile=profile,
+            fixture_tree_hash_before=before_tree_hash,
+            timeout_status=timeout_status,
+        )
+
+    changed_paths = _changed_file_tree_paths(before_snapshot, after_snapshot)
     if (
         probe.fixture_tree_protection_kind == "read_only"
         and probe.fixture_tree_hash_before is not None
@@ -705,6 +753,15 @@ def _capture_probe(
     elif (
         probe.fixture_tree_hash_after_expected is not None
         and after_tree_hash != probe.fixture_tree_hash_after_expected
+    ):
+        execution_status = "fixture_mutation_forbidden"
+    elif (
+        probe.fixture_tree_protection_kind == "workspace_mutation_allowed"
+        and probe.workspace_write_allowlist
+        and any(
+            not _is_workspace_path_allowlisted(path, probe.workspace_write_allowlist)
+            for path in changed_paths
+        )
     ):
         execution_status = "fixture_mutation_forbidden"
 
@@ -853,6 +910,35 @@ def _blocked_outputs(
     return execution_report, [], diffs, suite_report
 
 
+def _manifest_inputs_match(
+    *,
+    manifest: RepoBehavioralReplayManifest,
+    probe_by_ref: dict[str, RepoBehavioralProbeContract],
+    expected_by_ref: dict[str, RepoBehavioralObservationHash],
+) -> bool:
+    if set(probe_by_ref) != set(manifest.probe_contract_refs):
+        return False
+    if {
+        probe.probe_contract_hash
+        for probe in probe_by_ref.values()
+        if probe.probe_contract_hash is not None
+    } != set(manifest.probe_contract_hashes):
+        return False
+    if set(expected_by_ref) != set(manifest.expected_observation_hash_refs):
+        return False
+    if {
+        expected.canonical_observation_hash
+        for expected in expected_by_ref.values()
+        if expected.canonical_observation_hash is not None
+    } != set(manifest.expected_observation_hashes):
+        return False
+    for probe in probe_by_ref.values():
+        expected = expected_by_ref.get(probe.expected_observation_hash_ref)
+        if expected is None or expected.probe_id != probe.probe_id:
+            return False
+    return True
+
+
 def replay_manifest(
     *,
     manifest: RepoBehavioralReplayManifest | dict[str, Any],
@@ -917,20 +1003,11 @@ def replay_manifest(
         or loaded_profile.canonicalization_profile_ref
         != loaded_manifest.canonicalization_profile_ref
         or loaded_profile.profile_hash != loaded_manifest.canonicalization_profile_hash
-        or set(probe_by_ref) != set(loaded_manifest.probe_contract_refs)
-        or sorted(
-            probe.probe_contract_hash
-            for probe in loaded_probes
-            if probe.probe_contract_hash is not None
+        or not _manifest_inputs_match(
+            manifest=loaded_manifest,
+            probe_by_ref=probe_by_ref,
+            expected_by_ref=expected_by_ref,
         )
-        != sorted(loaded_manifest.probe_contract_hashes)
-        or set(expected_by_ref) != set(loaded_manifest.expected_observation_hash_refs)
-        or sorted(
-            expected.canonical_observation_hash
-            for expected in loaded_expected
-            if expected.canonical_observation_hash is not None
-        )
-        != sorted(loaded_manifest.expected_observation_hashes)
     ):
         return _blocked_outputs(
             manifest=loaded_manifest,
