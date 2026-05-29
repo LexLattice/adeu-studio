@@ -9,7 +9,7 @@
   "local_hybrid_fixture_id": "v39e_v76_local_hybrid_narrative_comment",
   "local_hybrid_fixture_reference": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json",
   "local_subject_anchor": "comment:block:render_title:line:1-2",
-  "oracle_request_id": "v39e_v76_oracle_request_1dc6335a32a7cc28",
+  "oracle_request_id": "v39e_v76_oracle_request_3f1956c59ab4ab40",
   "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
   "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
   "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
@@ -20,7 +20,7 @@
     "policy_sources": [
       {
         "path": "AGENTS.md",
-        "sha256": "77ea133286b3e9e0defaac6abd68d07a526d97011e270b619d5caf7a76fcfe1d"
+        "sha256": "9fa35f43c1bb54161d93784778a8abd6063db0e0b8ca1e43e5c70bbac0e85713"
       },
       {
         "path": "docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md",

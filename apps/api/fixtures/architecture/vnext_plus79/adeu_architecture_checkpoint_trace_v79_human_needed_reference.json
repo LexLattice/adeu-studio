@@ -13,7 +13,7 @@
       "checkpoint_id": "v40c_v79_checkpoint_7732ceb7733a60c4",
       "final_adjudication": "escalated_human",
       "human_escalation_ref": "rule_policy_gap",
-      "replay_identity_hash": "4832df5490521c8fd41d4afb0207e92d0e79324533ee4789296bd8897920b5d2",
+      "replay_identity_hash": "a3f2978bd13b73e088d95eab9a5dba15d7564ff6b6970da731525c1c87be556d",
       "resolution_route": "human_only"
     }
   ],
@@ -22,7 +22,7 @@
   "hybrid_policy_hashes": [
     {
       "path": "AGENTS.md",
-      "sha256": "77ea133286b3e9e0defaac6abd68d07a526d97011e270b619d5caf7a76fcfe1d"
+      "sha256": "9fa35f43c1bb54161d93784778a8abd6063db0e0b8ca1e43e5c70bbac0e85713"
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
@@ -39,5 +39,5 @@
   ],
   "schema": "adeu_architecture_checkpoint_trace@1",
   "semantic_hash": "cf42da9738378d886311ad21fd96cbf0f211d2d62c3401cd91f48c9f47fc9573",
-  "trace_id": "v40c_v79_trace_759a0969b313f563"
+  "trace_id": "v40c_v79_trace_1f130b6939090592"
 }
