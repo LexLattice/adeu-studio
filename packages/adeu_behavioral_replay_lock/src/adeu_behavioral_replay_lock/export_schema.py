@@ -19,6 +19,12 @@ from .brl_0b import (
     RepoBehavioralReplayExecutionReport,
     RepoBehavioralSuiteRootHashReport,
 )
+from .brl_0c import (
+    RepoBehavioralImpactConeSelectionReport,
+    RepoBehavioralLockStalenessReport,
+    RepoBehavioralNoRegressionCertificate,
+    RepoBehavioralReplayIntegrationHandoff,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -80,6 +86,26 @@ def main() -> None:
             RepoBehavioralSuiteRootHashReport.model_json_schema(by_alias=True),
             package_schema_root / "repo_behavioral_suite_root_hash_report.v1.json",
             spec_root / "repo_behavioral_suite_root_hash_report.schema.json",
+        ),
+        (
+            RepoBehavioralImpactConeSelectionReport.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_impact_cone_selection_report.v1.json",
+            spec_root / "repo_behavioral_impact_cone_selection_report.schema.json",
+        ),
+        (
+            RepoBehavioralNoRegressionCertificate.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_no_regression_certificate.v1.json",
+            spec_root / "repo_behavioral_no_regression_certificate.schema.json",
+        ),
+        (
+            RepoBehavioralLockStalenessReport.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_lock_staleness_report.v1.json",
+            spec_root / "repo_behavioral_lock_staleness_report.schema.json",
+        ),
+        (
+            RepoBehavioralReplayIntegrationHandoff.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_replay_integration_handoff.v1.json",
+            spec_root / "repo_behavioral_replay_integration_handoff.schema.json",
         ),
     ]
     for schema, authoritative_path, mirror_path in mappings:

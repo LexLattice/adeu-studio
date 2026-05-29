@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "OmittedProbeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "blocker_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Blocker Ref"
+        },
+        "omission_reason": {
+          "enum": [
+            "full_manifest_scope",
+            "owner_surface_touched",
+            "not_in_touched_owner_surface",
+            "missing_required_coverage",
+            "not_available_in_manifest"
+          ],
+          "title": "Omission Reason",
+          "type": "string"
+        },
+        "omitted_probe_ref": {
+          "title": "Omitted Probe Ref",
+          "type": "string"
+        },
+        "owner_surface": {
+          "title": "Owner Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner_surface",
+        "omitted_probe_ref",
+        "omission_reason"
+      ],
+      "title": "OmittedProbeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture": {
+      "const": "impact_cone_selection_only_not_probe_generation",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "available_manifest_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Available Manifest Refs",
+      "type": "array"
+    },
+    "candidate_change_ref": {
+      "title": "Candidate Change Ref",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "impact_cone_report_ref": {
+      "title": "Impact Cone Report Ref",
+      "type": "string"
+    },
+    "omitted_probe_rows": {
+      "items": {
+        "$ref": "#/$defs/OmittedProbeRow"
+      },
+      "title": "Omitted Probe Rows",
+      "type": "array"
+    },
+    "required_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Probe Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_impact_cone_selection_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Selected Probe Refs",
+      "type": "array"
+    },
+    "selection_status": {
+      "enum": [
+        "selected",
+        "blocked_by_missing_scope",
+        "blocked_by_missing_sentinel"
+      ],
+      "title": "Selection Status",
+      "type": "string"
+    },
+    "touched_owner_surfaces": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Touched Owner Surfaces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "impact_cone_report_ref",
+    "candidate_change_ref",
+    "touched_owner_surfaces",
+    "available_manifest_refs",
+    "required_probe_refs",
+    "selected_probe_refs",
+    "selection_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralImpactConeSelectionReport",
+  "type": "object"
+}
