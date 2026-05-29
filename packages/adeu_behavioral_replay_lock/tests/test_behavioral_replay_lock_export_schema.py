@@ -7,10 +7,14 @@ from pathlib import Path
 from adeu_behavioral_replay_lock import (
     REPO_BEHAVIORAL_CANONICALIZATION_PROFILE_SCHEMA,
     REPO_BEHAVIORAL_OBSERVATION_HASH_SCHEMA,
+    REPO_BEHAVIORAL_OBSERVATION_RECORD_SCHEMA,
     REPO_BEHAVIORAL_PROBE_CONTRACT_SCHEMA,
+    REPO_BEHAVIORAL_REGRESSION_DIFF_SCHEMA,
+    REPO_BEHAVIORAL_REPLAY_EXECUTION_REPORT_SCHEMA,
     REPO_BEHAVIORAL_REPLAY_LOCK_NON_AUTHORITY_GUARDRAIL_SCHEMA,
     REPO_BEHAVIORAL_REPLAY_MANIFEST_SCHEMA,
     REPO_BEHAVIORAL_REPLAY_MANIFEST_VALIDATION_REPORT_SCHEMA,
+    REPO_BEHAVIORAL_SUITE_ROOT_HASH_REPORT_SCHEMA,
 )
 from adeu_behavioral_replay_lock.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -51,6 +55,22 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             package_schema_root / "repo_behavioral_replay_lock_non_authority_guardrail.v1.json",
             spec_root / "repo_behavioral_replay_lock_non_authority_guardrail.schema.json",
         ),
+        (
+            package_schema_root / "repo_behavioral_replay_execution_report.v1.json",
+            spec_root / "repo_behavioral_replay_execution_report.schema.json",
+        ),
+        (
+            package_schema_root / "repo_behavioral_observation_record.v1.json",
+            spec_root / "repo_behavioral_observation_record.schema.json",
+        ),
+        (
+            package_schema_root / "repo_behavioral_regression_diff.v1.json",
+            spec_root / "repo_behavioral_regression_diff.schema.json",
+        ),
+        (
+            package_schema_root / "repo_behavioral_suite_root_hash_report.v1.json",
+            spec_root / "repo_behavioral_suite_root_hash_report.schema.json",
+        ),
     ]
 
 
@@ -88,6 +108,14 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         ),
         "repo_behavioral_replay_lock_non_authority_guardrail.v1.json": (
             REPO_BEHAVIORAL_REPLAY_LOCK_NON_AUTHORITY_GUARDRAIL_SCHEMA
+        ),
+        "repo_behavioral_replay_execution_report.v1.json": (
+            REPO_BEHAVIORAL_REPLAY_EXECUTION_REPORT_SCHEMA
+        ),
+        "repo_behavioral_observation_record.v1.json": REPO_BEHAVIORAL_OBSERVATION_RECORD_SCHEMA,
+        "repo_behavioral_regression_diff.v1.json": REPO_BEHAVIORAL_REGRESSION_DIFF_SCHEMA,
+        "repo_behavioral_suite_root_hash_report.v1.json": (
+            REPO_BEHAVIORAL_SUITE_ROOT_HASH_REPORT_SCHEMA
         ),
     }
     for authoritative, _mirror in _schema_paths():

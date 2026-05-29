@@ -1,0 +1,181 @@
+{
+  "$defs": {
+    "StructuredDiffRow": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Value"
+        },
+        "expected_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Value"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "surface": {
+          "enum": [
+            "exit_code",
+            "stdout",
+            "stderr",
+            "output_files",
+            "fixture_tree",
+            "process_state",
+            "timeout"
+          ],
+          "title": "Surface",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface",
+        "summary"
+      ],
+      "title": "StructuredDiffRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "actual_canonical_observation_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Actual Canonical Observation Hash"
+    },
+    "actual_observation_record_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Actual Observation Record Ref"
+    },
+    "authority_posture": {
+      "const": "diff_report_only_not_patch_authority",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "changed_surfaces": {
+      "items": {
+        "enum": [
+          "exit_code",
+          "stdout",
+          "stderr",
+          "output_files",
+          "fixture_tree",
+          "process_state",
+          "timeout"
+        ],
+        "type": "string"
+      },
+      "title": "Changed Surfaces",
+      "type": "array"
+    },
+    "diff_ref": {
+      "title": "Diff Ref",
+      "type": "string"
+    },
+    "diff_status": {
+      "enum": [
+        "match",
+        "diff",
+        "missing_expected",
+        "missing_actual",
+        "capture_failed",
+        "not_run",
+        "blocked_by_manifest_validation"
+      ],
+      "title": "Diff Status",
+      "type": "string"
+    },
+    "expected_canonical_observation_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Canonical Observation Hash"
+    },
+    "expected_observation_hash_ref": {
+      "title": "Expected Observation Hash Ref",
+      "type": "string"
+    },
+    "probe_id": {
+      "title": "Probe Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_regression_diff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "structured_diff_rows": {
+      "items": {
+        "$ref": "#/$defs/StructuredDiffRow"
+      },
+      "title": "Structured Diff Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "diff_ref",
+    "probe_id",
+    "expected_observation_hash_ref",
+    "diff_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralRegressionDiff",
+  "type": "object"
+}

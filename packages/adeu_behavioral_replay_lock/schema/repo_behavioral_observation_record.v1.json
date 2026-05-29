@@ -1,0 +1,170 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "canonical_file_tree_hash_after": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical File Tree Hash After"
+    },
+    "canonical_observation_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Observation Hash"
+    },
+    "canonical_process_state_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Process State Hash"
+    },
+    "canonical_stderr_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Stderr Hash"
+    },
+    "canonical_stdout_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Stdout Hash"
+    },
+    "canonicalization_profile_hash": {
+      "title": "Canonicalization Profile Hash",
+      "type": "string"
+    },
+    "canonicalization_profile_ref": {
+      "title": "Canonicalization Profile Ref",
+      "type": "string"
+    },
+    "observation_record_ref": {
+      "title": "Observation Record Ref",
+      "type": "string"
+    },
+    "probe_contract_hash": {
+      "title": "Probe Contract Hash",
+      "type": "string"
+    },
+    "probe_id": {
+      "title": "Probe Id",
+      "type": "string"
+    },
+    "raw_exit_code": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw Exit Code"
+    },
+    "raw_file_tree_hash_after": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw File Tree Hash After"
+    },
+    "raw_process_state_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw Process State Ref"
+    },
+    "raw_stderr_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw Stderr Ref"
+    },
+    "raw_stdout_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Raw Stdout Ref"
+    },
+    "schema": {
+      "const": "repo_behavioral_observation_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "timeout_status": {
+      "enum": [
+        "completed",
+        "timed_out",
+        "not_run"
+      ],
+      "title": "Timeout Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "observation_record_ref",
+    "probe_id",
+    "probe_contract_hash",
+    "timeout_status",
+    "canonicalization_profile_ref",
+    "canonicalization_profile_hash"
+  ],
+  "title": "RepoBehavioralObservationRecord",
+  "type": "object"
+}
