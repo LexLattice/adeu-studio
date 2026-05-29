@@ -127,6 +127,13 @@
       "title": "Expected Observation Hash Refs",
       "type": "array"
     },
+    "expected_observation_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Observation Hashes",
+      "type": "array"
+    },
     "manifest_authority_layer": {
       "enum": [
         "support",
@@ -203,6 +210,13 @@
     "owner_surface_taxonomy_version": {
       "title": "Owner Surface Taxonomy Version",
       "type": "string"
+    },
+    "probe_contract_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Probe Contract Hashes",
+      "type": "array"
     },
     "probe_contract_refs": {
       "items": {

@@ -205,7 +205,9 @@ def _manifest_payload(
 ) -> dict[str, object]:
     suite_root_hash = suite_root_hash_for(
         probe_contract_refs=[probe.probe_id],
+        probe_contract_hashes=[probe.probe_contract_hash],
         expected_observation_hash_refs=[observation.observation_hash_ref],
+        expected_observation_hashes=[observation.canonical_observation_hash],
         canonicalization_profile_ref=profile.canonicalization_profile_ref,
         canonicalization_profile_hash=profile.profile_hash,
     )
@@ -237,7 +239,9 @@ def _manifest_payload(
         "raw_material_storage_policy_ref": "policy:raw-storage",
         "redaction_profile_ref": "policy:redaction",
         "probe_contract_refs": [probe.probe_id],
+        "probe_contract_hashes": [probe.probe_contract_hash],
         "expected_observation_hash_refs": [observation.observation_hash_ref],
+        "expected_observation_hashes": [observation.canonical_observation_hash],
         "suite_root_hash": suite_root_hash,
     }
     payload.update(overrides)
@@ -314,9 +318,14 @@ def test_shuffled_owner_rows_keep_manifest_hash_stable() -> None:
     ]
     suite_hash = suite_root_hash_for(
         probe_contract_refs=[probe_b.probe_id, probe_a.probe_id],
+        probe_contract_hashes=[probe_b.probe_contract_hash, probe_a.probe_contract_hash],
         expected_observation_hash_refs=[
             observation_b.observation_hash_ref,
             observation_a.observation_hash_ref,
+        ],
+        expected_observation_hashes=[
+            observation_b.canonical_observation_hash,
+            observation_a.canonical_observation_hash,
         ],
         canonicalization_profile_ref=profile.canonicalization_profile_ref,
         canonicalization_profile_hash=profile.profile_hash,
@@ -328,9 +337,14 @@ def test_shuffled_owner_rows_keep_manifest_hash_stable() -> None:
         protected_owner_surfaces=[probe_b.owner_surface, probe_a.owner_surface],
         owner_surface_rows=list(reversed(rows)),
         probe_contract_refs=[probe_b.probe_id, probe_a.probe_id],
+        probe_contract_hashes=[probe_b.probe_contract_hash, probe_a.probe_contract_hash],
         expected_observation_hash_refs=[
             observation_b.observation_hash_ref,
             observation_a.observation_hash_ref,
+        ],
+        expected_observation_hashes=[
+            observation_b.canonical_observation_hash,
+            observation_a.canonical_observation_hash,
         ],
         suite_root_hash=suite_hash,
     )
@@ -338,9 +352,17 @@ def test_shuffled_owner_rows_keep_manifest_hash_stable() -> None:
     second_payload = deepcopy(base_payload)
     second_payload["owner_surface_rows"] = rows
     second_payload["probe_contract_refs"] = [probe_a.probe_id, probe_b.probe_id]
+    second_payload["probe_contract_hashes"] = [
+        probe_a.probe_contract_hash,
+        probe_b.probe_contract_hash,
+    ]
     second_payload["expected_observation_hash_refs"] = [
         observation_a.observation_hash_ref,
         observation_b.observation_hash_ref,
+    ]
+    second_payload["expected_observation_hashes"] = [
+        observation_a.canonical_observation_hash,
+        observation_b.canonical_observation_hash,
     ]
     second = RepoBehavioralReplayManifest.model_validate(second_payload)
     assert canonical_hash(
@@ -377,9 +399,69 @@ def test_missing_expected_observation_hash_fails_report() -> None:
         expected_observation_hashes=[],
     )
     assert report.validation_status == "invalid"
-    assert {
+    codes = {row.diagnostic_code for row in report.diagnostic_rows}
+    assert "missing_expected_observation_hash" in codes
+    assert "suite_root_hash_mismatch" in codes
+
+
+def test_changed_probe_payload_under_same_id_fails_manifest_validation() -> None:
+    profile, probe, observation, manifest = _valid_bundle()
+    changed_probe = _probe(
+        profile,
+        probe_id=probe.probe_id,
+        argv=["revive", "-formatter", "stylish", "./..."],
+    )
+    report = validate_replay_manifest(
+        manifest=manifest,
+        probe_contracts=[changed_probe],
+        canonicalization_profiles=[profile],
+        expected_observation_hashes=[observation],
+    )
+    assert report.validation_status == "invalid"
+    assert "probe_contract_hash_mismatch" in {
         row.diagnostic_code for row in report.diagnostic_rows
-    } == {"missing_expected_observation_hash"}
+    }
+    assert "suite_root_hash_mismatch" in {row.diagnostic_code for row in report.diagnostic_rows}
+
+
+def test_missing_probe_contract_hash_fails_manifest_validation() -> None:
+    profile, probe, observation, manifest = _valid_bundle()
+    payload = probe.model_dump(mode="json", exclude_none=True)
+    payload.pop("probe_contract_hash")
+    unhashed_probe = RepoBehavioralProbeContract.model_validate(payload)
+    report = validate_replay_manifest(
+        manifest=manifest,
+        probe_contracts=[unhashed_probe],
+        canonicalization_profiles=[profile],
+        expected_observation_hashes=[observation],
+    )
+    assert report.validation_status == "invalid"
+    assert "probe_contract_hash_mismatch" in {
+        row.diagnostic_code for row in report.diagnostic_rows
+    }
+
+
+def test_supplied_profile_hash_must_match_manifest_profile_hash() -> None:
+    profile, probe, observation, manifest = _valid_bundle()
+    changed_profile = _profile(
+        rule_rows=[
+            {
+                "rule_id": "rule:stdout-other",
+                "rule_kind": "text_replace",
+                "applies_to_surfaces": ["stdout"],
+                "scope": "normalize another volatile value",
+                "protected_surface_effect": "preserves_protected_signal",
+            }
+        ]
+    )
+    report = validate_replay_manifest(
+        manifest=manifest,
+        probe_contracts=[probe],
+        canonicalization_profiles=[changed_profile],
+        expected_observation_hashes=[observation],
+    )
+    assert report.validation_status == "invalid"
+    assert "profile_hash_mismatch" in {row.diagnostic_code for row in report.diagnostic_rows}
 
 
 def test_unknown_canonicalization_rule_kind_fails() -> None:
@@ -552,7 +634,9 @@ def test_canonicalization_profile_hash_change_changes_manifest_hash() -> None:
     changed_profile_hash = _hash("changed-profile")
     changed_suite_root = suite_root_hash_for(
         probe_contract_refs=[probe.probe_id],
+        probe_contract_hashes=[probe.probe_contract_hash],
         expected_observation_hash_refs=[observation.observation_hash_ref],
+        expected_observation_hashes=[observation.canonical_observation_hash],
         canonicalization_profile_ref=profile.canonicalization_profile_ref,
         canonicalization_profile_hash=changed_profile_hash,
     )

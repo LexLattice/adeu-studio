@@ -134,6 +134,8 @@ ManifestValidationDiagnosticKind = Literal[
     "missing_file_tree_fixture_hash",
     "suite_root_hash_mismatch",
     "manifest_hash_mismatch",
+    "profile_hash_mismatch",
+    "probe_contract_hash_mismatch",
     "missing_owner_sentinel",
     "missing_expected_observation_provenance",
     "missing_execution_environment",
@@ -164,7 +166,7 @@ _KNOWN_OWNER_SURFACES = {
     "generic_fallback_or_default_behavior",
 }
 _UNPROMOTABLE_LIFECYCLES = {"draft", "proposed", "stale", "superseded", "invalid"}
-_SECRET_MARKERS = ("SECRET", "TOKEN", "PASSWORD", "PRIVATE_KEY", "API_KEY")
+_SECRET_MARKERS = ("SECRET", "TOKEN", "PASS", "KEY", "AUTH", "CREDENTIALS")
 _PROTECTED_FORBIDDEN_HIDE_SURFACES = {
     "exit_code",
     "stderr",
@@ -258,7 +260,9 @@ def canonical_hash(
 def suite_root_hash_for(
     *,
     probe_contract_refs: list[str],
+    probe_contract_hashes: list[str] | None = None,
     expected_observation_hash_refs: list[str],
+    expected_observation_hashes: list[str] | None = None,
     canonicalization_profile_ref: str,
     canonicalization_profile_hash: str,
 ) -> str:
@@ -269,9 +273,17 @@ def suite_root_hash_for(
                 probe_contract_refs,
                 field_name="probe_contract_refs",
             ),
+            "probe_contract_hashes": _assert_sorted_unique(
+                probe_contract_hashes or [],
+                field_name="probe_contract_hashes",
+            ),
             "expected_observation_hash_refs": _assert_sorted_unique(
                 expected_observation_hash_refs,
                 field_name="expected_observation_hash_refs",
+            ),
+            "expected_observation_hashes": _assert_sorted_unique(
+                expected_observation_hashes or [],
+                field_name="expected_observation_hashes",
             ),
             "canonicalization_profile_ref": _assert_non_empty_text(
                 canonicalization_profile_ref,
@@ -724,7 +736,9 @@ class RepoBehavioralReplayManifest(_BrlBase):
     raw_material_storage_policy_ref: str
     redaction_profile_ref: str
     probe_contract_refs: list[str]
+    probe_contract_hashes: list[str] = Field(default_factory=list)
     expected_observation_hash_refs: list[str]
+    expected_observation_hashes: list[str] = Field(default_factory=list)
     suite_root_hash: str | None = None
     manifest_hash: str | None = None
 
@@ -762,7 +776,9 @@ class RepoBehavioralReplayManifest(_BrlBase):
         for field_name in (
             "protected_owner_surfaces",
             "probe_contract_refs",
+            "probe_contract_hashes",
             "expected_observation_hash_refs",
+            "expected_observation_hashes",
         ):
             object.__setattr__(
                 self,
@@ -796,7 +812,9 @@ class RepoBehavioralReplayManifest(_BrlBase):
             raise ValueError("unpromotable manifest lifecycle cannot claim promotion use")
         expected_suite_root = suite_root_hash_for(
             probe_contract_refs=self.probe_contract_refs,
+            probe_contract_hashes=self.probe_contract_hashes,
             expected_observation_hash_refs=self.expected_observation_hash_refs,
+            expected_observation_hashes=self.expected_observation_hashes,
             canonicalization_profile_ref=self.canonicalization_profile_ref,
             canonicalization_profile_hash=self.canonicalization_profile_hash,
         )
@@ -1061,12 +1079,25 @@ def validate_replay_manifest(
                 object_refs=missing_observation_refs,
             )
         )
-    if loaded_manifest.canonicalization_profile_ref not in profile_by_ref:
+    loaded_profile = profile_by_ref.get(loaded_manifest.canonicalization_profile_ref)
+    if loaded_profile is None:
         diagnostics.append(
             _diagnostic(
                 index=len(diagnostics) + 1,
                 diagnostic_code="unknown_canonicalization_profile",
                 message="manifest references missing canonicalization profile",
+                object_refs=[loaded_manifest.canonicalization_profile_ref],
+            )
+        )
+    elif loaded_profile.profile_hash != loaded_manifest.canonicalization_profile_hash:
+        diagnostics.append(
+            _diagnostic(
+                index=len(diagnostics) + 1,
+                diagnostic_code="profile_hash_mismatch",
+                message=(
+                    "supplied canonicalization profile hash does not match manifest "
+                    "canonicalization_profile_hash"
+                ),
                 object_refs=[loaded_manifest.canonicalization_profile_ref],
             )
         )
@@ -1094,6 +1125,70 @@ def validate_replay_manifest(
                 message="BRL-0-A guardrail cannot grant replay authority",
             )
         )
+    referenced_probes = [
+        probe_by_ref[probe_ref]
+        for probe_ref in loaded_manifest.probe_contract_refs
+        if probe_ref in probe_by_ref
+    ]
+    actual_probe_hashes: list[str] = []
+    for probe in referenced_probes:
+        if probe.probe_contract_hash is None:
+            diagnostics.append(
+                _diagnostic(
+                    index=len(diagnostics) + 1,
+                    diagnostic_code="probe_contract_hash_mismatch",
+                    message="referenced probe contract lacks probe_contract_hash",
+                    probe_refs=[probe.probe_id],
+                )
+            )
+        else:
+            actual_probe_hashes.append(probe.probe_contract_hash)
+    if sorted(actual_probe_hashes) != sorted(loaded_manifest.probe_contract_hashes):
+        diagnostics.append(
+            _diagnostic(
+                index=len(diagnostics) + 1,
+                diagnostic_code="probe_contract_hash_mismatch",
+                message="manifest probe_contract_hashes do not match supplied probe contracts",
+                probe_refs=loaded_manifest.probe_contract_refs,
+            )
+        )
+
+    actual_observation_hashes: list[str] = []
+    for observation_ref in loaded_manifest.expected_observation_hash_refs:
+        observation = observation_by_ref.get(observation_ref)
+        if observation is not None and observation.canonical_observation_hash is not None:
+            actual_observation_hashes.append(observation.canonical_observation_hash)
+    if sorted(actual_observation_hashes) != sorted(loaded_manifest.expected_observation_hashes):
+        diagnostics.append(
+            _diagnostic(
+                index=len(diagnostics) + 1,
+                diagnostic_code="missing_expected_observation_hash",
+                message=(
+                    "manifest expected_observation_hashes do not match supplied "
+                    "expected observations"
+                ),
+                object_refs=loaded_manifest.expected_observation_hash_refs,
+            )
+        )
+
+    if loaded_manifest.suite_root_hash is not None:
+        actual_suite_root_hash = suite_root_hash_for(
+            probe_contract_refs=loaded_manifest.probe_contract_refs,
+            probe_contract_hashes=actual_probe_hashes,
+            expected_observation_hash_refs=loaded_manifest.expected_observation_hash_refs,
+            expected_observation_hashes=actual_observation_hashes,
+            canonicalization_profile_ref=loaded_manifest.canonicalization_profile_ref,
+            canonicalization_profile_hash=loaded_manifest.canonicalization_profile_hash,
+        )
+        if loaded_manifest.suite_root_hash != actual_suite_root_hash:
+            diagnostics.append(
+                _diagnostic(
+                    index=len(diagnostics) + 1,
+                    diagnostic_code="suite_root_hash_mismatch",
+                    message="manifest suite_root_hash does not match supplied child hashes",
+                )
+            )
+
     for probe in loaded_probes:
         if any(marker in key.upper() for key in probe.env_delta for marker in _SECRET_MARKERS):
             required_policy_refs = [
