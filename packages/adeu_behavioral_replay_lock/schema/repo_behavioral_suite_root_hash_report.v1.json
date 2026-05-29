@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "SuiteRootPerProbeHashRow": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_canonical_observation_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Canonical Observation Hash"
+        },
+        "diff_status": {
+          "enum": [
+            "match",
+            "diff",
+            "missing_expected",
+            "missing_actual",
+            "capture_failed",
+            "not_run",
+            "blocked_by_manifest_validation"
+          ],
+          "title": "Diff Status",
+          "type": "string"
+        },
+        "expected_canonical_observation_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Canonical Observation Hash"
+        },
+        "expected_observation_hash_ref": {
+          "title": "Expected Observation Hash Ref",
+          "type": "string"
+        },
+        "probe_id": {
+          "title": "Probe Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_id",
+        "expected_observation_hash_ref",
+        "diff_status"
+      ],
+      "title": "SuiteRootPerProbeHashRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "actual_suite_root_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Actual Suite Root Hash"
+    },
+    "authority_posture": {
+      "const": "suite_hash_report_only_not_certificate",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "expected_suite_root_hash": {
+      "title": "Expected Suite Root Hash",
+      "type": "string"
+    },
+    "manifest_hash": {
+      "title": "Manifest Hash",
+      "type": "string"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "per_probe_hash_rows": {
+      "items": {
+        "$ref": "#/$defs/SuiteRootPerProbeHashRow"
+      },
+      "title": "Per Probe Hash Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_suite_root_hash_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "suite_root_hash_report_ref": {
+      "title": "Suite Root Hash Report Ref",
+      "type": "string"
+    },
+    "suite_root_status": {
+      "enum": [
+        "match",
+        "diff",
+        "blocked_by_manifest_validation",
+        "capture_failed"
+      ],
+      "title": "Suite Root Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "suite_root_hash_report_ref",
+    "manifest_id",
+    "manifest_hash",
+    "expected_suite_root_hash",
+    "per_probe_hash_rows",
+    "suite_root_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralSuiteRootHashReport",
+  "type": "object"
+}

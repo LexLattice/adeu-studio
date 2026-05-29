@@ -1,0 +1,229 @@
+{
+  "$defs": {
+    "ProbeExecutionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Argv",
+          "type": "array"
+        },
+        "cwd_ref": {
+          "title": "Cwd Ref",
+          "type": "string"
+        },
+        "diff_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diff Ref"
+        },
+        "env_delta_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Env Delta Hash"
+        },
+        "execution_status": {
+          "enum": [
+            "completed",
+            "timeout",
+            "capture_failed",
+            "not_run",
+            "blocked_by_manifest_validation",
+            "fixture_mutation_forbidden"
+          ],
+          "title": "Execution Status",
+          "type": "string"
+        },
+        "fixture_tree_hash_after_actual": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fixture Tree Hash After Actual"
+        },
+        "fixture_tree_hash_before": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fixture Tree Hash Before"
+        },
+        "observation_record_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observation Record Ref"
+        },
+        "probe_contract_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Probe Contract Hash"
+        },
+        "probe_id": {
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "timeout_policy_ref": {
+          "title": "Timeout Policy Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_id",
+        "execution_status",
+        "cwd_ref",
+        "timeout_policy_ref"
+      ],
+      "title": "ProbeExecutionRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture": {
+      "const": "replay_report_only_not_product_authority",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "candidate_artifact_hash": {
+      "title": "Candidate Artifact Hash",
+      "type": "string"
+    },
+    "candidate_artifact_ref": {
+      "title": "Candidate Artifact Ref",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "diff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Diff Refs",
+      "type": "array"
+    },
+    "execution_environment_hash": {
+      "title": "Execution Environment Hash",
+      "type": "string"
+    },
+    "execution_environment_ref": {
+      "title": "Execution Environment Ref",
+      "type": "string"
+    },
+    "execution_report_ref": {
+      "title": "Execution Report Ref",
+      "type": "string"
+    },
+    "execution_status": {
+      "enum": [
+        "completed",
+        "completed_with_diffs",
+        "blocked_by_manifest_validation",
+        "capture_failed"
+      ],
+      "title": "Execution Status",
+      "type": "string"
+    },
+    "manifest_hash": {
+      "title": "Manifest Hash",
+      "type": "string"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "manifest_validation_report_ref": {
+      "title": "Manifest Validation Report Ref",
+      "type": "string"
+    },
+    "observation_record_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observation Record Refs",
+      "type": "array"
+    },
+    "probe_execution_rows": {
+      "items": {
+        "$ref": "#/$defs/ProbeExecutionRow"
+      },
+      "title": "Probe Execution Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_replay_execution_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "suite_root_hash_report_ref": {
+      "title": "Suite Root Hash Report Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "execution_report_ref",
+    "manifest_id",
+    "manifest_hash",
+    "manifest_validation_report_ref",
+    "candidate_artifact_ref",
+    "candidate_artifact_hash",
+    "execution_environment_ref",
+    "execution_environment_hash",
+    "probe_execution_rows",
+    "suite_root_hash_report_ref",
+    "execution_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralReplayExecutionReport",
+  "type": "object"
+}

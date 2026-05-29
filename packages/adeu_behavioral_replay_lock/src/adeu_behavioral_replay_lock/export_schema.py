@@ -13,6 +13,12 @@ from .brl_0a import (
     RepoBehavioralReplayManifest,
     RepoBehavioralReplayManifestValidationReport,
 )
+from .brl_0b import (
+    RepoBehavioralObservationRecord,
+    RepoBehavioralRegressionDiff,
+    RepoBehavioralReplayExecutionReport,
+    RepoBehavioralSuiteRootHashReport,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -54,6 +60,26 @@ def main() -> None:
             RepoBehavioralReplayLockNonAuthorityGuardrail.model_json_schema(by_alias=True),
             package_schema_root / "repo_behavioral_replay_lock_non_authority_guardrail.v1.json",
             spec_root / "repo_behavioral_replay_lock_non_authority_guardrail.schema.json",
+        ),
+        (
+            RepoBehavioralReplayExecutionReport.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_replay_execution_report.v1.json",
+            spec_root / "repo_behavioral_replay_execution_report.schema.json",
+        ),
+        (
+            RepoBehavioralObservationRecord.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_observation_record.v1.json",
+            spec_root / "repo_behavioral_observation_record.schema.json",
+        ),
+        (
+            RepoBehavioralRegressionDiff.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_regression_diff.v1.json",
+            spec_root / "repo_behavioral_regression_diff.schema.json",
+        ),
+        (
+            RepoBehavioralSuiteRootHashReport.model_json_schema(by_alias=True),
+            package_schema_root / "repo_behavioral_suite_root_hash_report.v1.json",
+            spec_root / "repo_behavioral_suite_root_hash_report.schema.json",
         ),
     ]
     for schema, authoritative_path, mirror_path in mappings:
