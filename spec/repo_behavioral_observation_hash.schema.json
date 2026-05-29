@@ -1,0 +1,215 @@
+{
+  "$defs": {
+    "ExpectedObservationProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_layer": {
+          "enum": [
+            "support",
+            "planning",
+            "architecture",
+            "lock",
+            "observed"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "authority_posture": {
+          "enum": [
+            "clean_reference_observation",
+            "locked_local_probe",
+            "source_tail_matrix",
+            "post_eval_pressure_only"
+          ],
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "clean_first_pass_posture": {
+          "enum": [
+            "clean",
+            "not_clean",
+            "clean_first_pass_disallowed"
+          ],
+          "title": "Clean First Pass Posture",
+          "type": "string"
+        },
+        "evidence_boundary_posture": {
+          "enum": [
+            "clean_first_pass_allowed",
+            "clean_first_pass_disallowed",
+            "post_eval_pressure_only",
+            "source_postmortem_pressure",
+            "official_like_pressure",
+            "local_locked_probe_delta"
+          ],
+          "title": "Evidence Boundary Posture",
+          "type": "string"
+        },
+        "provenance_kind": {
+          "enum": [
+            "reference_executable",
+            "locked_local_probe",
+            "public_schema_observation",
+            "source_tail_matrix",
+            "post_eval_pressure"
+          ],
+          "title": "Provenance Kind",
+          "type": "string"
+        },
+        "source_hash": {
+          "title": "Source Hash",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provenance_kind",
+        "source_ref",
+        "source_hash",
+        "authority_layer",
+        "evidence_boundary_posture",
+        "clean_first_pass_posture",
+        "authority_posture"
+      ],
+      "title": "ExpectedObservationProvenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_material_kind": {
+      "title": "Canonical Material Kind",
+      "type": "string"
+    },
+    "canonical_observation_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Observation Hash"
+    },
+    "exit_code": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exit Code"
+    },
+    "expected_observation_provenance": {
+      "$ref": "#/$defs/ExpectedObservationProvenance"
+    },
+    "hash_algorithm": {
+      "const": "sha256",
+      "default": "sha256",
+      "title": "Hash Algorithm",
+      "type": "string"
+    },
+    "hash_domain": {
+      "default": "expected_reference_observation",
+      "enum": [
+        "expected_reference_observation",
+        "candidate_observation",
+        "suite_root",
+        "manifest",
+        "object"
+      ],
+      "title": "Hash Domain",
+      "type": "string"
+    },
+    "observation_hash_ref": {
+      "title": "Observation Hash Ref",
+      "type": "string"
+    },
+    "output_file_tree_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output File Tree Hash"
+    },
+    "probe_id": {
+      "title": "Probe Id",
+      "type": "string"
+    },
+    "process_state_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Process State Hash"
+    },
+    "schema": {
+      "const": "repo_behavioral_observation_hash@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stderr_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stderr Hash"
+    },
+    "stdout_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stdout Hash"
+    },
+    "timeout_status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeout Status"
+    }
+  },
+  "required": [
+    "schema",
+    "observation_hash_ref",
+    "probe_id",
+    "canonical_material_kind",
+    "expected_observation_provenance"
+  ],
+  "title": "RepoBehavioralObservationHash",
+  "type": "object"
+}

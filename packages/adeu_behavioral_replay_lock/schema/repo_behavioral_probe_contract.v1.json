@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "SurfacePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalized_surfaces": {
+          "items": {
+            "enum": [
+              "exit_code",
+              "stdout",
+              "stderr",
+              "output_file_tree",
+              "process_state",
+              "timeout_status"
+            ],
+            "type": "string"
+          },
+          "title": "Canonicalized Surfaces",
+          "type": "array"
+        },
+        "explicitly_ignored_surfaces": {
+          "items": {
+            "enum": [
+              "exit_code",
+              "stdout",
+              "stderr",
+              "output_file_tree",
+              "process_state",
+              "timeout_status"
+            ],
+            "type": "string"
+          },
+          "title": "Explicitly Ignored Surfaces",
+          "type": "array"
+        },
+        "protected_surfaces": {
+          "items": {
+            "enum": [
+              "exit_code",
+              "stdout",
+              "stderr",
+              "output_file_tree",
+              "process_state",
+              "timeout_status"
+            ],
+            "type": "string"
+          },
+          "title": "Protected Surfaces",
+          "type": "array"
+        },
+        "raw_observed_surfaces": {
+          "items": {
+            "enum": [
+              "exit_code",
+              "stdout",
+              "stderr",
+              "output_file_tree",
+              "process_state",
+              "timeout_status"
+            ],
+            "type": "string"
+          },
+          "title": "Raw Observed Surfaces",
+          "type": "array"
+        }
+      },
+      "title": "SurfacePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "argv": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Argv",
+      "type": "array"
+    },
+    "canonicalization_profile_hash": {
+      "title": "Canonicalization Profile Hash",
+      "type": "string"
+    },
+    "canonicalization_profile_ref": {
+      "title": "Canonicalization Profile Ref",
+      "type": "string"
+    },
+    "cleanup_policy_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cleanup Policy Ref"
+    },
+    "cwd_ref": {
+      "title": "Cwd Ref",
+      "type": "string"
+    },
+    "env_delta": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Env Delta",
+      "type": "object"
+    },
+    "expected_observation_hash_ref": {
+      "title": "Expected Observation Hash Ref",
+      "type": "string"
+    },
+    "fixture_policy": {
+      "title": "Fixture Policy",
+      "type": "string"
+    },
+    "fixture_tree_hash_after_expected": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fixture Tree Hash After Expected"
+    },
+    "fixture_tree_hash_before": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fixture Tree Hash Before"
+    },
+    "fixture_tree_protection_kind": {
+      "default": "read_only",
+      "enum": [
+        "read_only",
+        "mutating_expected",
+        "workspace_mutation_allowed"
+      ],
+      "title": "Fixture Tree Protection Kind",
+      "type": "string"
+    },
+    "owner_surface": {
+      "title": "Owner Surface",
+      "type": "string"
+    },
+    "probe_contract_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Probe Contract Hash"
+    },
+    "probe_id": {
+      "title": "Probe Id",
+      "type": "string"
+    },
+    "probe_label": {
+      "title": "Probe Label",
+      "type": "string"
+    },
+    "protected_sibling_group_ref": {
+      "title": "Protected Sibling Group Ref",
+      "type": "string"
+    },
+    "protected_surfaces": {
+      "items": {
+        "enum": [
+          "exit_code",
+          "stdout",
+          "stderr",
+          "output_file_tree",
+          "process_state",
+          "timeout_status"
+        ],
+        "type": "string"
+      },
+      "title": "Protected Surfaces",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_probe_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stdin_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stdin Ref"
+    },
+    "surface_policy": {
+      "$ref": "#/$defs/SurfacePolicy"
+    },
+    "timeout_policy_ref": {
+      "title": "Timeout Policy Ref",
+      "type": "string"
+    },
+    "workspace_write_allowlist": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Workspace Write Allowlist",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "probe_id",
+    "probe_label",
+    "owner_surface",
+    "protected_sibling_group_ref",
+    "cwd_ref",
+    "protected_surfaces",
+    "surface_policy",
+    "fixture_policy",
+    "timeout_policy_ref",
+    "canonicalization_profile_ref",
+    "canonicalization_profile_hash",
+    "expected_observation_hash_ref"
+  ],
+  "title": "RepoBehavioralProbeContract",
+  "type": "object"
+}
