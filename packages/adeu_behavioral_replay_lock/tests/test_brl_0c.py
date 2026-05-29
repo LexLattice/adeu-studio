@@ -115,6 +115,24 @@ def _manifest() -> RepoBehavioralReplayManifest:
     return RepoBehavioralReplayManifest.model_validate(payload)
 
 
+def _rehash_manifest(
+    manifest: RepoBehavioralReplayManifest,
+    **updates: object,
+) -> RepoBehavioralReplayManifest:
+    payload = manifest.model_dump(mode="json", exclude_none=True)
+    payload.update(updates)
+    payload.pop("manifest_hash", None)
+    manifest_without_hash = RepoBehavioralReplayManifest.model_validate(payload)
+    hashed = manifest_without_hash.model_dump(mode="json", exclude_none=True)
+    hashed["manifest_hash"] = canonical_hash(
+        manifest_without_hash,
+        object_kind="repo_behavioral_replay_manifest",
+        canonicalization_profile_hash=manifest_without_hash.canonicalization_profile_hash,
+        drop_keys={"manifest_hash"},
+    )
+    return RepoBehavioralReplayManifest.model_validate(hashed)
+
+
 def _execution(
     manifest: RepoBehavioralReplayManifest,
     *,
@@ -326,6 +344,71 @@ def test_missing_sentinel_coverage_blocks_certificate() -> None:
     assert certificate.known_gaps
 
 
+def test_mixed_covered_and_uncovered_surfaces_return_blocked_report() -> None:
+    manifest = _manifest()
+    impact = select_impact_cone(
+        manifest=manifest,
+        candidate_change_ref="change:mixed",
+        touched_owner_surfaces=["config_policy_activation", "output_router_renderer"],
+    )
+    certificate = build_no_regression_certificate(
+        manifest=manifest,
+        execution_report=_execution(manifest),
+        suite_root_report=_suite(manifest),
+        diffs=_diffs(manifest),
+        impact_cone_report=impact,
+        staleness_report=_fresh(manifest),
+        candidate_artifact_ref="candidate:test",
+        candidate_artifact_hash=_hash("candidate"),
+    )
+    assert impact.selection_status == "blocked_by_missing_sentinel"
+    assert impact.selected_probe_refs == ["probe:a"]
+    assert certificate.certificate_posture == "blocked_by_missing_sentinel"
+    assert (
+        "impact cone blocked: "
+        "missing_required_coverage:owner-surface:config_policy_activation"
+    ) in certificate.known_gaps
+
+
+def test_missing_scope_selection_records_known_gap_in_certificate() -> None:
+    manifest = _manifest()
+    passive_row = OwnerSurfaceRow(
+        owner_surface="state_lifecycle_mutation",
+        patch_risk_kind="state_lifecycle_mutation",
+        protected_sibling_probe_refs=[],
+        required_when_touched=False,
+        coverage_posture="pass_through_no_sentinel_required",
+        taxonomy_ref="docs/support/general_program_ontology_derived_v1_7.md",
+    )
+    manifest = _rehash_manifest(
+        manifest,
+        protected_owner_surfaces=[
+            "diagnostic_exit_channel",
+            "output_router_renderer",
+            "state_lifecycle_mutation",
+        ],
+        owner_surface_rows=[*manifest.owner_surface_rows, passive_row],
+    )
+    impact = select_impact_cone(
+        manifest=manifest,
+        candidate_change_ref="change:passive",
+        touched_owner_surfaces=["state_lifecycle_mutation"],
+    )
+    certificate = build_no_regression_certificate(
+        manifest=manifest,
+        execution_report=_execution(manifest),
+        suite_root_report=_suite(manifest),
+        diffs=_diffs(manifest),
+        impact_cone_report=impact,
+        staleness_report=_fresh(manifest),
+        candidate_artifact_ref="candidate:test",
+        candidate_artifact_hash=_hash("candidate"),
+    )
+    assert impact.selection_status == "blocked_by_missing_scope"
+    assert certificate.certificate_posture == "blocked_by_missing_sentinel"
+    assert certificate.known_gaps == ["impact cone blocked by missing scope"]
+
+
 def test_unreplayed_selected_sentinel_blocks_certificate() -> None:
     manifest = _manifest()
     impact = select_impact_cone(
@@ -452,6 +535,31 @@ def test_stale_hob_otb_handoff_hash_emits_staleness_report() -> None:
         stale.required_refresh_rows[0].stale_reason_ref
         == stale.stale_reason_rows[0].stale_reason_ref
     )
+
+
+def test_staleness_report_for_different_manifest_blocks_certificate() -> None:
+    manifest = _manifest()
+    other_manifest = _rehash_manifest(manifest, manifest_id="manifest:other")
+    other_fresh_report = build_lock_staleness_report(manifest=other_manifest)
+    impact = select_impact_cone(
+        manifest=manifest,
+        candidate_change_ref="change:test",
+        full_manifest_scope=True,
+    )
+    certificate = build_no_regression_certificate(
+        manifest=manifest,
+        execution_report=_execution(manifest),
+        suite_root_report=_suite(manifest),
+        diffs=_diffs(manifest),
+        impact_cone_report=impact,
+        staleness_report=other_fresh_report,
+        candidate_artifact_ref="candidate:test",
+        candidate_artifact_hash=_hash("candidate"),
+    )
+    assert certificate.certificate_posture == "blocked_by_stale_manifest"
+    assert certificate.known_gaps == [
+        "staleness report manifest_id differs from manifest"
+    ]
 
 
 def test_certificate_bounded_claim_does_not_exceed_selected_scope() -> None:

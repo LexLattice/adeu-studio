@@ -518,11 +518,16 @@ def select_impact_cone(
                     omission_reason="not_in_touched_owner_surface",
                 )
             )
-        status = "selected" if not missing_from_manifest and required_probe_refs else (
-            "blocked_by_missing_sentinel"
-            if omitted_rows
-            else "blocked_by_missing_scope"
+        has_required_blockers = any(
+            row.omission_reason in {"missing_required_coverage", "not_available_in_manifest"}
+            for row in omitted_rows
         )
+        if has_required_blockers:
+            status = "blocked_by_missing_sentinel"
+        elif required_probe_refs:
+            status = "selected"
+        else:
+            status = "blocked_by_missing_scope"
 
     report_without_hash = RepoBehavioralImpactConeSelectionReport(
         schema=REPO_BEHAVIORAL_IMPACT_CONE_SELECTION_REPORT_SCHEMA,
@@ -735,7 +740,10 @@ def build_no_regression_certificate(
         known_gaps.append("candidate artifact ref differs from execution report")
     if loaded_execution.candidate_artifact_hash != candidate_artifact_hash:
         known_gaps.append("candidate artifact hash differs from execution report")
-    if loaded_staleness.staleness_status == "stale":
+    if loaded_staleness.manifest_id != loaded_manifest.manifest_id:
+        known_gaps.append("staleness report manifest_id differs from manifest")
+        posture = "blocked_by_stale_manifest"
+    elif loaded_staleness.staleness_status == "stale":
         reason_kinds = {row.stale_reason_kind for row in loaded_staleness.stale_reason_rows}
         known_gaps.extend(
             f"stale lock: {row.stale_reason_kind}" for row in loaded_staleness.stale_reason_rows
@@ -746,11 +754,16 @@ def build_no_regression_certificate(
             else "blocked_by_stale_manifest"
         )
     elif loaded_impact.selection_status != "selected":
-        known_gaps.extend(
-            f"impact cone blocked: {row.omission_reason}:{row.omitted_probe_ref}"
-            for row in loaded_impact.omitted_probe_rows
-            if row.blocker_ref is not None
-        )
+        if loaded_impact.selection_status == "blocked_by_missing_scope":
+            known_gaps.append("impact cone blocked by missing scope")
+        else:
+            known_gaps.extend(
+                f"impact cone blocked: {row.omission_reason}:{row.omitted_probe_ref}"
+                for row in loaded_impact.omitted_probe_rows
+                if row.blocker_ref is not None
+            )
+            if not known_gaps:
+                known_gaps.append("impact cone blocked by missing sentinel")
         posture = "blocked_by_missing_sentinel"
     else:
         diff_by_probe = _diff_by_probe(loaded_diffs)
