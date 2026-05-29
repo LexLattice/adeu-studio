@@ -1,0 +1,111 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture": {
+      "const": "bounded_replay_preservation_only_not_product_truth",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "bounded_claim": {
+      "title": "Bounded Claim",
+      "type": "string"
+    },
+    "candidate_artifact_hash": {
+      "title": "Candidate Artifact Hash",
+      "type": "string"
+    },
+    "candidate_artifact_ref": {
+      "title": "Candidate Artifact Ref",
+      "type": "string"
+    },
+    "certificate_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Certificate Hash"
+    },
+    "certificate_posture": {
+      "enum": [
+        "impact_cone_no_observed_regression",
+        "full_manifest_no_observed_regression",
+        "packaged_artifact_no_observed_regression",
+        "blocked_by_missing_sentinel",
+        "blocked_by_replay_diff",
+        "blocked_by_stale_manifest",
+        "blocked_by_stale_owner_surface_map",
+        "blocked_by_unreplayed_required_sentinel"
+      ],
+      "title": "Certificate Posture",
+      "type": "string"
+    },
+    "certificate_ref": {
+      "title": "Certificate Ref",
+      "type": "string"
+    },
+    "covered_owner_surfaces": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Covered Owner Surfaces",
+      "type": "array"
+    },
+    "covered_probe_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Covered Probe Refs",
+      "type": "array"
+    },
+    "execution_report_ref": {
+      "title": "Execution Report Ref",
+      "type": "string"
+    },
+    "impact_cone_report_ref": {
+      "title": "Impact Cone Report Ref",
+      "type": "string"
+    },
+    "known_gaps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Known Gaps",
+      "type": "array"
+    },
+    "manifest_hash": {
+      "title": "Manifest Hash",
+      "type": "string"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_no_regression_certificate@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "certificate_ref",
+    "manifest_id",
+    "manifest_hash",
+    "candidate_artifact_ref",
+    "candidate_artifact_hash",
+    "execution_report_ref",
+    "impact_cone_report_ref",
+    "certificate_posture",
+    "bounded_claim",
+    "covered_probe_refs",
+    "covered_owner_surfaces",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralNoRegressionCertificate",
+  "type": "object"
+}

@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "RequiredRefreshRow": {
+      "additionalProperties": false,
+      "properties": {
+        "refresh_ref": {
+          "title": "Refresh Ref",
+          "type": "string"
+        },
+        "required_action": {
+          "title": "Required Action",
+          "type": "string"
+        },
+        "stale_reason_ref": {
+          "title": "Stale Reason Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "refresh_ref",
+        "stale_reason_ref",
+        "required_action"
+      ],
+      "title": "RequiredRefreshRow",
+      "type": "object"
+    },
+    "StaleReasonRow": {
+      "additionalProperties": false,
+      "properties": {
+        "actual_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Hash"
+        },
+        "expected_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Hash"
+        },
+        "object_ref": {
+          "title": "Object Ref",
+          "type": "string"
+        },
+        "stale_reason_kind": {
+          "enum": [
+            "manifest_hash_changed",
+            "probe_contract_hash_changed",
+            "fixture_tree_hash_changed",
+            "canonicalization_profile_hash_changed",
+            "expected_observation_hash_changed",
+            "owner_surface_map_hash_changed",
+            "candidate_artifact_substrate_hash_changed",
+            "hob_otb_handoff_hash_changed"
+          ],
+          "title": "Stale Reason Kind",
+          "type": "string"
+        },
+        "stale_reason_ref": {
+          "title": "Stale Reason Ref",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stale_reason_ref",
+        "stale_reason_kind",
+        "object_ref",
+        "summary"
+      ],
+      "title": "StaleReasonRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture": {
+      "const": "staleness_report_only_not_refresh_authority",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "required_refresh_rows": {
+      "items": {
+        "$ref": "#/$defs/RequiredRefreshRow"
+      },
+      "title": "Required Refresh Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "repo_behavioral_lock_staleness_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stale_reason_rows": {
+      "items": {
+        "$ref": "#/$defs/StaleReasonRow"
+      },
+      "title": "Stale Reason Rows",
+      "type": "array"
+    },
+    "staleness_report_ref": {
+      "title": "Staleness Report Ref",
+      "type": "string"
+    },
+    "staleness_status": {
+      "enum": [
+        "fresh",
+        "stale"
+      ],
+      "title": "Staleness Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "staleness_report_ref",
+    "manifest_id",
+    "staleness_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralLockStalenessReport",
+  "type": "object"
+}

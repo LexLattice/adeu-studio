@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_posture": {
+      "const": "handoff_constraint_only_not_transition_authority",
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "blocker_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocker Refs",
+      "type": "array"
+    },
+    "bounded_use": {
+      "title": "Bounded Use",
+      "type": "string"
+    },
+    "canonical_output_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Output Hash"
+    },
+    "certificate_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Certificate Refs",
+      "type": "array"
+    },
+    "forbidden_promotions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Forbidden Promotions",
+      "type": "array"
+    },
+    "handoff_ref": {
+      "title": "Handoff Ref",
+      "type": "string"
+    },
+    "handoff_status": {
+      "enum": [
+        "handoff_ready",
+        "blocked_by_certificate",
+        "blocked_by_staleness",
+        "blocked_by_missing_sentinel"
+      ],
+      "title": "Handoff Status",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_behavioral_replay_integration_handoff@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_family": {
+      "title": "Source Family",
+      "type": "string"
+    },
+    "target_family": {
+      "title": "Target Family",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "handoff_ref",
+    "source_family",
+    "target_family",
+    "bounded_use",
+    "forbidden_promotions",
+    "handoff_status",
+    "authority_posture"
+  ],
+  "title": "RepoBehavioralReplayIntegrationHandoff",
+  "type": "object"
+}
