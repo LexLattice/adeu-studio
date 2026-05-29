@@ -20,6 +20,23 @@
 - `make check-full` preserves the old full local gate: lint + full pytest + closeout consistency lint + semantic compiler closeout lint + generated instruction policy doc check.
 - If you intentionally run a narrower subset instead of `make check`, state what was skipped.
 
+## PR Review Comment Verification
+
+- When addressing PR review comments, do not run local full pytest / `make check-full`
+  by default. CI remains the full-suite authority unless the local change needs a
+  broader pre-push check.
+- Default local verification for review-comment fixes should be proportional:
+  - focused tests for the touched package or behavior surface
+  - relevant lint for touched files
+  - schema/export checks when schemas or generated artifacts changed
+  - `make check` when Python source, schemas, packaging, or repo policy requires
+    the normal local gate
+- Escalate to `make check-full` only when the review fix changes cross-cutting
+  infrastructure, test selection, CI, `Makefile`, packaging, shared schema export,
+  global validation logic, or when `make check` cannot safely select a bounded
+  subset, CI is unavailable/unreliable, or the user explicitly requests the full
+  local gate.
+
 ## Pull Request Creation
 
 - Default PR state is non-draft / ready for review.

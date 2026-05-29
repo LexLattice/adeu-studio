@@ -22,6 +22,12 @@ make check-full
 - `make check` is the default local diff-aware gate: lint + selector-driven pytest subset with manual escalation on full-suite recommendations + closeout/semantic/instruction policy checks.
 - `make check-full` preserves the explicit full local gate.
 
+For PR review-comment fixes, do not run `make check-full` by default. Use
+focused tests, relevant lint, schema/export checks when touched, and `make check`
+when the normal Python gate applies. Escalate to `make check-full` only for
+cross-cutting review fixes, unsafe selector coverage, unavailable/unreliable CI,
+or an explicit user request.
+
 Deterministic eval fixture inputs used by roadmap quality checks live under:
 
 - `examples/eval/questions/**`

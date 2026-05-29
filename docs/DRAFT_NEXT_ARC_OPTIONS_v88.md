@@ -196,6 +196,18 @@ The selector recommendation is to select `BRL-0-A` as the next default candidate
 - `repo_behavioral_lock_staleness_report@1`
 - `repo_behavioral_replay_integration_handoff@1`
 
+## Continuation After `BRL-0-A`
+
+After `BRL-0-A` is released and closed on `main`, continue the selected
+`BRL-0` family by drafting the next slice lock/decision/assessment sequence and
+select `BRL-0-B` as the next default candidate.
+
+## Continuation After `BRL-0-B`
+
+After `BRL-0-B` is released and closed on `main`, continue the selected
+`BRL-0` family by drafting the next slice lock/decision/assessment sequence and
+select `BRL-0-C` as the next default candidate.
+
 ## Non-Authority Boundary
 
 `BRL-0` may:

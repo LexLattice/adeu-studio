@@ -1,8 +1,8 @@
 # Assessment vNext+278 Edges
 
-Status: planning-edge assessment for `BRL-0-A`.
+Status: post-closeout edge assessment for `BRL-0-A`.
 
-Authority layer: planning.
+Authority layer: closeout evidence on `main`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,134 +10,124 @@ Authority layer: planning.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS278_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
 
-## Open Edges
+## Closed Edge Review
 
-### Edge 1: Manifest Validation Becomes Behavioral Truth
+### Edge 1: Manifest Validation Becomes Replay Execution
 
-- Risk:
-  a structurally valid replay manifest could be mistaken for evidence that a
-  candidate still behaves correctly.
-- Response:
-  keep `BRL-0-A` validation-only. Candidate replay, observation capture, diffs,
-  and no-regression certificates are deferred to B/C.
+- Closeout state:
+  contained.
+- Evidence:
+  A validates manifest structure, references, hashes, lifecycle posture, and
+  guardrails only. No probe execution, process spawning, observation capture, or
+  candidate replay APIs shipped.
 
-### Edge 2: Expected Hashes Become Fresh Observations
+### Edge 2: Probe IDs Mask Changed Probe Payloads
 
-- Risk:
-  expected observation hashes could be laundered as new candidate evidence.
-- Response:
-  require provenance, source hash, authority layer, evidence-boundary posture,
-  and clean-first-pass posture for every expected observation hash.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  manifests now bind referenced probe ids to `probe_contract_hash` values and
+  reject same-id/different-payload substitutions.
 
-### Edge 3: Canonicalization Hides Real Regressions
+### Edge 3: Expected Observation Refs Mask Changed Expected Hashes
 
-- Risk:
-  broad normalization could mask protected stderr, exit-code, timeout,
-  file-tree, or process-state changes.
-- Response:
-  make forbidden normalizations first-class and fail closed when a rule affects
-  a protected surface outside its declared scope.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  manifests bind expected observation refs to canonical observation hashes and
+  include those child hashes in the suite root.
 
-### Edge 4: Owner-Surface Taxonomy Becomes Free Text
+### Edge 4: Canonicalization Profile Ref Is Under-Bound
 
-- Risk:
-  arbitrary owner labels could bypass sibling sentinel obligations.
-- Response:
-  require known owner-surface vocabulary or explicit local-extension posture,
-  taxonomy ref, and coverage posture.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  supplied canonicalization profiles must carry the exact profile hash declared
+  by the manifest.
 
-### Edge 5: Ignored Surfaces Conflict With Protected Surfaces
+### Edge 5: Suite Root Omits Child Identity
 
-- Risk:
-  a manifest could claim no-regression while ignoring the very surface it claims
-  to protect.
-- Response:
-  reject protected/ignored contradictions and reject no-regression claims over
-  ignored surfaces.
+- Closeout state:
+  contained after review hardening.
+- Evidence:
+  suite-root computation includes probe contract hashes and expected
+  observation hashes, not only refs.
 
-### Edge 6: Mutating Probes Lack Fixture Identity
+### Edge 6: Protected Surface Is Silently Ignored
 
-- Risk:
-  a replay manifest could preserve stdout while silently changing files or
-  workspace state.
-- Response:
-  require before/after fixture hashes, mutation policy, workspace write
-  allowlist, and cleanup policy for mutating probes.
+- Closeout state:
+  contained.
+- Evidence:
+  protected/ignored contradictions fail closed, and canonicalization rules may
+  not hide protected stderr, exit-code, timeout, file-tree, or process-state
+  changes.
 
-### Edge 7: Environment Drift Is Under-Specified
+### Edge 7: Secret-Like Environment Values Leak Into Replay Material
 
-- Risk:
-  replay hashes may transfer across different runtime, locale, timezone,
-  terminal, dependency, or environment substrate without proof.
-- Response:
-  require execution environment identity and environment hash for replayable
-  manifests.
+- Closeout state:
+  contained.
+- Evidence:
+  secret-like env values require safe rendering, raw material storage, and
+  redaction policy refs before the manifest can validate.
 
-### Edge 8: Sensitive Material Leaks Into Manifests
+### Edge 8: Local Owner Labels Bypass Taxonomy
 
-- Risk:
-  raw env/stdin/stdout/stderr material could expose secrets in committed
-  fixtures or reports.
-- Response:
-  require sensitive material, safe rendering, raw storage, and redaction policy
-  refs before accepting secret-like material.
+- Closeout state:
+  contained.
+- Evidence:
+  unknown owner labels fail unless declared as local extensions with taxonomy
+  refs and coverage posture.
 
-### Edge 9: Lifecycle State Overpromotes Draft Or Stale Manifests
+### Edge 9: A Leaks Into B/C
 
-- Risk:
-  draft, proposed, stale, superseded, or invalid manifests could be used as
-  certificate or promotion substrates.
-- Response:
-  make lifecycle state validation block promotion/certificate posture in
-  `BRL-0-A`.
+- Closeout state:
+  contained.
+- Evidence:
+  A ships manifest validation and hash contracts only. Replay execution,
+  observation capture, regression diffs, suite-root reports, impact-cone
+  selection, no-regression certificates, staleness reports, and integration
+  handoffs remain deferred.
 
-### Edge 10: Hashes Lack Domain Separation
+### Edge 10: Canonical Determinism Is Claimed But Not Tested
 
-- Risk:
-  identical canonical payloads under different object kinds or profiles could
-  collide at the evidence layer.
-- Response:
-  include schema id, object kind, object version, hash algorithm,
-  canonicalization profile hash when relevant, and canonical payload in hash
-  material.
+- Closeout state:
+  contained.
+- Evidence:
+  focused fixtures cover shuffled input determinism, domain-separated hashes,
+  stale manifest hashes, stale suite roots, and canonicalization profile hash
+  changes.
 
-### Edge 11: A Leaks Into B/C
+## Review Feedback Integrated
 
-- Risk:
-  the first slice could start replaying probes or selecting sentinels because
-  those are the eventual family purpose.
-- Response:
-  keep `BRL-0-A` limited to manifest/hash/schema validation and guardrails.
-  Replay execution, observation capture, diff, impact cone, certificates, and
-  integration handoff remain deferred.
+- Gemini review:
+  secret-like environment marker detection now includes broader credential and
+  auth markers.
+- Codex review:
+  probe contracts are now bound by content hash, not only by `probe_id`.
+- Codex review:
+  supplied canonicalization profile hashes must match the manifest's locked
+  profile hash.
 
-### Edge 12: BRL Overrides HOB Or OTB
+## Residual Edges
 
-- Risk:
-  a replay manifest could be treated as obligation closure or transition
-  authority.
-- Response:
-  keep BRL non-authoritative relative to HOB inheritance/closure and OTB
-  transition legality. Later integration may constrain those lanes, but A does
-  not mint authority for them.
+- `BRL-0-A` remains a deterministic manifest-validation and hash-schema slice
+  only.
+- It does not execute probes, capture observations, compare expected and actual
+  behavior, produce replay reports, select impact-cone sentinels, issue
+  no-regression certificates, invalidate stale locks after patches, or hand off
+  readiness to HOB/OTB.
+- `BRL-0-B` should consume released A manifests and validation reports while
+  preserving the A non-authority posture and adding replay execution,
+  observation capture, regression diff, and suite-root hash report surfaces.
 
 ## Current Judgment
 
-`BRL-0-A` is worth implementing now because it closes the structural gap exposed
-by iterative ProgramBench reconstruction: previously green behavior needs a
-deterministic replay manifest and hash contract before later changes can claim
-preservation. The first slice should remain deliberately narrow and boring:
-
-```text
-manifest + probe contract + canonicalization + expected hash + validation
-  yes
-
-execution + observation + diff + certificate
-  not in A
-```
+`BRL-0-A` is closed. The `BRL-0` family remains open for the planned
+`BRL-0-B` replay execution, canonical observation capture, regression diff, and
+suite-root hash report slice.
