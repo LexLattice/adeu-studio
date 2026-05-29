@@ -1,0 +1,48 @@
+{
+  "arc": "vNext+279",
+  "candidate_comparison_authority_granted": true,
+  "closed_slice": "BRL-0-B",
+  "family": "BRL-0",
+  "future_family_selection_granted": false,
+  "github_ci_run": "26648924828",
+  "github_ci_status": "passed",
+  "hob_closure_authority_granted": false,
+  "impact_cone_selection_authority_granted": false,
+  "implementation_commits": [
+    "beb7b4ad7b37b4b7373f9d970d02b74d1e1e0990",
+    "aa35b1f9641d08ecdea9acd6af0b430cf3ff1d99"
+  ],
+  "implementation_package": "packages/adeu_behavioral_replay_lock",
+  "manifest_validation_blocks_replay_verified": true,
+  "merge_commit": "38c484f70344c296832b615698a8e5cea1834e81",
+  "merged_at": "2026-05-29T15:47:34Z",
+  "no_regression_certificate_authority_granted": false,
+  "observation_capture_authority_granted": true,
+  "official_eval_authority_granted": false,
+  "otb_transition_authority_granted": false,
+  "post_merge_fixture_repair_commit": "8ac4e688",
+  "product_authority_granted": false,
+  "pull_request": "https://github.com/LexLattice/adeu-studio/pull/508",
+  "replay_execution_authority_granted": true,
+  "runtime_event_stream_path": "artifacts/agent_harness/v279/runtime/evidence/local/urm_events.ndjson",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v279/evidence_inputs/runtime_observability_comparison_v279.json",
+  "schema": "brl_0b_closeout_evidence@1",
+  "schema_export_verified": true,
+  "selected_record_shapes": [
+    "repo_behavioral_replay_execution_report@1",
+    "repo_behavioral_observation_record@1",
+    "repo_behavioral_regression_diff@1",
+    "repo_behavioral_suite_root_hash_report@1"
+  ],
+  "suite_hash_report_certificate_authority_granted": false,
+  "test_reference_path": "packages/adeu_behavioral_replay_lock/tests/test_brl_0b.py",
+  "verification_commands": [
+    ".venv/bin/python -m pytest packages/adeu_behavioral_replay_lock/tests -q",
+    ".venv/bin/python -m ruff check packages/adeu_behavioral_replay_lock",
+    ".venv/bin/python -m adeu_behavioral_replay_lock.export_schema",
+    "make check",
+    "make test",
+    "GitHub CI run 26648924828",
+    "make arc-closeout-check ARC=279"
+  ]
+}
